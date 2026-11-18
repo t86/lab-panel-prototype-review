@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实验室门牌平板系统 · 交互与 UI 设计规格文档集</title>
+<style>
+:root{
+  --bg:#F2F5F9; --paper:#FFFFFF; --ink:#132030; --muted:#566678; --line:#D9E2EC;
+  --pri:#1D6FE8; --pri-soft:#EAF2FD;
+  --f-sans:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.7 var(--f-sans)}
+header{background:#0F172A;color:#F8FAFC;padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:30}
+header .links{display:flex;gap:12px;font-size:13px}
+header a{color:#93C5FD;text-decoration:none;padding:5px 10px;border:1px solid #334155;border-radius:6px}
+header a:hover{border-color:#60A5FA;color:#fff}
+.shell{max-width:1280px;margin:0 auto;padding:22px 20px 64px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:900px){.shell{grid-template-columns:1fr}}
+aside{position:sticky;top:74px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:5px}
+@media(max-width:900px){aside{position:static}}
+.doc-btn{text-align:left;font:inherit;font-size:13.5px;padding:9px 11px;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer}
+.doc-btn:hover{background:#F8FAFC;color:var(--ink)}
+.doc-btn.active{background:var(--pri-soft);color:var(--pri);font-weight:600}
+main{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:28px 32px;min-width:0}
+.doc-pane{display:none}
+.doc-pane.active{display:block}
+h1{margin:0 0 14px;font-size:24px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+h2{margin:28px 0 10px;font-size:19px;color:#0F172A}
+h3{margin:20px 0 8px;font-size:16px;color:#1E3A5F}
+h4{margin:16px 0 6px;font-size:14.5px}
+p{margin:8px 0 12px}
+ul,ol{padding-left:22px;margin:8px 0 14px}
+li{margin:5px 0}
+code{font:12.5px/1.4 var(--f-mono);background:#F1F5F9;padding:2px 5px;border-radius:4px;color:#0F172A}
+pre{background:#0F172A;color:#E2E8F0;padding:14px 16px;border-radius:8px;overflow-x:auto;margin:10px 0 16px}
+pre code{background:transparent;color:inherit;padding:0;font-size:12.5px;line-height:1.55}
+.code-tag{font:600 11px var(--f-mono);color:var(--muted);margin:10px 0 -6px;text-transform:uppercase}
+blockquote{margin:12px 0;padding:10px 15px;border-left:4px solid var(--pri);background:#F8FAFC;border-radius:0 6px 6px 0;color:#334155}
+hr{border:none;border-top:1px solid var(--line);margin:22px 0}
+.tbl-scroll{overflow-x:auto;margin:12px 0 18px;border:1px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#F8FAFC;color:var(--muted);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+</style>
+</head>
+<body>
+<header>
+  <div><strong>实验室门牌平板系统 · 设计与规格文档阅读器</strong></div>
+  <div class="links">
+    <a href="index.html">← 返回设计总入口</a>
+    <a href="admin_prototype.html">管理后台交互原型 →</a>
+    <a href="panel_prototype.html">门口平板 1:1 原型 →</a>
+  </div>
+</header>
+<div class="shell">
+  <aside>
+    <div style="font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 8px 6px">选择规格文档</div>
+    <button class="doc-btn active" data-id="panel-ui-final" onclick="window.__showDoc('panel-ui-final')">平板 · 交互与最终 UI 定稿</button><button class="doc-btn " data-id="admin-ui-final" onclick="window.__showDoc('admin-ui-final')">后台 · 交互与最终 UI 定稿</button><button class="doc-btn " data-id="panel-spec" onclick="window.__showDoc('panel-spec')">平板 · UI 与交互规格 (11条硬约束)</button><button class="doc-btn " data-id="admin-spec" onclick="window.__showDoc('admin-spec')">后台 · 界面与交互规格</button><button class="doc-btn " data-id="protocol" onclick="window.__showDoc('protocol')">双端 · 平板通信协议 v0.3</button>
+  </aside>
+  <main>
+    <article class="doc-pane active" id="doc-panel-ui-final"><h1>实验室门牌平板：交互设计与最终 UI 定稿</h1>
+<ul><li>日期：2026-11-17</li><li>版本：v1.0（对齐规格 <code>01_平板UI与交互规格.md</code> v1.0 与通信协议 <code>01_平板通信协议.md</code> v0.3）</li><li>配套可交互原型：同目录 [<code>ui_prototype.html</code>](ui_prototype.html)（离线自包含，1:1 设备像素工程评审台）</li><li>读者：平板固件 <code>project/lab_panel/ui_app</code> 实现者、<code>hal_port/web</code> WASM 预览维护者、测试验收人员</li></ul>
+<p>本文把 [<code>01_平板UI与交互规格.md</code>](01_平板UI与交互规格.md) 中的功能约束与版面要求落定为<strong>精确到像素的最终 UI 视觉账本、状态机时序和 LVGL 8.3.7 控件映射表</strong>。所有尺寸均为逻辑像素（横屏 <code>1280×800</code>，竖屏旋转后 <code>800×1280</code>），所有色值均经过 RGB565 量化核验。</p>
+<hr>
+<h2>1. 视觉设计系统定稿（Design Tokens）</h2>
+<h3>1.1 色彩系统与 RGB565 硬件量化账本</h3>
+<p>IT9868 显示链路输出为 <code>RGB565</code>（R:5 bit, G:6 bit, B:5 bit）。下表给出设计色值、硬件量化后的 16 位寄存器值及还原色，UI 代码在 <code>ui_theme.h</code> 中统一按 Token 定义，禁止在页面代码中散写硬编码色值。</p>
+<div class="tbl-scroll"><table><thead><tr><th>Token</th><th>语义用途</th><th>深色默认 (<code>default</code>)</th><th>RGB565 值</th><th>预留浅色 (<code>light</code>)</th><th>浅色 RGB565</th></tr></thead><tbody><tr><td><code>bg</code></td><td>页面主背景、图片 <code>contain</code> 留白底</td><td><code>#0B0F14</code></td><td><code>0x0862</code></td><td><code>#EEF2F6</code></td><td><code>0xEF9E</code></td></tr><tr><td><code>surface</code></td><td>卡片底、面板底、占位图底、跑马灯底</td><td><code>#151B23</code></td><td><code>0x10E4</code></td><td><code>#FFFFFF</code></td><td><code>0xFFFF</code></td></tr><tr><td><code>surface_hi</code></td><td>按钮/卡片按下态、选中胶囊底、Toast 底</td><td><code>#1F2732</code></td><td><code>0x1926</code></td><td><code>#E2E8F0</code></td><td><code>0xE73C</code></td></tr><tr><td><code>line</code></td><td>分隔线、参数表行线、卡片描边</td><td><code>#2A3441</code></td><td><code>0x29A8</code></td><td><code>#CBD5E1</code></td><td><code>0xCEB9</code></td></tr><tr><td><code>text</code></td><td>主标题、设备名、参数值、主按钮文字</td><td><code>#F2F5F8</code></td><td><code>0xF7BE</code></td><td><code>#0F172A</code></td><td><code>0x08A5</code></td></tr><tr><td><code>text_2</code></td><td>编号、位置、参数名、辅助说明</td><td><code>#A7B1BD</code></td><td><code>0xA597</code></td><td><code>#475569</code></td><td><code>0x4ACB</code></td></tr><tr><td><code>accent</code></td><td>选中 Tab 下划线、强调文字、主操作</td><td><code>#2F80ED</code></td><td><code>0x2C1D</code></td><td><code>#1D6FE8</code></td><td><code>0x1B7D</code></td></tr><tr><td><code>st_idle</code></td><td>状态：空闲 / 可用</td><td><code>#27AE60</code></td><td><code>0x256C</code></td><td><code>#15803D</code></td><td><code>0x1407</code></td></tr><tr><td><code>st_busy</code></td><td>状态：使用中</td><td><code>#F2994A</code></td><td><code>0xF4C9</code></td><td><code>#C26A1B</code></td><td><code>0xC343</code></td></tr><tr><td><code>st_maint</code></td><td>状态：维护 / 停用 / 故障</td><td><code>#EB5757</code></td><td><code>0xEAB4</code></td><td><code>#C8282E</code></td><td><code>0xC945</code></td></tr><tr><td><code>st_unknown</code></td><td>状态：其他自定义文本</td><td><code>#828B96</code></td><td><code>0x8452</code></td><td><code>#64748B</code></td><td><code>0x63B1</code></td></tr></tbody></table></div>
+<blockquote><strong>样式禁令核对（C5 / C6）</strong>：<br>- 任何宽高超过 <code>200×200</code> 的对象 <code>shadow_width = 0</code>；全工程不使用高斯模糊。<br>- 不对容器设置 <code>style_opa</code>（会触发 LVGL 分配整块离屏透明图层）；需要半透明底色时仅设置 <code>style_bg_opa</code>（如状态胶囊 <code>LV_OPA_20</code>、视频字幕条 <code>LV_OPA_80</code>）。<br>- 视频视口对象 <code>radius = 0</code>、<code>border_width = 0</code>，避免每帧软件圆角裁切。</blockquote>
+<h3>1.2 字阶体系（FreeType + <code>wqyMicroHei.ttf</code> 单字重）</h3>
+<p>全机仅初始化 <strong>5 个 <code>lv_ft_info_t</code> 实例</strong>（字重固定 Regular <code>FT_FONT_STYLE_NORMAL</code>），靠字号梯度与 <code>text</code> / <code>text_2</code> 明度对比建立视觉层级：</p>
+<div class="tbl-scroll"><table><thead><tr><th>Token</th><th>字号 (px)</th><th>行高 (px)</th><th>典型观看距离</th><th>绑定控件与行数上限</th></tr></thead><tbody><tr><td><code>f_display</code></td><td><code>56</code></td><td><code>68</code></td><td>2–3 m（走廊远看）</td><td>待机页实验室名称（<code>landscape_std</code> 最多 2 行；<code>portrait_std</code> / <code>landscape_video</code> 限 1 行）</td></tr><tr><td><code>f_title</code></td><td><code>40</code></td><td><code>52</code></td><td>1.5–2 m</td><td>详情页设备名称（最多 2 行）、介绍页/维护页标题、未绑定页主提示</td></tr><tr><td><code>f_lead</code></td><td><code>30</code></td><td><code>40</code></td><td>1–1.5 m</td><td>待机编号·位置、卡片设备名（1 行）、Tab 标签、按钮文案、未绑定页 SN/IP</td></tr><tr><td><code>f_body</code></td><td><code>26</code></td><td><code>36</code></td><td>0.6–1.2 m</td><td>负责人/电话/开放时间、参数表键值（值最多 2 行）、简介正文、空状态提示</td></tr><tr><td><code>f_cap</code></td><td><code>22</code></td><td><code>30</code></td><td>近距离阅读</td><td>状态胶囊文字、卡片型号（1 行）、底部滚动须知、视频叠加字幕、维护页键值对与日志</td></tr></tbody></table></div>
+<h3>1.3 栅格、圆角与触控反馈规范</h3>
+<ul><li><strong>基础模数</strong>：<code>8 px</code>。页面安全外边距 <code>24 px</code>，卡片内边距 <code>16 px</code>，卡片间距 <code>16 px</code>（竖屏双行卡片横向间距取 <code>20 px</code>，见 3.1 节图片上限推导）。</li><li><strong>圆角</strong>：设备卡片 <code>12 px</code>、普通按钮 <code>12 px</code>、Toast <code>12 px</code>、状态胶囊 <code>999 px</code>（半高 <code>22 px</code>）、视频区与分区容器 <code>0 px</code>。</li><li><strong>触控热区（C10）</strong>：所有可点击控件外框不小于 <code>64×64 px</code>，相邻热区外边缘间距 <code>&gt;= 16 px</code>。文字较短的图标按钮通过透明内边距扩展热区。</li><li><strong>按下反馈（<code>LV_STATE_PRESSED</code>）</strong>：过渡时长 <code>50 ms</code>（或不设渐变即时响应），背景色切换为 <code>surface_hi</code>（纯文字/透明底控件切换 <code>bg_opa = LV_OPA_70</code>），松手立即恢复。<strong>严禁使用 <code>transform_zoom</code> 缩放反馈</strong>。</li></ul>
+<hr>
+<h2>2. 导航架构、手势裁决与状态机</h2>
+<h3>2.1 左上角 <code>100×100</code> 维护热区与返回按钮避让规范</h3>
+<p>规格 6.2 节规定：<strong>任意页面左上角 <code>(0, 0, 100×100)</code> 区域 3 秒内连点 5 次进入维护页，该区域内不得放置返回按钮或其他可点控件</strong>。</p>
+<p>为彻底消除返回按钮与维护热区的几何冲突，全系统页面顶栏统一采用<strong>“左角留白/只读序号 + <code>x &gt;= 108</code> 放置返回按钮”</strong>的定稿方案：</p>
+<pre class="code-blk"><code>横屏子页面顶栏（高 96 px）：
+┌────────────────┬────────────────────┬──────────────────────────────────┐
+│ (0,0, 100×100) │ x=112, y=12        │ x=276 起                         │
+│ 透明维护热区    │ [ ‹ 返回 ] 148×72  │ 页面标题 / 面包屑（只读）          │
+│ 显示只读角标    │ (间距 12+4 &gt;= 16)  │                                  │
+└────────────────┴────────────────────┴──────────────────────────────────┘
+
+竖屏子页面顶栏（高 120 px）：
+┌────────────────┬────────────┬───────────────────────────┬──────────────┐
+│ (0,0, 100×100) │ x=108,y=24 │ x=196..612                │ 右侧 x&lt;=776  │
+│ 透明维护热区    │ [‹] 72×72  │ 设备名 / 页面标题 (1~2行)   │ [状态胶囊]    │
+└────────────────┴────────────┴───────────────────────────┴──────────────┘</code></pre>
+<ul><li>在 <code>lv_layer_top()</code> 常驻一个 <code>100×100</code> 透明无背景对象 <code>maint_hotspot</code>（<code>x=0, y=0</code>），维护页自身激活时隐藏该热区（避免重复入栈），退出维护页时恢复。</li><li>点击时间戳环形队列记录最近 5 次 <code>LV_EVENT_CLICKED</code> 的 <code>lv_tick_get()</code>，当 <code>t[4] - t[0] &lt;= 3000 ms</code> 时清零队列并压入维护页。</li></ul>
+<h3>2.2 页面栈与空闲超时状态机</h3>
+<div class="code-tag">mermaid</div><pre class="mermaid-src"><code>stateDiagram-v2
+    [*] --&gt; Unbound : lab_model_get() == NULL
+    [*] --&gt; Idle : 清单已加载
+
+    Unbound --&gt; Idle : commit 成功加载清单
+    Unbound --&gt; Maint : 左上 100×100 3s 连点 5 次
+    Maint --&gt; Unbound : 点[退出] / 60s 无操作（若未绑定）
+
+    Idle --&gt; Intro : 点[实验室介绍 ›]
+    Idle --&gt; Detail : 点设备卡片 / 点视频区设备字幕条
+    Intro --&gt; Idle : 点[‹ 返回]
+    Intro --&gt; Detail : 点右侧/下方设备清单行
+    Detail --&gt; Intro : 点[‹ 返回]（从介绍页进入时）
+    Detail --&gt; Idle : 点[‹ 返回]（从待机页进入时）
+    Detail --&gt; Detail : 右/下信息区左右滑 或 点[上一台/下一台] (250ms 平移)
+
+    Intro --&gt; Idle : idle_timeout_s (默认 60s) 无操作 [200ms 淡出]
+    Detail --&gt; Idle : idle_timeout_s 无操作 且 非视频播放中 [200ms 淡出]
+
+    Idle --&gt; Maint : 左上 100×100 3s 连点 5 次
+    Intro --&gt; Maint : 左上 100×100 3s 连点 5 次
+    Detail --&gt; Maint : 左上 100×100 3s 连点 5 次
+    Maint --&gt; Idle : 点[退出] / 60s 无操作（回退栈顶或回待机）</code></pre>
+<p><strong>计时器与并发防抖细则</strong>：</p>
+<ol><li><strong>全局 60 s 空闲计时器（<code>ui_nav_idle_timer</code>）</strong>：</li><li>监听输入设备任意 <code>LV_EVENT_PRESSED</code> / <code>LV_EVENT_PRESSING</code> 重置倒计时为 <code>model-&gt;idle_timeout_s</code>（缺省 <code>60 s</code>）。</li><li><strong>挂起条件</strong>：当前处于 <code>Detail</code> 页且激活标签为 <code>model3d</code> 或 <code>intro</code>，并且 <code>hal_video_is_playing() == true</code> 时，暂停倒计时递减；视频触发 <code>EOS</code>（播完停在末帧显示重播按钮）或切换到 <code>图片</code> 标签时，立即从完整 <code>idle_timeout_s</code> 恢复倒计时。</li><li><strong>触发动作</strong>：若当前有正在播放的视频先调 <code>hal_video_stop()</code>，清空页面栈，以 <code>200 ms</code> 透明度过渡重建并回到 <code>Idle</code> 页。</li><li><strong><code>landscape_video</code> 抽屉 15 s 计时器</strong>：</li><li>点 <code>[设备 N ▴]</code> 打开底部抽屉后启动 <code>15 s</code> 独立计时；抽屉内滑动或触摸重置 <code>15 s</code>；超时或点击上方遮罩区（<code>y = 0..480</code>）以 <code>250 ms</code> 向下平移收起抽屉。</li><li><strong>250 ms 导航防抖锁（<code>nav_lock_until_tick</code>）</strong>：</li><li>任何触发页面 push/pop 或详情页切换上/下一台设备的操作，立即锁定 <code>250 ms</code>；锁定期内忽略新的导航点击和切页手势，防止连点压入重复页面或视频重复启停。</li></ol>
+<h3>2.3 触摸滑动手势分区裁决表</h3>
+<div class="tbl-scroll"><table><thead><tr><th>页面</th><th>触摸起始区域</th><th>水平滑动（`\</th><th>dx\</th><th>&gt; 40 px<code> 且 </code>\</th><th>dx\</th><th>&gt; 1.5\</th><th>dy\</th><th>`）</th><th>垂直滑动（`\</th><th>dy\</th><th>&gt; 24 px`）</th></tr></thead><tbody><tr><td>待机页 <code>Idle</code></td><td><code>cards</code> 区块（或抽屉内）</td><td>卡片列表横向滚动，松手 <code>LV_SCROLL_SNAP_START</code> 吸附</td><td>忽略</td></tr><tr><td>详情页 <code>Detail</code></td><td><code>媒体区</code>（图片 Tab）</td><td>切换上一张/下一张图片（<code>200 ms</code> 淡入淡出），重置 5 s 轮播计时</td><td>忽略</td></tr><tr><td>详情页 <code>Detail</code></td><td><code>缩略图条</code>（图片 Tab）</td><td>缩略图横向滚动</td><td>忽略</td></tr><tr><td>详情页 <code>Detail</code></td><td><code>右侧/下方信息区</code></td><td><strong>切换上一台/下一台设备</strong>（<code>250 ms</code> 水平平移，首尾循环）</td><td>参数表与简介纵向滚动</td></tr><tr><td>介绍页 <code>Intro</code></td><td>左栏简介区 / 右栏设备列表（竖屏整页）</td><td>忽略</td><td>各自容器独立纵向滚动</td></tr></tbody></table></div>
+<hr>
+<h2>3. 全页面 1:1 像素坐标账本（Pixel Ledger）</h2>
+<h3>3.1 待机页（Idle）三种内置布局</h3>
+<p>区块外框坐标与 <code>ui_layouts.c</code> 及协议 <code>action=layouts</code> 返回的 <code>regions</code> 严格同源：</p>
+<h4>布局 A：<code>landscape_std</code>（横屏标准，出厂默认，<code>1280 × 800</code>）</h4>
+<div class="tbl-scroll"><table><thead><tr><th>区块 / 子控件</th><th>逻辑坐标 <code>(x, y, w, h)</code></th><th>视觉与排版定稿规则</th></tr></thead><tbody><tr><td><strong><code>video</code> 视频区</strong></td><td><code>(0, 0, 800, 450)</code></td><td>纯黑底 <code>#000000</code>，<code>radius=0</code>。绑定 <code>hal_video_bind_viewport</code>；无视频时显示实验室 <code>cover</code> 图（<code>800×450</code> 铺满），再无则 <code>surface</code> 底居中显示实验室名（<code>f_title</code>, <code>text_2</code>）</td></tr><tr><td>↳ 维护热区</td><td><code>(0, 0, 100, 100)</code></td><td>顶层全透明热区，3 s 连点 5 次进维护页</td></tr><tr><td>↳ 视频设备字幕条</td><td><code>(0, 394, 800, 56)</code></td><td><strong>仅播设备 <code>model3d</code> 视频时显示</strong>。高度 <code>56 px &lt;= 64 px</code>（C4），底色 <code>#0B0F14</code>（<code>bg_opa = 80%</code>，无阴影无渐变），左右内边距 <code>24 px</code>，左对齐 <code>&quot;▶ {设备名} · 3D 演示&quot;</code>（<code>f_cap</code>, <code>text</code>），右侧 <code>&quot;查看详情 ›&quot;</code>（<code>f_cap</code>, <code>accent</code>）。整条 <code>800×56</code>（结合上方热区扩展到 <code>800×64</code>）点击进入该设备详情页</td></tr><tr><td><strong><code>title</code> 信息区</strong></td><td><code>(800, 0, 480, 450)</code></td><td>背景 <code>surface</code>，左描边 <code>1 px line</code>，内边距 <code>24 px</code>（内容宽 <code>432 px</code>），纵向 Flex 排布（空字段整行隐藏不留空隙）：<br>1. <code>lab.name</code>：<code>f_display (56/68)</code>，<code>text</code>，最多 2 行（高 <code>&lt;= 136</code>），超出 <code>...</code>；<br>2. 间距 <code>8 px</code> + <code>lab.code · lab.location</code>：<code>f_lead (30/40)</code>，<code>text_2</code>，1 行省略；<br>3. 间距 <code>16 px</code> + <code>status_pill</code>：高 <code>44 px</code>，自适应宽；<br>4. 间距 <code>20 px</code> + 负责人与电话：<code>f_body (26/36)</code>，<code>text</code>（格式：<code>负责人：张老师  138-xxxx</code>），1 行省略；<br>5. 间距 <code>6 px</code> + 开放时间：<code>f_body (26/36)</code>，<code>text_2</code>，1 行省略；<br>6. 底部固定 <code>(824, 362, 432, 64)</code>：<code>[实验室介绍 ›]</code> 按钮（高 <code>64 px</code>，<code>radius=12</code>，底 <code>bg</code> + <code>1px line</code> 描边，文字 <code>f_lead</code> 居中，按下变 <code>surface_hi</code>）</td></tr><tr><td><strong><code>cards</code> 卡片区</strong></td><td><code>(0, 450, 1280, 290)</code></td><td>背景 <code>bg</code>，上描边 <code>1 px line</code>。内边距 <code>top=20, bottom=20, left=24, right=24</code>，卡片间距 <code>gap=16</code>。横向滑动，<code>LV_SCROLL_SNAP_START</code>，隐藏滚动条。<br>• 单张卡片 <code>280 × 250</code>（<code>radius=12</code>，底 <code>surface</code>）：上半 <code>(0,0,280,160)</code> 封面图（<code>360×240</code> 源按 cover 适配），下半内边距 <code>14 px</code>：第 1 行设备名 <code>f_lead</code> 单行省略（宽 <code>252</code>），第 2 行左 <code>model</code>（<code>f_cap</code>, <code>text_2</code>，宽 <code>216</code> 单行省略）+ 右下 <code>14×14</code> 状态色圆点。<br>• 同屏可见卡片数：<code>4.2</code> 张（最多 5 张封面同时在视口内，<code>&lt;= 8</code> 张上限）。<br>• <code>0</code> 台设备时：居中显示 <code>&quot;暂无试验设备&quot;</code>（<code>f_body</code>, <code>text_2</code>）</td></tr><tr><td><strong><code>notice</code> 须知区</strong></td><td><code>(0, 740, 1280, 60)</code></td><td>背景 <code>surface</code>，上描边 <code>1 px line</code>，左右内边距 <code>24 px</code>。<br>• 左侧固定标签 <code>&quot;安全须知&quot;</code>（高 <code>36 px</code>，内边距 <code>0 14px</code>，圆角 <code>6px</code>，底 <code>st_busy</code> 20% 透明 + <code>st_busy</code> 文字 <code>f_cap</code>），间距 <code>16 px</code> 后为滚动文本域（宽 <code>1108 px</code>）。<br>• 各条须知以 <code>&quot;　·　&quot;</code> 拼接（<code>f_cap</code>）；总宽 <code>&lt;= 1108 px</code> 时左对齐静止，超出时启用 <code>LV_LABEL_LONG_SCROLL_CIRCULAR</code>（<code>60 px/s</code>）。<br>• <code>safety</code> 数组为空时隐藏内部标签与文字，仅保留 <code>60 px</code> <code>surface</code> 底色带</td></tr></tbody></table></div>
+<h4>布局 B：<code>landscape_video</code>（横屏视频优先，<code>1280 × 800</code>）</h4>
+<div class="tbl-scroll"><table><thead><tr><th>区块 / 子控件</th><th>逻辑坐标 <code>(x, y, w, h)</code></th><th>视觉与排版定稿规则</th></tr></thead><tbody><tr><td><strong><code>video</code> 视频区</strong></td><td><code>(0, 0, 1280, 720)</code></td><td>标准 16:9 满宽点对点播放。左上 <code>(0,0,100,100)</code> 维护热区；播设备视频时底部叠加字幕条 <code>(0, 656, 1280, 64)</code></td></tr><tr><td><strong><code>title</code> 底栏</strong></td><td><code>(0, 720, 1280, 80)</code></td><td>背景 <code>surface</code>，上描边 <code>1 px line</code>，高 <code>80 px</code>，左右内边距 <code>24 px</code>，水平三段布局（控件间距 <code>&gt;= 16 px</code>）：<br>1. 左侧信息组（最大宽 <code>520 px</code>）：<code>lab.name</code>（<code>f_lead</code> 30px 单行省略，注意底栏限高 80px 用 <code>f_lead</code> 保证上下留白充足，或 <code>f_title</code> 40px 单行）+ 间距 <code>16 px</code> + <code>status_pill</code>（高 <code>44</code>）+ 间距 <code>16 px</code> + <code>[介绍 ›]</code> 按钮（<code>128×64</code>, <code>y=728</code>）；<br>2. 中部滚动须知（弹性自适应宽，最小 <code>320 px</code>）：<code>notice_bar</code>（<code>f_cap</code>）；<br>3. 右侧抽屉触发按钮 <code>(1076, 728, 180, 64)</code>：<code>[设备 {N} ▴]</code>（底 <code>accent</code> 20% + <code>accent</code> 描边，<code>f_lead</code>，高 <code>64 px</code>）</td></tr><tr><td><strong>弹出式设备抽屉</strong></td><td><code>(0, 480, 1280, 320)</code></td><td>默认隐藏。点 <code>[设备 N ▴]</code> 后：<br>1. <strong>C4 性能保护</strong>：先调 <code>hal_video_pause()</code>（或暂停帧推流保留静帧），避免 <code>y=480..720</code> 重叠区每帧触发卡片重绘；<br>2. 上方 <code>(0, 0, 1280, 480)</code> 铺全透明点击遮罩（点击即收起）；<br>3. 抽屉面板 <code>(0, 480, 1280, 320)</code> 从 <code>y=800</code> 以 <code>250 ms</code> 平移滑入，底色 <code>surface</code>，顶栏 <code>50 px</code>（左 <code>&quot;本实验室设备（N）&quot;</code> <code>f_body</code>，右 <code>[收起 ▾]</code> <code>112×64</code> 热区），下方 <code>270 px</code> 横向排列 <code>280×240</code> 设备卡片；<br>4. <code>15 s</code> 无触摸自动收起并恢复视频播放</td></tr></tbody></table></div>
+<h4>布局 C：<code>portrait_std</code>（竖屏标准，<code>800 × 1280</code>）</h4>
+<div class="tbl-scroll"><table><thead><tr><th>区块 / 子控件</th><th>逻辑坐标 <code>(x, y, w, h)</code></th><th>视觉与排版定稿规则</th></tr></thead><tbody><tr><td><strong><code>title</code> 标题区</strong></td><td><code>(0, 0, 800, 200)</code></td><td>背景 <code>surface</code>，内边距 <code>16px 24px</code>（左上 <code>100×100</code> 维护热区无按钮）：<br>• 第 1 行 <code>(24, 16, 752, 68)</code>：<code>lab.name</code>（<code>f_display</code> 56px，<strong>严格 1 行省略</strong>）；<br>• 第 2 行 <code>(24, 86, 752, 40)</code>：<code>lab.code · lab.location</code>（<code>f_lead</code> 30px，<code>text_2</code>，1 行省略）；<br>• 第 3 行 <code>y=128, h=64</code>：左侧 <code>status_pill</code> <code>(24, 138, 自适应, 44)</code>，右侧 <code>[实验室介绍 ›]</code> 按钮 <code>(576, 128, 200, 64)</code>（完美避开左上 <code>100×100</code> 热区）；负责人/电话/开放时间收纳至介绍页</td></tr><tr><td><strong><code>video</code> 视频区</strong></td><td><code>(0, 200, 800, 450)</code></td><td>16:9 满宽。设备视频字幕条位于 <code>(0, 594, 800, 56)</code></td></tr><tr><td><strong><code>cards</code> 双行卡片区</strong></td><td><code>(0, 650, 800, 550)</code></td><td>背景 <code>bg</code>，内边距 <code>top=16, left=24, right=24</code>，双行横向滑动网格：<br>• 卡片尺寸：<code>240 × 250</code>，行间距 <code>16 px</code>（<code>16 + 250 + 16 + 250 = 532 &lt;= 550</code>），<strong>列间距 <code>20 px</code></strong>。<br>• <strong>C8 同屏图片上限精算</strong>：<code>24 + 240 + 20 + 240 + 20 + 240 = 784 &lt;= 800</code>，第 4 列起始 <code>x = 804 &gt; 800</code>。因此静止吸附态同屏严格只有 <code>3 列 × 2 行 = 6 张</code> 卡片图；手指拖动过渡瞬间最多 <code>4 列 × 2 行 = 8 张</code>；若上方视频区处于无视频封面降级态（占 1 张图），懒加载器限制同时挂载最多 <code>7</code> 张卡片封面，严守 <code>&lt;= 8</code> 红线</td></tr><tr><td><strong><code>notice</code> 须知区</strong></td><td><code>(0, 1200, 800, 80)</code></td><td>背景 <code>surface</code>，上描边 <code>1 px line</code>，居中垂直对齐 <code>notice_bar</code></td></tr></tbody></table></div>
+<hr>
+<h3>3.2 设备详情页（Detail）双方向版式</h3>
+<h4>横屏版式（<code>1280 × 800</code>）</h4>
+<div class="tbl-scroll"><table><thead><tr><th>区域</th><th>逻辑坐标 <code>(x, y, w, h)</code></th><th>内部组成与交互规则</th></tr></thead><tbody><tr><td><strong>左栏顶栏</strong></td><td><code>(0, 0, 800, 96)</code></td><td>背景 <code>bg</code>，下描边 <code>1 px line</code>。<br>• <code>(0, 0, 100, 96)</code>：只读序号 <code>&quot;02 / 06&quot;</code>（<code>f_cap</code>, <code>text_2</code> 居中）+ 顶层维护热区；<br>• <code>(112, 12, 152, 72)</code>：<code>back_btn</code>（左箭头 A8 图标 + <code>&quot;返回&quot;</code> <code>f_lead</code>，圆角 12，底 <code>surface</code>）；<br>• <code>(280, 28, 496, 40)</code>：所属实验室简称（<code>f_body</code>, <code>text_2</code> 右对齐单行省略）</td></tr><tr><td><strong>媒体主视口</strong></td><td><code>(0, 96, 800, 450)</code></td><td>纯黑底 <code>#000000</code>。<br>• <strong>图片 Tab</strong>：按 <code>contain</code> 等比居中适配，留白填 <code>bg</code>，左右滑切图（<code>200 ms</code> 淡入淡出），<code>5 s</code> 无操作自动下一张；<br>• <strong>3D 演示 / 介绍视频 Tab</strong>：进入即调 <code>hal_video_bind_viewport</code> + <code>hal_video_play_file(path, 0)</code>；播完停在末帧，居中叠加 <code>96×96</code> 圆角重播按钮 <code>(352, 273, 96, 96)</code>；离开 Tab 或离开本页前<strong>必须先调 <code>hal_video_stop()</code></strong>；<br>• <strong>无任何媒体</strong>：显示 <code>placeholder</code>（图标 + <code>&quot;暂无图片和视频&quot;</code> <code>f_body</code>）</td></tr><tr><td><strong>媒体标签栏</strong></td><td><code>(0, 546, 800, 64)</code></td><td>背景 <code>surface</code>，下描边 <code>1 px line</code>。仅渲染有素材的标签（<code>3D 演示</code> / <code>图片 (K)</code> / <code>介绍视频</code>），单标签最小宽 <code>160 px</code>、高 <code>64 px</code>，间距 <code>16 px</code>，选中态底部 <code>4 px accent</code> 指示条。无任何媒体时隐藏内部按钮但保留容器背景保证坐标稳定</td></tr><tr><td><strong>缩略图条</strong></td><td><code>(0, 610, 800, 190)</code></td><td>背景 <code>bg</code>。<br>• <strong>图片 Tab 激活时</strong>：横向排列最多 12 张缩略图，单张 <code>148 × 100</code>（外框热区 <code>148 × 116</code>，间距 <code>16 px</code>，左内边距 <code>24 px</code>，同屏最多可见 4.7 张 + 主图 1 张 = <code>6 张 &lt;= 8</code>），选中项带 <code>3 px accent</code> 描边；<br>• <strong>视频 Tab 激活时</strong>：不加载缩略图（释放图片缓存），居中显示当前视频进度/分集提示文字（如 <code>&quot;正在播放 3D 结构演示（静音）· 视频播放期间不会自动退出本页&quot;</code>，<code>f_cap</code>, <code>text_2</code>）</td></tr><tr><td><strong>右栏滚动信息区</strong></td><td><code>(800, 0, 480, 704)</code></td><td>背景 <code>surface</code>，左描边 <code>1 px line</code>，内边距 <code>24 px</code>（内容宽 <code>432 px</code>），纵向可滚动，同时识别水平滑动手势切换相邻设备：<br>1. <code>equip.name</code>：<code>f_title (40/52)</code>，<code>text</code>，最多 2 行；<br>2. 间距 <code>10 px</code> + <code>asset_no · model · vendor</code>：<code>f_cap (22/30)</code>，<code>text_2</code>，最多 2 行；<br>3. 间距 <code>14 px</code> + <code>status_pill</code>（高 <code>44 px</code>）；<br>4. 间距 <code>24 px</code> + 小标题 <code>&quot;技术参数&quot;</code>（<code>f_lead</code>, <code>text</code>）+ <code>spec_table</code>（宽 <code>432 px</code>，每行高 <code>56 px</code>，左列 <code>40% = 172 px</code> <code>text_2</code>，右列 <code>60% = 260 px</code> <code>text</code> 最多 2 行省略，底部分隔线 <code>1 px line</code>；无参数时隐藏该节）；<br>5. 间距 <code>24 px</code> + 小标题 <code>&quot;设备简介&quot;</code>（<code>f_lead</code>, <code>text</code>）+ <code>intro</code> 正文（<code>f_body</code>, <code>text_2</code>，最多 2000 字）</td></tr><tr><td><strong>右栏底切换栏</strong></td><td><code>(800, 704, 480, 96)</code></td><td>背景 <code>surface</code>，上描边 <code>1 px line</code>，左描边 <code>1 px line</code>，内边距 <code>16px 24px</code>：<br>• <code>[‹ 上一台]</code>：<code>(824, 720, 208, 64)</code>；<br>• <code>[下一台 ›]</code>：<code>(1048, 720, 208, 64)</code>（两按钮间距 <code>16 px</code>）。设备总数 <code>&lt;= 1</code> 时隐藏两按钮，仅显示 <code>&quot;共 1 台设备&quot;</code></td></tr></tbody></table></div>
+<blockquote>像素闭合校验：左栏 <code>96 + 450 + 64 + 190 = 800 px</code>；右栏 <code>704 + 96 = 800 px</code>；总宽 <code>800 + 480 = 1280 px</code>。</blockquote>
+<h4>竖屏版式（<code>800 × 1280</code>）</h4>
+<div class="tbl-scroll"><table><thead><tr><th>区域</th><th>逻辑坐标 <code>(x, y, w, h)</code></th><th>内部组成与交互规则</th></tr></thead><tbody><tr><td><strong>顶栏</strong></td><td><code>(0, 0, 800, 120)</code></td><td><code>(0,0,100,100)</code> 维护热区 + 只读序号；<code>back_btn</code> <code>(108, 24, 72, 72)</code>；中部 <code>(196, 16, 416, 88)</code> 设备名 <code>f_title</code>（最多 2 行省略）；右侧 <code>(628, 38, 148, 44)</code> <code>status_pill</code></td></tr><tr><td><strong>媒体主视口</strong></td><td><code>(0, 120, 800, 450)</code></td><td>与横屏媒体主视口完全一致</td></tr><tr><td><strong>媒体标签栏</strong></td><td><code>(0, 570, 800, 64)</code></td><td>与横屏媒体标签栏完全一致</td></tr><tr><td><strong>缩略图条</strong></td><td><code>(0, 634, 800, 120)</code></td><td>图片 Tab 下缩略图尺寸 <code>128 × 84</code>（间距 <code>16 px</code>，同屏最多 5 张 + 主图 1 张 = <code>6 张 &lt;= 8</code>）；视频 Tab 下显示单行播放状态提示</td></tr><tr><td><strong>信息纵向滚动区</strong></td><td><code>(0, 754, 800, 446)</code></td><td>背景 <code>surface</code>，内边距 <code>20px 24px</code>：<code>asset_no · model · vendor</code> + <code>spec_table</code>（宽 <code>752 px</code>）+ <code>intro</code> 正文；支持水平滑动切换上/下一台设备</td></tr><tr><td><strong>底部切换栏</strong></td><td><code>(0, 1200, 800, 80)</code></td><td>背景 <code>surface</code>，上描边 <code>1 px line</code>：<code>[‹ 上一台]</code> <code>(24, 1208, 368, 64)</code> + <code>[下一台 ›]</code> <code>(408, 1208, 368, 64)</code>（间距 <code>16 px</code>）</td></tr></tbody></table></div>
+<blockquote>像素闭合校验：<code>120 + 450 + 64 + 120 + 446 + 80 = 1280 px</code>。</blockquote>
+<hr>
+<h3>3.3 实验室介绍页（Intro）、维护页（Maint）与未绑定页（Unbound）</h3>
+<h4>实验室介绍页（Intro）</h4>
+<ul><li><strong>横屏（<code>1280 × 800</code>）</strong>：</li><li><strong>左栏 <code>(0, 0, 760, 800)</code></strong>：顶栏 <code>(0, 0, 760, 96)</code>（左上 <code>100×96</code> 维护热区，<code>back_btn</code> 位于 <code>(112, 12, 152, 72)</code>，标题 <code>&quot;实验室介绍&quot;</code> <code>f_title</code>）；下方滚动区 <code>(0, 96, 760, 704)</code> 内边距 <code>24 px</code>，依次展示：实验室名称（<code>f_title</code>）、编号·位置 + 状态胶囊、信息栅格（负责人、联系电话、开放时间，<code>f_body</code>）、实验室简介全文（<code>f_body</code>）、全部安全须知列表（带 <code>1. 2. ...</code> 编号，<code>f_body</code>）。</li><li><strong>右栏 <code>(760, 0, 520, 800)</code></strong>：背景 <code>surface</code>，左描边 <code>1 px line</code>。顶栏 <code>(760, 0, 520, 96)</code> 显示 <code>&quot;设备清单（N）&quot;</code>（<code>f_title</code>）；下方纵向滚动列表 <code>(760, 96, 520, 704)</code> 内边距 <code>16px 24px</code>，每台设备为独立圆角行卡：宽 <code>472 px</code>、<strong>高 <code>88 px</code></strong>、<strong>行间距 <code>16 px</code></strong>（满足 C10 热区间距 <code>&gt;= 16 px</code>，且 <code>704 / (88+16) = 6.7</code> 行，同屏缩略图最多 <code>7 张 &lt;= 8</code>），行内左起 <code>120×80</code> 封面缩略图（<code>x=4, y=4</code>）、中部名称 <code>f_lead</code> + 型号 <code>f_cap</code>、右侧状态圆点 + <code>›</code>。点击进入该设备 <code>Detail</code> 页。</li><li><strong>竖屏（<code>800 × 1280</code>）</strong>：</li><li>顶栏 <code>(0, 0, 800, 104)</code>（<code>back_btn</code> 在 <code>(108, 16, 148, 72)</code>）+ 单栏纵向滚动区 <code>(0, 104, 800, 1176)</code>，先排实验室信息、简介与安全须知，末尾排 <code>&quot;设备清单（N）&quot;</code>（行高 <code>88 px</code>，行间距 <code>16 px</code>）。</li></ul>
+<h4>维护页（Maint）</h4>
+<ul><li><strong>布局（横竖自适应全屏）</strong>：背景 <code>bg</code>。</li><li>顶栏高 <code>96 px</code>：左侧 <code>(24, 22)</code> 标题 <code>&quot;工程维护诊断&quot;</code>（<code>f_title</code>）+ 只读标签 <code>&quot;只读模式 · 60s 自动退出&quot;</code>（<code>f_cap</code>, <code>text_2</code>）；右上角 <code>[退出]</code> 按钮（横屏 <code>(1116, 16, 140, 64)</code>，竖屏 <code>(636, 16, 140, 64)</code>）。</li><li>上半诊断键值卡（<code>surface</code> 底，<code>radius=12</code>，<code>f_cap</code> 22px 双列网格）：<code>SN</code>、<code>MAC</code>、<code>IP 地址</code>、<code>固件版本</code>、<code>协议版本 (0.3)</code>、<code>清单版本 (manifest_version)</code>、<code>当前布局 (layout id + 分辨率)</code>、<code>NAND 剩余空间 (free / total MB)</code>、<code>连续运行时长</code>。</li><li>下半事件日志面板（<code>surface</code> 底，<code>radius=12</code>）：标题 <code>&quot;最近事件日志（最多 20 条）&quot;</code>，纵向列表按时间倒序展示 <code>f_cap</code> 单行记录（如 <code>[14:22:08] [INFO] commit v12 applied, removed 3 old files</code>、<code>[14:10:03] [ERR] video decode failed: bad_bframe.mp4, skipped (1/3)</code>）。</li></ul>
+<h4>未绑定页（Unbound）</h4>
+<ul><li><strong>触发条件</strong>：开机或运行期 <code>lab_model_get() == NULL</code>。</li><li><strong>布局</strong>：全屏 <code>bg</code> 底，左上 <code>(0,0,100,100)</code> 保留维护热区。屏幕正中放置 <code>640×320</code> 引导面板（<code>surface</code> 底，<code>1 px line</code> 描边，<code>radius=12</code>）：</li><li>主文案：<code>&quot;本平板尚未绑定实验室&quot;</code>（<code>f_title</code> 40px，<code>text</code> 居中）；</li><li>副文案：<code>&quot;请在实验室管理后台「平板」页面输入以下地址或扫描添加&quot;</code>（<code>f_body</code> 26px，<code>text_2</code> 居中）；</li><li>设备标识框：<code>SN: {sn}    IP: {ip}</code>（<code>f_lead</code> 30px，<code>accent</code> 高亮居中）；</li><li>屏幕底部居中：<code>固件版本 {fw_version} · 协议 v{protocol}</code>（<code>f_cap</code> 22px，<code>text_2</code>）。</li></ul>
+<hr>
+<h2>4. 待机视频轮播与异常边界表现总表</h2>
+<h3>4.1 待机视频播放列表（<code>ui_playlist.c</code>）决策流</h3>
+<div class="code-tag">mermaid</div><pre class="mermaid-src"><code>flowchart LR
+    A[&quot;构建播放列表&quot;] --&gt; B{&quot;列表为空?&quot;}
+    B -- &quot;是&quot; --&gt; C[&quot;显示 lab.cover 静态图&lt;br/&gt;(无 cover 则显示 surface + 实验室名)&quot;]
+    B -- &quot;否&quot; --&gt; D[&quot;取当前索引项:&lt;br/&gt;1. lab.media(intro/model3d)&lt;br/&gt;2. equipment[i].media(model3d)&quot;]
+    D --&gt; E{&quot;文件存在且解码正常?&quot;}
+    E -- &quot;是&quot; --&gt; F[&quot;清零连续错误计数 err=0&lt;br/&gt;若为设备视频则显示 &lt;=64px 字幕条&quot;]
+    F --&gt; G[&quot;EOS 播完自动切下一项 (循环)&quot;]
+    E -- &quot;否&quot; --&gt; H[&quot;维护日志记 ERR, err++&quot;]
+    H --&gt; I{&quot;err &gt;= 3 ?&quot;}
+    I -- &quot;否&quot; --&gt; G
+    I -- &quot;是&quot; --&gt; J[&quot;停止播放 hal_video_stop()&lt;br/&gt;降级执行 C 静态封面兜底&quot;]</code></pre>
+<h3>4.2 运行期异步事件与边界工况表现</h3>
+<div class="tbl-scroll"><table><thead><tr><th>触发事件 / 极端数据</th><th>视觉与交互精确表现</th></tr></thead><tbody><tr><td><strong><code>commit</code> 新清单到达（用户在待机页）</strong></td><td><code>hal_video_stop()</code> → 按新 <code>lab_model_t</code> 原地重建待机页并从播放列表第 0 项开播，不弹 Toast</td></tr><tr><td><strong><code>commit</code> 新清单到达（用户在介绍页/详情页）</strong></td><td>检查当前查看的 <code>equipment.id</code> 是否仍在新清单中：<br>• <strong>仍在</strong>：保持当前页面栈与滚动位置，刷新界面文字/参数/媒体，底部居中弹出 <code>toast</code> <code>&quot;内容已更新&quot;</code>（3 s 淡出）；<br>• <strong>已被移除</strong>：清空页面栈返回待机页，底部弹出 <code>toast</code> <code>&quot;内容已更新&quot;</code></td></tr><tr><td><strong><code>set_layout</code> 切换布局指令到达</strong></td><td>立即关闭抽屉/Toast，调 <code>hal_video_stop()</code>，清空页面栈；若横竖方向改变，先切换 <code>lv_disp_drv_t.rotated</code> 完成驱动旋转，再按新 <code>ui_layout_t</code> 重建待机页并开播视频。全程耗时 <code>&lt; 3 s</code></td></tr><tr><td><strong>图片文件缺失或损坏</strong></td><td>卡片封面、详情主图、介绍页缩略图统一渲染 <code>placeholder</code> 组件（<code>surface</code> 底 + 简洁线框图标 + <code>&quot;暂无图片&quot;</code>），绝不留透明破图或卡死</td></tr><tr><td><strong>设备数 <code>&gt; 60</code> 台</strong></td><td>UI 只渲染前 <code>60</code> 台卡片，并在维护页日志追加 <code>[WARN] equipment count (N) exceeds 60, truncated</code></td></tr><tr><td><strong>卡片列表滑动内存管控（C8）</strong></td><td><code>cards</code> 容器监听 <code>LV_EVENT_SCROLL</code>：遍历子卡片，仅对 <code>[scroll_x - 280, scroll_x + view_w + 280]</code> 窗口内（且总数不超过 8 张）的卡片调 <code>lv_img_set_src(img, path)</code>，滑出窗口外的卡片立即调 <code>lv_img_set_src(img, NULL)</code> 归还 IT2D LRU 缓存</td></tr><tr><td><strong>录入生僻字（不在 6762 字内）</strong></td><td>FreeType 渲染为标准 <code>□</code> 缺字框，行高与截断不受影响，不崩溃</td></tr></tbody></table></div>
+<hr>
+<h2>5. LVGL 8.3.7 + IT2D 控件实现对照表</h2>
+<div class="tbl-scroll"><table><thead><tr><th>UI 组件</th><th>LVGL 对象组合</th><th>IT2D 硬件路径与性能要点</th></tr></thead><tbody><tr><td>页面根容器与区块容器</td><td><code>lv_obj_create</code>（清除 <code>LV_OBJ_FLAG_SCROLLABLE</code>，除非是滚动区）</td><td><code>radius = 0</code>，<code>border_width = 0</code>（或单边 1px），纯色填充走 IT2D <code>FillRect</code></td></tr><tr><td>视频视口与设备字幕条</td><td><code>hal_video_bind_viewport</code> (<code>lv_img</code>) + 单个子 <code>lv_obj</code> (<code>h=56</code>) 内含 <code>lv_label</code></td><td>字幕条仅用 <code>bg_color + bg_opa(80%)</code>，<strong>禁设圆角、阴影、渐变</strong>，使每帧重绘开销降到最低</td></tr><tr><td>状态胶囊 <code>status_pill</code></td><td><code>lv_obj</code> (<code>h=44, radius=999, bg_opa=20%</code>) + 左圆点 <code>lv_obj</code> (<code>12×12, radius=6</code>) + <code>lv_label</code> (<code>f_cap</code>)</td><td>尺寸 <code>&lt; 200×200</code>，圆角切片由 LVGL 缓存，只设 <code>bg_opa</code> 不设 <code>opa</code></td></tr><tr><td>设备卡片 <code>equip_card</code></td><td>外层 <code>lv_obj</code> (<code>radius=12</code>) + 封面 <code>lv_img</code> (<code>fit_img_zoom</code> 静态缩放) + 2 个 <code>lv_label</code> + 状态点</td><td>禁止给卡片加 <code>shadow_width</code>；按下态仅改外层 <code>bg_color = surface_hi</code></td></tr><tr><td>参数表 <code>spec_table</code></td><td>纵向 Flex <code>lv_obj</code> 容器 + 每行 1 个 <code>lv_obj</code>（底边框 <code>1px line</code>）内含左右 2 个 <code>lv_label</code></td><td>不用重量级 <code>lv_table</code> 自绘网格，便于精确控制右列 2 行 <code>LV_LABEL_LONG_DOT</code> 截断</td></tr><tr><td>滚动须知 <code>notice_bar</code></td><td><code>lv_label</code> 设固定宽度 + <code>LV_LABEL_LONG_SCROLL_CIRCULAR</code>，<code>anim_speed = 60</code></td><td>FreeType 字形走 A8 surface 缓存；文本未超宽时自动静止</td></tr><tr><td>图标（返回箭头、重播、占位图）</td><td>C 数组 <code>LV_IMG_CF_ALPHA_8BIT</code> (<code>lv_img</code> + <code>style_img_recolor</code>)</td><td>走固件已修复的 IT2D A8 纯拷贝染色快路径（提交 <code>3e6e51ed</code>），零字库生僻符号依赖</td></tr></tbody></table></div></article><article class="doc-pane " id="doc-admin-ui-final"><h1>管理后台（labComputer）：交互设计与最终 UI 定稿</h1>
+<ul><li>日期：2026-11-17</li><li>版本：v1.0（对齐 <code>03_后台界面与交互规格.md</code> v1.0、<code>00_总体设计.md</code> v1.3、<code>01_平板通信协议.md</code> v0.3）</li><li>配套可交互原型：</li><li>总览交付入口：同目录 [<code>index.html</code>](index.html)</li><li>管理后台交互原型：同目录 [<code>admin_prototype.html</code>](admin_prototype.html)</li><li>门口平板 1:1 工程原型：同目录镜像 [<code>panel_prototype.html</code>](panel_prototype.html)（权威源位于固件仓库 <code>docs/lab_panel/ui_prototype.html</code>）</li><li>读者：<code>labComputer/web</code> 前端开发者（Vue 3 + TypeScript + Element Plus）、Go 后端接口实现者、测试验收人员</li></ul>
+<p>本文把 [<code>../03_后台界面与交互规格.md</code>](../03_后台界面与交互规格.md) 落定为可直接编码的<strong>视觉系统变量、<code>1366×768</code> 栅格账本、组件级状态机、精确弹窗文案与前后端交互时序</strong>。</p>
+<hr>
+<h2>1. 视觉设计系统（Element Plus 定制基线）</h2>
+<h3>1.1 色彩语义与双端状态色对齐</h3>
+<p>后台采用清爽高对比的浅色桌面管理风格，其中<strong>实验室状态与设备状态的胶囊配色严格对齐门口平板端 RGB565 语义色</strong>，保证管理员在后台看到的状态颜色与走廊平板一致：</p>
+<div class="tbl-scroll"><table><thead><tr><th>CSS 变量 / Token</th><th>色值</th><th>对应 Element Plus 变量 / 用途</th></tr></thead><tbody><tr><td><code>--lc-bg-page</code></td><td><code>#F3F5F8</code></td><td>全局工作区底色</td></tr><tr><td><code>--lc-bg-card</code></td><td><code>#FFFFFF</code></td><td>卡片、表格、弹窗底色</td></tr><tr><td><code>--lc-bg-header</code></td><td><code>#0F172A</code></td><td>顶部深色导航栏（高 <code>56 px</code>，突出局域网在线状态胶囊）</td></tr><tr><td><code>--lc-bg-sider</code></td><td><code>#FFFFFF</code></td><td>左侧固定导航栏（宽 <code>208 px</code>，右描边 <code>1px solid #E2E8F0</code>）</td></tr><tr><td><code>--lc-primary</code></td><td><code>#2F80ED</code></td><td><code>--el-color-primary</code> 主操作按钮、激活菜单、链接（对齐平板 <code>accent</code>）</td></tr><tr><td><code>--lc-text-main</code></td><td><code>#1E293B</code></td><td>标题、表格主字段</td></tr><tr><td><code>--lc-text-sub</code></td><td><code>#64748B</code></td><td>辅助说明、表单提示、时间戳</td></tr><tr><td><code>--lc-border</code></td><td><code>#E2E8F0</code></td><td>卡片边框、表格分隔线</td></tr><tr><td><code>--lc-st-idle</code></td><td><code>#27AE60</code>（底 <code>#EAF7EF</code>）</td><td>实验室/设备状态：<strong>空闲 / 可用</strong>；媒体：<strong>兼容 / 已转码</strong>；平板：<strong>在线 / 已同步</strong></td></tr><tr><td><code>--lc-st-busy</code></td><td><code>#D97706</code> / 平板 <code>#F2994A</code>（底 <code>#FEF5EB</code>）</td><td>实验室/设备状态：<strong>使用中</strong>；发布状态：<strong>待发布</strong>；字库缺字非阻断警告</td></tr><tr><td><code>--lc-st-maint</code></td><td><code>#EB5757</code>（底 <code>#FDEDED</code>）</td><td>实验室/设备状态：<strong>维护 / 停用</strong>；媒体：<strong>拒绝</strong>；平板：<strong>离线 / 发布失败</strong></td></tr><tr><td><code>--lc-st-proc</code></td><td><code>#2F80ED</code>（底 <code>#EAF2FD</code>）</td><td>媒体：<strong>转码中 x%</strong>；发布任务：<strong>传输中 / 排队中</strong></td></tr><tr><td><code>--lc-st-neutral</code></td><td><code>#64748B</code>（底 <code>#F1F5F9</code>）</td><td>媒体：<strong>检查中</strong>；自定义未知状态文本</td></tr></tbody></table></div>
+<h3>1.2 字体与排版层级</h3>
+<ul><li><strong>字体栈</strong>：<code>&quot;PingFang SC&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans SC&quot;, system-ui, sans-serif</code>；代码/SN/IP/SHA256/版本号统一使用等宽字体 <code>&quot;JetBrains Mono&quot;, Consolas, monospace</code>（开启 <code>font-variant-numeric: tabular-nums</code>）。</li><li><strong>字阶</strong>：页面大标题 <code>20px/28px (600)</code>、卡片标题 <code>15px/22px (600)</code>、正文与表单/表格 <code>13.5px/20px (400)</code>、辅助校验/角标 <code>12px/18px (400)</code>。</li></ul>
+<h3>1.3 <code>1366 × 768</code> 最小分辨率像素账本（验收项 #6 保障）</h3>
+<p>为确保在 <code>1366 × 768</code> 笔记本屏幕上<strong>零横向滚动条、零元素重叠</strong>：</p>
+<pre class="code-blk"><code>水平总宽 1366 px = 左侧栏 208 px + 主内容视口 1158 px
+主内容视口 1158 px = 左内边距 20 px + 内容净宽 1118 px + 右内边距 20 px（预留纵向滚动条 8 px 后净宽 1110 px）</code></pre>
+<div class="tbl-scroll"><table><thead><tr><th>页面复杂布局</th><th><code>1110 px</code> 净宽下的定稿分栏比例</th><th>防溢出措施</th></tr></thead><tbody><tr><td>概览统计卡</td><td><code>4</code> 等分网格（<code>gap: 14px</code>，单卡约 <code>267 px</code>）</td><td>数字字号 <code>28px</code>，副文案单行省略</td></tr><tr><td>数据表格（实验室/设备/平板）</td><td>固定关键列（名称、状态、操作 <code>fixed=&quot;right&quot;</code>），长文本列设 <code>show-overflow-tooltip</code></td><td>表格列总最小宽之和控制在 <code>&lt;= 1090 px</code></td></tr><tr><td>实验室编辑 - Tab2 设备组合</td><td>左穿梭面板 <code>480 px</code> + 中间操作钮 <code>74 px</code> + 右已选排序面板 <code>556 px</code> = <code>1110 px</code></td><td>搜索框与复选框上下分置，不挤压列表</td></tr><tr><td>实验室编辑 - Tab4 预览与发布</td><td>左「发布前检查」固定 <code>350 px</code> + 间距 <code>16 px</code> + 右「平板预览」自适应 <code>744 px</code></td><td><code>lab_preview.wasm</code> 画布按容器自动等比缩放（横屏缩放约 <code>0.54</code>，竖屏限高 <code>460px</code> 缩放约 <code>0.36</code>）</td></tr><tr><td>平板 - 设置布局弹窗</td><td>弹窗宽 <code>1040 px</code>：左布局卡片列 <code>380 px</code> + 右实时预览区 <code>612 px</code></td><td>高度控制在 <code>&lt;= 640 px</code>，适配 <code>768 px</code> 视口高</td></tr></tbody></table></div>
+<hr>
+<h2>2. 全局框架、导航与权限显隐矩阵</h2>
+<h3>2.1 全局壳层与通用交互流</h3>
+<ol><li><strong>顶栏（固定高 <code>56 px</code>）</strong>：</li><li>左：系统图标 + <code>&quot;实验室管理后台&quot;</code>；</li><li>中：全局搜索框（宽 <code>340 px</code>，<code>300 ms</code> 防抖请求搜索接口，按「实验室 / 试验设备 / 平板」分组展示最多 <code>10</code> 条，回车或点击直跳对应详情页）；</li><li>右：<strong><code>平板在线 8 / 10</code> 状态胶囊</strong>（每 <code>30 s</code> 轮询刷新；存在离线平板时圆点呈橙红色，<strong>点击直接跳转 <code>/#/panels?online=0</code></strong>）+ 后台任务气泡（显示转码中/发布中任务数）+ 当前用户名与角色徽章下拉（修改个人密码、退出登录）。</li><li><strong>URL 查询参数同步</strong>：所有列表页的 <code>page</code>、<code>page_size=20</code>、<code>sort</code>、<code>keyword</code> 及下拉筛选条件双向绑定 <code>vue-router</code> 的 <code>route.query</code>，F5 刷新或复制链接不丢失筛选态。</li><li><strong>未保存修改拦截</strong>：实验室编辑页、设备编辑页、系统设置页维护 <code>isDirty</code> 计算属性（对比初始快照 JSON）。<code>isDirty === true</code> 时切换路由或点返回，弹出确认框：<code>&quot;当前表单有未保存的修改，离开后修改将丢失，是否确认离开？&quot;</code>（按钮：<code>[留在当前页]</code> / <code>[放弃修改并离开]</code>）。</li><li><strong>三级角色权限显隐矩阵（无权限项一律 <code>v-if</code> 移除 DOM，严禁灰置展示）</strong>：</li></ol>
+<div class="tbl-scroll"><table><thead><tr><th>模块 / 操作点</th><th>管理员 (<code>admin</code>)</th><th>编辑 (<code>editor</code>)</th><th>只读 (<code>viewer</code>)</th></tr></thead><tbody><tr><td>侧栏：概览 / 实验室 / 试验设备 / 媒体库 / 平板 / 发布记录</td><td>显示</td><td>显示</td><td>显示</td></tr><tr><td>侧栏分割线及下方：账号 / 审计日志 / 备份 / 系统设置</td><td>显示</td><td><strong>隐藏</strong></td><td><strong>隐藏</strong></td></tr><tr><td>实验室 &amp; 设备：<code>[新建]</code>、<code>[保存]</code>、<code>[删除]</code>、Excel 导入、媒体上传与解绑、组合拖拽</td><td>显示</td><td>显示</td><td><strong>隐藏</strong>（表单只读查看）</td></tr><tr><td>发布：<code>[发布到平板]</code>、<code>[批量发布]</code>、发布失败 <code>[重试]</code></td><td>显示</td><td>显示</td><td><strong>隐藏</strong>（可预览画面）</td></tr><tr><td>平板：<code>[添加平板]</code>、<code>[扫描网段]</code>、<code>[设置布局]</code>、<code>[重启]</code>、<code>[固件升级]</code>、<code>[解绑]</code>、<code>[删除]</code></td><td>显示</td><td><strong>隐藏</strong></td><td><strong>隐藏</strong></td></tr><tr><td>平板：<code>[查看截图]</code></td><td>显示</td><td>显示（只读巡检）</td><td><strong>隐藏</strong></td></tr></tbody></table></div>
+<hr>
+<h2>3. 核心交互流程与组件定稿</h2>
+<h3>3.1 首次启动初始化向导与登录页</h3>
+<ul><li><strong>首次启动检测</strong>：当数据库中尚无管理员账号时，访问任意路由强制重定向至 <code>/#/setup</code> 三步卡片向导：</li><li><strong>设置初始管理员账号</strong>：默认用户名 <code>admin</code>，设置密码（至少 8 位，二次确认）；</li><li><strong>选择局域网监听网卡</strong>：下拉列出本机 IPv4 网卡（如 <code>以太网 192.168.10.10/24</code>），默认仅监听所选局域网接口、端口 <code>8686</code>；</li><li><strong>完成初始化</strong>：展示局域网访问地址 <code>http://192.168.10.10:8686</code> 并自动登录进入概览页。</li><li><strong>登录页（<code>/#/login</code>）</strong>：简洁居卡片（宽 <code>400 px</code>），用户名 + 密码登录；密码输错显示后端返回的 <code>msg</code>，不做公网验证码或第三方找回。</li></ul>
+<h3>3.2 文本录入与平板字库缺字实时校验（<code>TextGlyphInput</code>）</h3>
+<p>为配合“平板直接使用固件内置 <code>wqyMicroHei.ttf</code>（覆盖 GB2312 6762/6763 字）”的定案，所有会下发到平板显示的输入框（实验室名称/位置/状态/负责人/开放时间/简介/须知、设备名称/型号/厂家/状态/参数表键值/简介）统一封装失焦校验逻辑：</p>
+<div class="code-tag">mermaid</div><pre class="mermaid-src"><code>sequenceDiagram
+    participant U as 用户录入文本
+    participant FE as 前端表单字段 (@blur)
+    participant API as POST /api/v1/text/check
+    U-&gt;&gt;FE: 输入含生僻字文本并失焦
+    FE-&gt;&gt;FE: 先执行必填与最大字数同步校验
+    FE-&gt;&gt;API: {&quot;text&quot;: &quot;高温㵘流腐蚀试验&quot;}
+    API--&gt;&gt;FE: {&quot;code&quot;:0, &quot;data&quot;:{&quot;missing&quot;:[&quot;㵘&quot;]}}
+    Note over FE: 字段下方渲染琥珀色非阻断提示条：&lt;br/&gt;&quot;⚠️ 以下字在平板上会显示为方框：㵘&quot;&lt;br/&gt;保存按钮保持可用，不阻止提交</code></pre>
+<h3>3.3 实验室「设备组合」与跨实验室迁移二次确认</h3>
+<pre class="code-blk"><code>┌ 可添加的设备（左侧 480px）────────────────┐      ┌ 本实验室设备（右侧 556px，已选 6 / 60）────┐
+│ [🔍 搜索名称/资产编号/型号]                │      │ 提示：上下拖动调整顺序，即平板卡片展示顺序   │
+│ [✓] 显示已属于其他实验室的设备              │      │ ┌──────────────────────────────────────┐ │
+│ ──────────────────────────────────────── │      │ │ ≡ 01 万能试验机 WAW-1000D  [可用] [×] │ │
+│ ☐ ZC-2025-019  激光粒度分析仪   [未分配]   │ [添加▶] │ ≡ 02 高频疲劳试验机 PLG-200C [使用中][×]│ │
+│ ☑ ZC-2024-088  三轴试验仪 [属于 岩土实验室] │ [◀移除] │ ≡ 03 摆锤冲击试验机 JB-300B  [可用] [×] │ │
+└──────────────────────────────────────────┘      └──────────────────────────────────────┘</code></pre>
+<ul><li><strong>跨室迁移交互闭环</strong>：</li><li>当用户勾选左侧带有 <code>属于 XX 实验室</code> 标签的设备并点击 <code>[添加 ▶]</code>（或保存组合）时，前端拦截并弹出强警示确认框：</li><li><strong>标题</strong>：<code>确认移动试验设备</code></li><li><strong>正文</strong>：<code>将把「三轴试验仪（ZC-2024-088）」从「岩土工程实验室」移到本实验室，两个实验室都需要重新发布。</code></li><li><strong>按钮</strong>：<code>[取消]</code> / <code>[确认移动]</code></li><li>点击 <code>[确认移动]</code> 后调用 <code>PUT /api/v1/labs/{id}/equipment</code> 并携带 <code>&quot;confirm_move&quot;: true</code>。</li><li>后端在单一 SQLite 事务中更新归属、写入两条 <code>lab_equipment_history</code>（源实验室移出 + 本实验室加入），并将<strong>源实验室与目标实验室的 <code>manifest_version</code> 同时 <code>+1</code></strong>（两侧均变为 <code>待发布</code>）。</li></ul>
+<h3>3.4 共用媒体管理组件（<code>MediaManager.vue</code>）</h3>
+<p>实验室与试验设备编辑页共用同一套媒体组件，按 <code>role</code> 分四块区域：<strong>封面图（限 1 张）</strong>、<strong>画廊图片（设备限 12 张，可拖拽排序）</strong>、<strong>3D 演示视频</strong>、<strong>介绍视频</strong>。</p>
+<div class="tbl-scroll"><table><thead><tr><th>阶段 / 状态</th><th>视觉呈现</th><th>用户可执行操作</th></tr></thead><tbody><tr><td><strong>上传传输中</strong></td><td>文件行内显示蓝色上传进度条 <code>48% (15.4 / 32.0 MB)</code></td><td><code>[取消上传]</code></td></tr><tr><td><strong>秒传命中</strong></td><td>右上角轻提示 <code>&quot;已存在相同文件，已直接引用&quot;</code>（基于后端 <code>sha256</code> 去重）</td><td>立即展示已有状态与缩略图</td></tr><tr><td><strong>检查中</strong></td><td>灰色圆点徽章 <code>● 检查中</code>（后端执行 <code>ffprobe</code>）</td><td><code>[删除关联]</code></td></tr><tr><td><strong>兼容</strong></td><td>绿色圆点徽章 <code>● 兼容</code> + 原始分辨率/时长/体积</td><td><code>[播放]</code>、<code>[删除关联]</code></td></tr><tr><td><strong>转码中 x%</strong></td><td>蓝色脉冲徽章 <code>● 转码中 64%</code>（通过 <code>/api/v1/jobs/stream</code> SSE 实时更新）</td><td><code>[删除关联]</code>（后台转码继续，页面可随时离开）</td></tr><tr><td><strong>已转码</strong></td><td>绿色圆点徽章 <code>● 已转码</code> + 转换对比 <code>1920×1080 → 1280×720 · H.264 无B帧</code></td><td><code>[播放]</code>（弹窗播放 <code>variant=panel</code> 转码产物）、<code>[删除关联]</code></td></tr><tr><td><strong>拒绝</strong></td><td>红色圆点徽章 <code>● 拒绝</code> + 悬停 Tooltip 显示具体原因（如 <code>&quot;文件损坏无法解析&quot;</code> / <code>&quot;时长超过 10 分钟&quot;</code>）</td><td><code>[删除关联]</code>（存在被拒媒体时阻止发布）</td></tr></tbody></table></div>
+<h3>3.5 平板绑定 4 步向导与动态 <code>regions</code> 布局示意图卡片（<code>LayoutRegionCard.vue</code>）</h3>
+<p>后台<strong>严禁硬编码布局列表</strong>。无论是「绑定向导第 4 步」还是「设置布局弹窗」，均调用 <code>GET /api/v1/panels/{id}/layouts</code> 获取固件上报的 <code>layouts</code> 数组，并由纯前端 SVG 组件按 <code>w, h, regions[]</code> 实时等比例绘制区块示意图：</p>
+<div class="code-tag">ts</div><pre class="code-blk"><code>// LayoutRegionCard 等比几何映射规则：
+// 固定示意图外框容器为 160 × 120 px，计算 scale = Math.min(152 / layout.w, 112 / layout.h)
+// 每个 region 渲染为 &lt;rect x={r.x * scale} y={r.y * scale} width={r.w * scale} height={r.h * scale} /&gt;
+// 按区块 id 着色区分：video(#DBEAFE/蓝框)、title(#FEF3C7/琥珀框)、cards(#DCFCE7/绿框)、notice(#F1F5F9/灰框)</code></pre>
+<p><strong>4 步绑定向导流程</strong>：</p>
+<ol><li><strong>步骤 1 确认设备身份</strong>：只读核对 <code>info</code> 返回的 <code>SN</code>、<code>MAC</code>、<code>IP</code>、<code>固件版本</code>、<code>物理分辨率 1280×800</code>、<code>NAND 剩余空间</code>。</li><li><strong>步骤 2 修改出厂密码</strong>：当 <code>default_password == true</code> 时为必填阻断步骤。默认选中「后台自动生成 16 位随机强密码并加密托管」（推荐），也允许切换手动输入；提交调 <code>POST /panels/{id}/password</code>。</li><li><strong>步骤 3 绑定所属实验室</strong>：下拉选择实验室。已绑定其他平板的实验室标注 <code>(已绑定 门牌-201)</code>，选中时出现黄色提示并要求先确认解绑旧平板或改选未绑定实验室。</li><li><strong>步骤 4 选择展示布局并首次发布</strong>：卡片平铺固件返回的全部布局（默认高亮 <code>default</code> 即 <code>landscape_std</code>），点击 <code>[完成并首次发布]</code> 顺序执行 <code>bind</code> → <code>set_layout</code> → 创建首次 <code>publish</code> 任务。</li></ol>
+<h3>3.6 预览与发布页（预检决策树 + WASM 模拟器 + 断点续传）</h3>
+<div class="code-tag">mermaid</div><pre class="mermaid-src"><code>flowchart TD
+    Plan[&quot;加载 GET /labs/{id}/publish/plan&quot;] --&gt; Red{&quot;存在红灯项?&lt;br/&gt;(未绑定平板 / 平板离线 /&lt;br/&gt;剩余空间不足 / 含被拒绝媒体)&quot;}
+    Red -- &quot;是&quot; --&gt; Block[&quot;禁用主按钮，红色横幅写明具体阻断原因&quot;]
+    Red -- &quot;否&quot; --&gt; Trans{&quot;存在检查中/转码中媒体?&quot;}
+    Trans -- &quot;是&quot; --&gt; Queue[&quot;主按钮文案变为「等待转码完成后发布」&lt;br/&gt;点击后创建排队任务，转码完成自动推送&quot;]
+    Trans -- &quot;否&quot; --&gt; Ready[&quot;主按钮显示「发布到平板」&lt;br/&gt;(缺字⚠️仅黄色提示，不禁用)&quot;]
+    Ready --&gt; Run[&quot;POST /labs/{id}/publish&lt;br/&gt;分步进度：比对文件 → 上传 i/N (MB) → commit → info 回读核验&quot;]
+    Run --&gt; Fail{&quot;中途网络中断或失败?&quot;}
+    Fail -- &quot;是&quot; --&gt; Retry[&quot;保留错误原因，展示[重试]按钮&lt;br/&gt;重试时 GET files 跳过 sha256 已匹配文件&quot;]
+    Fail -- &quot;否&quot; --&gt; Done[&quot;标记「已同步 vN」，平板热刷新&quot;]</code></pre>
+<ul><li><strong>右侧内嵌 WASM 预览器（<code>PanelWasmPreview.vue</code>）</strong>：</li><li>顶部工具栏：布局预览下拉框（<code>横屏标准</code> / <code>横屏视频优先</code> / <code>竖屏标准</code>，切换仅通过 <code>postMessage({type:&#x27;set_layout&#x27;, layout})</code> 作用于预览沙盒，右上角标注 <code>&quot;仅预览，不修改平板实际布局&quot;</code>）+ <code>[重置回待机页]</code> 按钮。</li><li><strong>版本一致性守卫</strong>：对比 <code>/lab-preview/VERSION</code> 与目标平板 <code>info.fw_version</code> 中的固件 commit，不一致时在预览画布正上方固定显示浅黄提示条：<code>&quot;⚠️ 预览基于固件 ae79616f，平板当前固件为 3e6e51ed，实际画面可能有细微差异&quot;</code>。</li></ul>
+<hr>
+<h2>4. 删除与高危操作二次确认文案标准表</h2>
+<p>所有破坏性操作统一采用 <code>ElMessageBox.confirm</code>（危险操作主按钮设为 <code>type=&quot;danger&quot;</code>）：</p>
+<div class="tbl-scroll"><table><thead><tr><th>触发位置</th><th>确认弹窗精确文案模板</th></tr></thead><tbody><tr><td>删除实验室</td><td><code>删除实验室「{lab.name}（{lab.code}）」后，其下的 {n} 台试验设备将变为“未分配”状态（设备本身不会删除）；若已绑定平板，请先解绑平板。是否确认删除？</code></td></tr><tr><td>删除试验设备</td><td><code>删除设备「{eq.name}（{eq.asset_no}）」后，它会从「{lab.name}」移除，下次发布时门口平板上也会消失。是否确认删除？</code></td></tr><tr><td>解绑平板</td><td><code>解绑平板「{panel.name}（{panel.ip}）」后，后台修改「{lab.name}」将不再推送到该平板（平板当前已下发的画面会保留）。是否确认解绑？</code></td></tr><tr><td>重启平板</td><td><code>将立即重启平板「{panel.name}（{panel.ip}）」，门口屏幕将短暂黑屏约 8 秒后恢复。是否确认重启？</code></td></tr><tr><td>从备份恢复系统</td><td><code>恢复备份「{backup.filename}」将覆盖当前数据库与媒体关联记录，完成后服务将自动重启并要求所有账号重新登录。恢复前系统会自动创建一份当前状态的回滚备份。是否确认继续？</code></td></tr></tbody></table></div></article><article class="doc-pane " id="doc-panel-spec"><h1>实验室门牌平板：UI 与交互规格</h1>
+<ul><li>日期：2026-11-17</li><li>版本：v1.0</li><li>读者：负责实现平板 UI 和交互的开发者，或者 AI 模型</li></ul>
+<p>本文是平板界面的实现规格。相关文档：</p>
+<div class="tbl-scroll"><table><thead><tr><th>文档</th><th>位置</th></tr></thead><tbody><tr><td>固件总体设计</td><td>本目录 <code>README.md</code></td></tr><tr><td>数据来源：清单 JSON</td><td>labComputer 仓库 <code>docs/01_平板通信协议.md</code> 的 2.4 节</td></tr><tr><td>布局接口</td><td>同一协议的 2.5 / 2.6 节</td></tr></tbody></table></div>
+<p><strong>写法约定</strong>：&quot;必须&quot;是硬性要求，不满足就不能验收。&quot;建议&quot;可以由实现方自行决定，但要在提交说明里写清楚理由。</p>
+<hr>
+<h2>1. 硬性约束</h2>
+<p>这些约束来自板上实测，不能突破。</p>
+<div class="tbl-scroll"><table><thead><tr><th>#</th><th>约束</th><th>说明</th></tr></thead><tbody><tr><td>C1</td><td><strong>LVGL 8.3.7，C99</strong></td><td>不能引入 C++，也不能用 LVGL 9 的 API。代码放在 <code>project/lab_panel/ui_app/</code></td></tr><tr><td>C2</td><td><strong>屏幕物理分辨率 1280×800，RGB565</strong></td><td>竖屏布局由显示驱动旋转成 800×1280。UI 代码只按 <code>lv_disp_get_hor_res/ver_res</code> 返回的逻辑分辨率排版，不能写死方向</td></tr><tr><td>C3</td><td><strong>同一时间只能播一路视频</strong></td><td>视频由 <code>hal_video_bind_viewport(parent, rect)</code> 加 <code>hal_video_play_file(path, vol)</code> 播放，画面作为一个 LVGL 图片对象画在 <code>parent</code> 里。切换页面前必须先调用 <code>hal_video_stop()</code></td></tr><tr><td>C4</td><td><strong>视频区可以叠加控件，但要少</strong></td><td>视频每一帧都会让它所在的区域重绘，叠在上面的控件也跟着每帧重画。叠加的控件只允许一条不透明或半透明的字幕条，高度不超过 64 px，不能叠加阴影或渐变</td></tr><tr><td>C5</td><td><strong>动效白名单</strong></td><td>只能用平移、透明度和帧动画。不能做旋转或缩放动画（<code>lv_img_set_zoom</code> 只能用来做静态适配）。单个动效不超过 300 ms。不能有整屏持续变化的动效（例如背景流光、粒子效果）</td></tr><tr><td>C6</td><td><strong>禁用高开销样式</strong></td><td>尺寸大于 200×200 的对象不能设 <code>shadow_width</code>；不能用模糊；渐变只允许用在高度不超过 80 px 的条带上。圆角可以使用</td></tr><tr><td>C7</td><td><strong>图片</strong></td><td>后台已经把图片处理成 baseline JPEG（封面 800×450、卡片 360×240、画廊不超过 800×800），或者带透明通道的 PNG。UI 只做静态缩放适配（见 <code>ui_cabin_v2.c</code> 里的 <code>fit_img_zoom</code>），不做其他处理</td></tr><tr><td>C8</td><td><strong>内存</strong></td><td>图片缓存走 IT2D 的 8 MB LRU。同一屏幕上同时可见的图片不超过 8 张；卡片列表必须懒加载，滑出屏幕的卡片要释放图片源（<code>lv_img_set_src(NULL)</code> 或者删除对象）</td></tr><tr><td>C9</td><td><strong>字体</strong></td><td>用 FreeType 加载 <code>B:/font/wqyMicroHei.ttf</code>，这套机制在 v2 里已经实现（<code>ui_theme_init_fonts</code>）。这个字库实测覆盖 GB2312 汉字 6762/6763。字号只能用第 3.2 节规定的 5 档</td></tr><tr><td>C10</td><td><strong>触摸</strong></td><td>单点触摸，没有多点手势。可点击区域不小于 64×64 px，相邻两个可点击区域至少间隔 16 px</td></tr><tr><td>C11</td><td><strong>线程</strong></td><td>只能在 LVGL 线程里调用 <code>lv_*</code>。清单更新、布局切换这类通知由 biz_core 通过 <code>lv_async_call</code> 投递到 LVGL 线程</td></tr></tbody></table></div>
+<h2>2. 信息架构与导航</h2>
+<pre class="code-blk"><code>                 ┌──────────── 60 s 无操作，自动返回 ────────────┐
+                 ▼                                               │
+  ┌──────────┐  点设备卡片 / 字幕条   ┌──────────────┐  左右滑动    │
+  │  待机页   │ ───────────────────▶ │  设备详情页   │ ◀────────▶ 上一台/下一台设备
+  │  (Idle)  │ ◀─── 返回按钮 ─────── │  (Detail)    │
+  └──────────┘                        └──────────────┘
+     │   ▲
+     │   └──────── 返回按钮 ─────────┐
+     │ 点&quot;实验室介绍&quot;                 │
+     ▼                               │
+  ┌──────────────┐  点设备行          │
+  │  实验室介绍页  │ ─────────────▶ 设备详情页（返回时回到介绍页）
+  │  (Intro)     │
+  └──────────────┘
+
+  任意页面：左上角 100×100 px 区域内 3 s 连点 5 次 ──▶ 维护页（Maint）
+  特殊状态：没有清单 ──▶ 未绑定页（Unbound），见第 6 节</code></pre>
+<ul><li>页面栈最多 3 层：待机 → 介绍 → 详情。返回按钮总是回到上一层。</li><li><strong>60 s 无操作的计时规则</strong></li><li>每次触摸都重新开始计时。</li><li>在详情页的视频标签下，视频正在播放时暂停计时；播完后恢复。</li><li>计时到了就清空页面栈，回到待机页，过渡是淡入淡出 200 ms。</li><li>时长由清单里的 <code>ui.idle_timeout_s</code> 决定，默认 60 s。</li></ul>
+<h2>3. 视觉规范</h2>
+<h3>3.1 颜色</h3>
+<p>色值选的都是 RGB565 量化后变化不明显的颜色。默认使用深色主题，因为走廊环境下深色背景更醒目，也更省电。</p>
+<div class="tbl-scroll"><table><thead><tr><th>Token</th><th>深色（默认）</th><th>用途</th></tr></thead><tbody><tr><td><code>bg</code></td><td><code>#0B0F14</code></td><td>页面背景</td></tr><tr><td><code>surface</code></td><td><code>#151B23</code></td><td>卡片、面板</td></tr><tr><td><code>surface_hi</code></td><td><code>#1F2732</code></td><td>按下态、选中的标签</td></tr><tr><td><code>line</code></td><td><code>#2A3441</code></td><td>分隔线、表格线</td></tr><tr><td><code>text</code></td><td><code>#F2F5F8</code></td><td>主文字</td></tr><tr><td><code>text_2</code></td><td><code>#A7B1BD</code></td><td>次要文字</td></tr><tr><td><code>accent</code></td><td><code>#2F80ED</code></td><td>强调、链接、选中态</td></tr><tr><td><code>st_idle</code></td><td><code>#27AE60</code></td><td>状态：空闲 / 可用</td></tr><tr><td><code>st_busy</code></td><td><code>#F2994A</code></td><td>状态：使用中</td></tr><tr><td><code>st_maint</code></td><td><code>#EB5757</code></td><td>状态：维护 / 停用</td></tr><tr><td><code>st_unknown</code></td><td><code>#828B96</code></td><td>状态：其他值</td></tr></tbody></table></div>
+<ul><li>清单 <code>ui.theme</code> 预留了 <code>light</code> 浅色主题，第一期可以不实现。实现时只能替换 token 的色值，不能改布局。</li></ul>
+<h3>3.2 字号（5 档，单位 px）</h3>
+<div class="tbl-scroll"><table><thead><tr><th>Token</th><th>字号</th><th>行高</th><th>用途</th></tr></thead><tbody><tr><td><code>f_display</code></td><td>56</td><td>68</td><td>待机页实验室名称</td></tr><tr><td><code>f_title</code></td><td>40</td><td>52</td><td>页面标题、详情页设备名</td></tr><tr><td><code>f_lead</code></td><td>30</td><td>40</td><td>卡片标题、标签文字、按钮</td></tr><tr><td><code>f_body</code></td><td>26</td><td>36</td><td>正文、参数表</td></tr><tr><td><code>f_cap</code></td><td>22</td><td>30</td><td>辅助信息、须知滚动条、维护页</td></tr></tbody></table></div>
+<ul><li>门口的平板通常在 1–2 m 外观看，所以正文不能小于 22 px。</li></ul>
+<h3>3.3 间距、圆角、按下反馈</h3>
+<ul><li><strong>间距</strong>：以 8 px 为基础单位。页面外边距 24 px，卡片内边距 16 px，卡片之间间隔 16 px。</li><li><strong>圆角</strong>：卡片 12 px，胶囊 999 px，按钮 12 px。</li><li><strong>按下反馈</strong>：50 ms 内背景变为 <code>surface_hi</code>，或者透明度变为 70%；松手后恢复。不要用缩放来做按下反馈。</li></ul>
+<h3>3.4 公共组件</h3>
+<p>建议都放在 <code>ui_widgets.c</code> 里。</p>
+<div class="tbl-scroll"><table><thead><tr><th>组件</th><th>规格</th></tr></thead><tbody><tr><td><strong>状态胶囊</strong> <code>status_pill</code></td><td>高 44，左右内边距 20，左边一个 12 px 圆点，后面是状态文字（<code>f_cap</code>）。背景是状态色，透明度 20%；圆点和文字用状态色本身。颜色按文字匹配：空闲、可用对应 <code>st_idle</code>；使用中对应 <code>st_busy</code>；维护、停用、故障对应 <code>st_maint</code>；其他文字对应 <code>st_unknown</code></td></tr><tr><td><strong>返回按钮</strong> <code>back_btn</code></td><td>72×72，左箭头图标（A8 资源）加可选的文字&quot;返回&quot;（<code>f_lead</code>）</td></tr><tr><td><strong>设备卡片</strong> <code>equip_card</code></td><td>见 4.2 节</td></tr><tr><td><strong>滚动须知</strong> <code>notice_bar</code></td><td>单行文字，各条须知之间用&quot;　·　&quot;连接，<code>f_cap</code>。文字放得下时静止居中；放不下时用 <code>LV_LABEL_LONG_SCROLL_CIRCULAR</code>，速度 60 px/s</td></tr><tr><td><strong>参数表</strong> <code>spec_table</code></td><td>两列（参数名 <code>text_2</code>，参数值 <code>text</code>），行高 56，行与行之间用 <code>line</code> 色分隔。参数名列宽为表宽的 40%。参数值最多 2 行，超出部分显示省略号</td></tr><tr><td><strong>标签栏</strong> <code>tab_bar</code></td><td>高 64，每个标签最小宽 160。选中的标签下面有 4 px 高的 <code>accent</code> 下划线。没有内容的标签不显示</td></tr><tr><td><strong>提示条</strong> <code>toast</code></td><td>屏幕底部居中，高 64，圆角 12，背景 <code>surface_hi</code>，显示 3 s 后淡出</td></tr><tr><td><strong>占位图</strong> <code>placeholder</code></td><td><code>surface</code> 背景，中间是图标加一行 <code>text_2</code> 文字，例如&quot;暂无图片&quot;</td></tr></tbody></table></div>
+<h2>4. 待机页（Idle）</h2>
+<p>待机页的排版完全由当前布局的区块表决定。区块坐标和协议 <code>layouts</code> 接口返回的一致，代码里只能有一份区块表（<code>ui_layouts.c</code>）。</p>
+<h3>4.1 三种布局</h3>
+<pre class="code-blk"><code>landscape_std 横屏标准（默认）                    1280×800
+┌──────────────────────────────┬─────────────────┐
+│                              │ title 480×450   │
+│   video 800×450              │ 实验室名称       │
+│                              │ 编号·位置        │
+│                              │ [状态胶囊]       │
+│                              │ 负责人 电话      │
+│                              │ 开放时间         │
+│                              │ [实验室介绍 ›]   │
+├──────────────────────────────┴─────────────────┤
+│ cards 1280×290   ◀ 卡片 卡片 卡片 卡片 卡片 ▶   │
+├────────────────────────────────────────────────┤
+│ notice 1280×60   安全须知滚动                   │
+└────────────────────────────────────────────────┘
+
+landscape_video 横屏视频优先                     1280×800
+┌────────────────────────────────────────────────┐
+│                                                │
+│              video 1280×720                    │
+│                                                │
+├────────────────────────────────────────────────┤
+│ title 1280×80  名称 [状态]  须知滚动…   [设备 12 ▴] │
+└────────────────────────────────────────────────┘
+  点&quot;设备&quot;按钮：从底部弹出一个 1280×320 的抽屉，里面是横向卡片列表；
+  抽屉 15 s 无操作自动收起，点抽屉外面也会收起
+
+portrait_std 竖屏标准              800×1280
+┌──────────────────────────┐
+│ title 800×200            │  名称（1 行）/ 编号·位置 / [状态] [介绍 ›] 同一行
+├──────────────────────────┤
+│ video 800×450            │
+├──────────────────────────┤
+│ cards 800×550            │  两行卡片，横向滑动
+├──────────────────────────┤
+│ notice 800×80            │
+└──────────────────────────┘</code></pre>
+<h3>4.2 各区块的内容</h3>
+<div class="tbl-scroll"><table><thead><tr><th>区块</th><th>内容和规则</th></tr></thead><tbody><tr><td><code>title</code></td><td>内容如下，<code>landscape_video</code> 布局只显示名称、状态和设备按钮：<br>• <code>lab.name</code>：<code>f_display</code>，最多 2 行，超出部分省略号；<br>• <code>lab.code · lab.location</code>：<code>f_lead</code>，<code>text_2</code>；<br>• 状态胶囊；<br>• <code>lab.owner</code> 和 <code>lab.phone</code>：<code>f_body</code>；<br>• <code>lab.open_hours</code>：<code>f_body</code>；<br>• &quot;实验室介绍 ›&quot; 按钮：高 64，跳转到介绍页。<br>字段为空时整行不显示，不留空行。<br>竖屏 <code>portrait_std</code> 的标题区只有 200 高：名称限 1 行，第二行是编号·位置，第三行左边是状态胶囊、右边是介绍按钮；负责人、电话、开放时间放到介绍页</td></tr><tr><td><code>video</code></td><td>播放列表，见 4.3</td></tr><tr><td><code>cards</code></td><td><code>lab.equipment</code> 按清单顺序排成卡片：<br>• 卡片 280×250（竖屏两行时 240×250）；<br>• 上半部分是封面图 280×160，按 <code>cover</code> 方式裁剪填满；没有封面时显示占位图；<br>• 下半部分：<code>name</code> 用 <code>f_lead</code> 单行加省略号，<code>model</code> 用 <code>f_cap</code>，右下角是状态圆点。<br>横向滑动，开启 <code>LV_SCROLL_SNAP_START</code> 吸附，不显示滚动条。点卡片进入该设备的详情页。<br>设备数为 0 时，整个区块显示一行居中的&quot;暂无设备&quot;。最多显示 60 台，超出的部分不显示，并在维护页记一条警告</td></tr><tr><td><code>notice</code></td><td>显示 <code>lab.safety</code> 数组；为空时整个区块不显示，背景色保留</td></tr></tbody></table></div>
+<h3>4.3 待机页视频播放列表</h3>
+<ol><li>播放顺序：</li><li>先播 <code>lab.media</code> 里 <code>role</code> 为 <code>intro</code> 或 <code>model3d</code> 的视频，按清单顺序；</li><li>再播每台设备里 <code>role=model3d</code> 的视频，按设备顺序；</li><li>全部播完后从头循环。</li><li>播放某台设备的视频时，在视频区底部叠加一条字幕条（不超过 64 px，见 C4）：&quot;▶ 万能试验机 · 3D 演示&quot;。点字幕条进入这台设备的详情页。</li><li>一个视频都没有时，视频区显示 <code>lab</code> 的封面图；封面也没有时，显示一块 <code>surface</code> 色块，中间是实验室名称。</li><li>文件打不开或者播放出错时，跳到下一个视频，同时在维护页记一条错误。连续 3 个都出错时，停止播放，按第 3 条处理。</li><li>视频静音播放，音量为 0。走廊环境不放声音，第一期不提供音量设置。</li></ol>
+<h2>5. 设备详情页（Detail）</h2>
+<h3>5.1 排版</h3>
+<pre class="code-blk"><code>横屏（布局方向为 landscape）                          1280×800
+┌──────────────────────────────┬─────────────────────┐
+│ [‹ 返回]  顶栏 800×96          │ 设备名 f_title 2 行  │
+├──────────────────────────────┤ 资产编号 · 型号 · 厂家│
+│ 媒体区 800×450                │ [状态胶囊]           │
+│ （图片 / 3D 演示 / 介绍视频）   │ ── 参数表 ──        │
+├──────────────────────────────┤ ── 简介 ──          │
+│ 标签栏 800×64                 │ （右栏 480×704 整体   │
+├──────────────────────────────┤   纵向滚动）         │
+│ 缩略图条 800×190（仅图片标签）  ├─────────────────────┤
+│                              │ [‹ 上一台] [下一台 ›] 96│
+└──────────────────────────────┴─────────────────────┘
+左栏高度：96 + 450 + 64 + 190 = 800；右栏高度：704 + 96 = 800
+
+竖屏（布局方向为 portrait）              800×1280
+┌──────────────────────────────┐
+│ [‹] 设备名            [状态]  │ 120
+├──────────────────────────────┤
+│ 媒体区 800×450                │
+├──────────────────────────────┤
+│ 标签栏 800×64                 │
+├──────────────────────────────┤
+│ 缩略图条 800×120              │
+├──────────────────────────────┤
+│ 资产编号·型号·厂家             │
+│ 参数表 + 简介（整体纵向滚动）    │ 446
+├──────────────────────────────┤
+│ [‹ 上一台]          [下一台 ›] │ 80
+└──────────────────────────────┘</code></pre>
+<h3>5.2 媒体区</h3>
+<ul><li><strong>标签</strong>：图片（<code>gallery</code>，以及作为第一张的 <code>cover</code>）、3D 演示（<code>model3d</code>）、介绍视频（<code>intro</code>）。只显示有内容的标签；一个都没有时，媒体区显示占位图&quot;暂无图片和视频&quot;，标签栏隐藏。</li><li><strong>默认标签</strong>：有 3D 演示就默认进 3D 演示，否则进图片标签。</li><li><strong>图片标签</strong></li><li>左右滑动切换图片，下方的缩略图条可以直接点选。</li><li>5 s 无操作就自动切到下一张，切换用 200 ms 淡入淡出。</li><li>图片按 <code>contain</code> 方式适配，空白处填 <code>bg</code> 色。</li><li>一台设备最多显示 12 张图片。</li><li><strong>视频标签</strong></li><li>进入标签就开始播放，播完停在最后一帧，显示一个居中的&quot;重播&quot;按钮（96×96）。</li><li>同一个标签下有多个视频时，依次播放。</li><li>离开这个标签或页面时，必须调用 <code>hal_video_stop()</code>。</li><li>进入详情页前要先停掉待机页的视频；回到待机页后，从当前视频的开头重新播放。</li></ul>
+<h3>5.3 交互</h3>
+<ul><li><strong>切换设备</strong>：在右侧信息区（竖屏时是下方的信息区）左右滑动，或者点&quot;上一台/下一台&quot;按钮，就切换到相邻的设备，顺序和待机页卡片一致，首尾循环。过渡是 250 ms 平移。</li><li><strong>滑动冲突</strong>：在媒体区内左右滑动是切换图片，不是切换设备。</li><li><strong>返回</strong>：点返回按钮，回到进入详情页之前的那一页。</li><li><strong>字段规则</strong>：参数表的数据来自 <code>specs</code> 数组，原样显示。<code>intro</code> 用 <code>f_body</code>，最多显示 2000 字，超出部分截断并加&quot;…&quot;。</li></ul>
+<h2>6. 实验室介绍页（Intro）、维护页（Maint）、未绑定页（Unbound）</h2>
+<h3>6.1 实验室介绍页</h3>
+<ul><li><strong>横屏</strong></li><li>左栏宽 760：名称、编号·位置、状态、负责人、电话、开放时间、简介（滚动），最后是全部安全须知，每条前面加序号。</li><li>右栏宽 520：标题&quot;设备清单（N）&quot;，下面每台设备一行，行高 88，依次是缩略图 120×80、名称、型号、状态点。</li><li>点一行进入该设备的详情页。</li><li><strong>竖屏</strong>：同样的内容排成单栏，整页纵向滚动，设备清单在最后。</li></ul>
+<h3>6.2 维护页</h3>
+<ul><li><strong>进入</strong>：在任意页面的左上角 100×100 区域内，3 s 内连点 5 次。这个区域不能有其他可点的控件，返回按钮不放在这里。</li><li><strong>显示内容</strong>：SN、MAC、IP、固件版本、协议版本、清单版本、当前布局、剩余空间、运行时长，以及最近 20 条事件日志（播放错误、清单更新、布局切换）。字号用 <code>f_cap</code>。</li><li><strong>只读</strong>：页面上只有一个&quot;退出&quot;按钮，没有任何修改操作。60 s 无操作自动退出。</li></ul>
+<h3>6.3 未绑定页</h3>
+<ul><li><strong>何时显示</strong>：没有清单时，也就是出厂状态或从未提交过清单。</li><li><strong>内容</strong>：居中显示&quot;本平板尚未绑定实验室&quot;（<code>f_title</code>），下面用 <code>f_lead</code> 显示 SN 和 IP，方便安装人员在后台登记。底部显示固件版本。</li><li><strong>限制</strong>：这一页不响应 60 s 自动返回；维护页入口仍然可用。</li></ul>
+<h2>7. 状态和边界情况</h2>
+<div class="tbl-scroll"><table><thead><tr><th>场景</th><th>必须的行为</th></tr></thead><tbody><tr><td>收到新清单（<code>commit</code> 成功）</td><td>用户在待机页时：直接按新数据重建页面。用户在详情页或介绍页时：如果当前查看的设备还在，就留在当前页刷新数据，并提示&quot;内容已更新&quot;；如果这台设备已被移除，就回到待机页，并提示&quot;内容已更新&quot;</td></tr><tr><td>收到 <code>set_layout</code></td><td>关闭抽屉和弹层，清空页面栈，按新布局重建待机页。方向变了时先让显示驱动完成旋转，再重建页面。整个过程不超过 3 s</td></tr><tr><td>清单里引用的文件不存在</td><td>图片显示占位图，视频跳过。不能崩溃，不能卡住</td></tr><tr><td>文本超长</td><td>每个文本控件都必须规定最大行数并加省略号，或者放在可滚动的容器里。不能有文字溢出到区块外面</td></tr><tr><td>字库里没有的字</td><td>FreeType 会显示成方框。后台录入时会校验这类字，固件不做额外处理</td></tr><tr><td>0 台设备、0 个媒体</td><td>按前面各节写的空状态显示，页面结构不变</td></tr><tr><td>很快地连续点击</td><td>页面跳转期间（250 ms 内）忽略新的跳转请求，避免同一个页面被打开两次</td></tr></tbody></table></div>
+<h2>8. 数据绑定</h2>
+<p>UI 只能通过 biz_core 提供的只读模型取数据，不能自己解析 JSON。建议的接口如下，名字可以调整，但必须保持只读和单向数据流：</p>
+<div class="code-tag">c</div><pre class="code-blk"><code>typedef struct { const char *file; const char *role; } lab_media_t;          /* role: cover/gallery/model3d/intro */
+typedef struct { const char *k; const char *v; } lab_spec_t;
+typedef struct {
+    const char *id, *asset_no, *name, *model, *vendor, *status, *intro;
+    const lab_spec_t *specs; int spec_count;
+    const lab_media_t *media; int media_count;
+} lab_equipment_t;
+typedef struct {
+    int version;
+    const char *code, *name, *status, *location, *owner, *phone, *open_hours, *intro;
+    const char *const *safety; int safety_count;
+    const lab_media_t *media; int media_count;
+    const lab_equipment_t *equipment; int equipment_count;
+    int idle_timeout_s; const char *theme;
+} lab_model_t;
+
+const lab_model_t *lab_model_get(void);                 /* NULL → 未绑定 */
+const char        *lab_media_path(const char *file);    /* 返回 &quot;B:/lab/media/&lt;file&gt;&quot; 形式的路径 */
+
+/* 只用到所选布局的部分 */
+typedef struct { const char *id; int x, y, w, h; } ui_region_t;
+typedef struct {
+    const char *id, *name, *desc;
+    bool portrait;
+    const ui_region_t *regions; int region_count;
+} ui_layout_t;
+
+const ui_layout_t *ui_layouts(int *count);              /* 同一张表也是 layouts 接口的数据来源 */
+void ui_on_model_changed(void);                         /* 由 biz_core 通过 lv_async_call 调用 */
+void ui_on_layout_changed(const ui_layout_t *l);</code></pre>
+<h2>9. 代码组织建议</h2>
+<pre class="code-blk"><code>ui_app/
+  ui_theme.c/.h      颜色 token、5 档字体（复用 v2 的 FreeType 字体管理）
+  ui_widgets.c/.h    第 3.4 节的公共组件
+  ui_layouts.c/.h    布局区块表（唯一来源）
+  ui_nav.c/.h        页面栈、60 s 计时、跳转防抖、维护页入口
+  ui_idle.c          待机页（三种布局共用，只读区块表）
+  ui_detail.c        设备详情页
+  ui_intro.c         实验室介绍页
+  ui_maint.c         维护页、未绑定页
+  ui_playlist.c      待机页视频播放列表（纯逻辑，可以在 PC 上做单元测试）</code></pre>
+<h2>10. 验收清单</h2>
+<p>以下每一条都要在 <code>pc_sim</code>、wasm 预览和真板上分别通过：</p>
+<ol><li>三种布局 × 四个页面（待机、详情、介绍、维护）截图，没有文字溢出，没有元素重叠。</li><li>准备一份边界测试清单：0 台设备；60 台设备；名称 50 个字；参数 40 行；没有任何媒体；引用了不存在的文件。按这份清单逐项检查第 7 节的行为。</li><li>真板性能：待机页播放视频时不低于 50 FPS；卡片列表滑动时不低于 40 FPS；触摸响应（按下到出现反馈）不超过 100 ms。</li><li>连续运行 24 h：剩余内存没有持续下降。用 <code>[MEM]</code> 日志观察，最小剩余内存要大于 40 MB。</li><li>在待机页和详情页之间来回切换 200 次，不崩溃，视频不出现花屏或黑屏。</li><li><code>set_layout</code> 在三种布局之间来回切换 50 次，每次 3 s 内完成，触摸位置正确。</li></ol>
+<h2>11. 交付物</h2>
+<ul><li><code>project/lab_panel/ui_app/</code> 下的源代码，以及 <code>tests/</code> 下 <code>ui_playlist</code> 的单元测试。</li><li>第 10 节第 1 条要求的截图，放在 <code>docs/lab_panel/screenshots/</code>，按 <code>&lt;布局&gt;_&lt;页面&gt;.png</code> 命名。</li><li>如果对本规格有改动，在本文末尾加一张&quot;变更记录&quot;表，写明改了什么、为什么改。</li></ul></article><article class="doc-pane " id="doc-admin-spec"><h1>管理后台：界面与交互规格</h1>
+<ul><li>日期：2026-11-17</li><li>版本：v1.0</li><li>读者：负责实现后台前端（以及配套 HTTP API）的开发者，或者 AI 模型</li></ul>
+<p><strong>相关文档</strong></p>
+<ul><li>总体设计 [00_总体设计.md](00_总体设计.md)：数据模型见第 4 节，媒体流水线见第 5 节。</li><li>平板通信协议 [01_平板通信协议.md](01_平板通信协议.md)。</li><li>平板端界面规格：固件仓库 <code>docs/lab_panel/01_平板UI与交互规格.md</code>。录入限制要和平板的显示能力一致。</li></ul>
+<p><strong>写法约定</strong>：&quot;必须&quot;是硬性要求，&quot;建议&quot;可以由实现方自行决定。</p>
+<hr>
+<h2>1. 技术约束</h2>
+<div class="tbl-scroll"><table><thead><tr><th>项目</th><th>要求</th></tr></thead><tbody><tr><td>技术栈</td><td>Vue 3（<code>&lt;script setup&gt;</code>）+ TypeScript + Vite + Element Plus + Pinia + vue-router</td></tr><tr><td>构建产物</td><td>输出到 <code>web/dist/</code>，由 Go 用 <code>go:embed</code> 打包。路由用 hash 模式（<code>/#/labs</code>），这样后端不用配置回退路由</td></tr><tr><td>浏览器</td><td>Windows 上的 Chrome / Edge 最新两个大版本。最小宽度 1366 px，不做手机适配</td></tr><tr><td>语言</td><td>只做简体中文。界面文字集中放在 <code>src/locales/zh-CN.ts</code>，方便以后翻译</td></tr><tr><td>网络</td><td>局域网，不依赖外网 CDN，所有资源都要打包进来</td></tr><tr><td>预览</td><td>嵌入 <code>public/lab-preview/</code>（由固件构建出来的 wasm），参考 videoComputer-v2 的 <code>CabinScreenPreview.vue</code> 和 postMessage 协议</td></tr></tbody></table></div>
+<h2>2. 角色与权限</h2>
+<div class="tbl-scroll"><table><thead><tr><th>功能</th><th>管理员</th><th>编辑</th><th>只读</th></tr></thead><tbody><tr><td>查看全部数据</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td>增删改实验室、设备、媒体、组合关系</td><td>✅</td><td>✅</td><td>❌</td></tr><tr><td>发布到平板</td><td>✅</td><td>✅</td><td>❌</td></tr><tr><td>平板登记、绑定、设置布局、重启、OTA</td><td>✅</td><td>❌</td><td>❌</td></tr><tr><td>账号管理、备份恢复、系统设置</td><td>✅</td><td>❌</td><td>❌</td></tr><tr><td>审计日志</td><td>✅</td><td>❌</td><td>❌</td></tr></tbody></table></div>
+<ul><li>没有权限的按钮直接隐藏，不做&quot;灰掉但可见&quot;。</li><li>后端必须做同样的权限校验，前端隐藏按钮只是界面上的处理。</li></ul>
+<h2>3. 全局框架</h2>
+<pre class="code-blk"><code>┌───────────────────────────────────────────────────────────────┐
+│ 顶栏 56：产品名&quot;实验室管理后台&quot; │ 全局搜索 │ 平板在线 8/10 │ 用户名 ▾ │
+├───────────┬───────────────────────────────────────────────────┤
+│ 侧栏 208  │  面包屑                                              │
+│ 概览      │  页面内容                                            │
+│ 实验室    │                                                     │
+│ 试验设备  │                                                     │
+│ 媒体库    │                                                     │
+│ 平板      │                                                     │
+│ 发布记录  │                                                     │
+│ ─────    │                                                     │
+│ 账号      │                                                     │
+│ 审计日志  │                                                     │
+│ 备份      │                                                     │
+│ 系统设置  │                                                     │
+└───────────┴───────────────────────────────────────────────────┘</code></pre>
+<ul><li><strong>顶栏的&quot;平板在线 x/y&quot;</strong>：每 30 s 刷新一次。点击后跳到平板页，并自动筛选出离线的平板。</li><li><strong>全局搜索</strong>：可以按名称或编号搜索实验室、设备、平板。输入后等 300 ms 再请求，下拉列表最多显示 10 条。</li></ul>
+<p><strong>通用交互规则（必须遵守）</strong></p>
+<ol><li><strong>列表</strong>：每页 20 条，排序在服务端完成，筛选条件写进 URL 的查询参数（刷新页面后仍然保留）。</li><li><strong>删除和解绑</strong>：必须二次确认，确认框里写明对象的名称和影响。例如：&quot;删除设备&#x27;万能试验机&#x27;后，它会从&#x27;材料力学实验室&#x27;移除，下次发布时平板上也会消失。&quot;</li><li><strong>离开编辑页</strong>：表单有未保存的修改时，离开页面要弹出提示。</li><li><strong>请求反馈</strong>：</li><li>成功：右上角提示，2 s 后消失；</li><li>失败：提示框不自动消失，显示后端返回的 <code>msg</code>；</li><li>表单校验错误：显示在对应字段下面。</li><li><strong>耗时操作</strong>：转码、发布、备份都放到后台任务里执行。页面显示进度，用户可以离开页面，任务不会中断。</li><li><strong>时间显示</strong>：统一用 <code>YYYY-MM-DD HH:mm</code>，时区按服务器本地时间。</li></ol>
+<h2>4. 页面</h2>
+<h3>4.1 概览</h3>
+<ul><li><strong>统计卡片</strong>：实验室数、设备数、平板在线数/总数、待发布的实验室数（后台清单版本高于平板上已提交的版本）。</li><li><strong>需要处理的事项列表</strong></li><li>离线的平板；</li><li>待发布的实验室；</li><li>最近 24 h 失败的任务；</li><li>转码失败或被拒绝的媒体。</li><li>每条事项都可以点击，直接跳到对应的页面。</li></ul>
+<h3>4.2 实验室</h3>
+<p><strong>列表页</strong></p>
+<ul><li>列：编号、名称、位置、状态（用胶囊显示，配色和平板端一致）、设备数、绑定的平板（在线状态点 + 名称）、发布状态（已同步 / 待发布 / 失败）、更新时间、操作（编辑、发布）。</li><li>筛选：状态、发布状态、关键字。</li><li>右上角有&quot;新建实验室&quot;按钮。</li></ul>
+<p><strong>编辑页</strong>分 4 个标签：</p>
+<ol><li><strong>基本信息</strong></li></ol>
+<div class="tbl-scroll"><table><thead><tr><th>字段</th><th>控件</th><th>校验规则（和平板显示能力对应）</th></tr></thead><tbody><tr><td>编号</td><td>输入框</td><td>必填，唯一，<code>[A-Za-z0-9-]</code>，不超过 16 个字符</td></tr><tr><td>名称</td><td>输入框</td><td>必填，不超过 30 个字</td></tr><tr><td>楼栋 / 楼层 / 房间号</td><td>3 个输入框</td><td>拼接后作为 <code>location</code>，总长不超过 30 个字</td></tr><tr><td>状态</td><td>下拉框</td><td>可选：空闲 / 使用中 / 维护；也可以手动输入，不超过 6 个字</td></tr><tr><td>负责人、电话</td><td>输入框</td><td>各不超过 20 个字</td></tr><tr><td>开放时间</td><td>输入框</td><td>不超过 40 个字，例如&quot;周一至周五 8:30-17:30&quot;</td></tr><tr><td>简介</td><td>多行文本</td><td>不超过 2000 字，显示字数计数</td></tr><tr><td>安全须知</td><td>可增删、可拖动排序的列表</td><td>最多 10 条，每条不超过 40 字</td></tr></tbody></table></div>
+<ol><li><strong>设备组合</strong></li><li><strong>布局</strong>：左边是&quot;可添加的设备&quot;，右边是&quot;本实验室设备&quot;，中间有添加和移除按钮。</li><li><strong>右侧列表</strong>：可以拖动调整顺序，这个顺序就是平板上卡片的顺序。最多 60 台。</li><li><strong>左侧列表</strong>：默认只显示还没分配给任何实验室的设备。勾选&quot;显示已属于其他实验室的设备&quot;后，已分配的设备也会显示出来，并带上标签&quot;属于 XX 实验室&quot;。</li><li><strong>移动设备</strong>：把属于别的实验室的设备加进来时，必须确认：&quot;将把&#x27;万能试验机&#x27;从&#x27;XX 实验室&#x27;移到本实验室，两个实验室都需要重新发布。&quot;确认后，后端在同一个事务里完成移出、加入和记录历史。</li></ol>
+<ol><li><strong>媒体</strong>：使用媒体管理组件（见 4.4），可选的角色为封面（1 张）、画廊图片、3D 演示视频、介绍视频。</li></ol>
+<ol><li><strong>预览与发布</strong>：见 4.6。</li></ol>
+<ul><li>每个文本字段失焦时，调用 <code>POST /api/v1/text/check</code>，检查有没有平板字库里没有的字。有的话在字段下面用黄色提示：&quot;以下字在平板上会显示为方框：㵘&quot;。这一项只提示，不阻止保存。</li></ul>
+<h3>4.3 试验设备</h3>
+<ul><li><strong>列表</strong>：</li><li>列：资产编号、名称、型号、厂家、类别、状态、所属实验室（可以为空）、媒体数、更新时间。</li><li>筛选：类别、状态、所属实验室，以及&quot;未分配&quot;。</li><li><strong>编辑页</strong>：</li></ul>
+<div class="tbl-scroll"><table><thead><tr><th>字段</th><th>校验规则</th></tr></thead><tbody><tr><td>资产编号</td><td>必填，唯一，不超过 24 个字符</td></tr><tr><td>名称</td><td>必填，不超过 30 个字</td></tr><tr><td>型号、厂家、类别</td><td>各不超过 30 个字</td></tr><tr><td>状态</td><td>可选：可用 / 使用中 / 维护 / 停用；也可以手动输入，不超过 6 个字</td></tr><tr><td>技术参数</td><td>键值表格，可增删、可拖动排序。最多 40 行，参数名不超过 12 个字，参数值不超过 40 个字</td></tr><tr><td>简介</td><td>不超过 2000 字</td></tr><tr><td>所属实验室</td><td>只读显示；修改要去实验室的&quot;设备组合&quot;标签</td></tr></tbody></table></div>
+<ul><li>媒体部分使用媒体管理组件，可选的角色为封面（1 张）、画廊（最多 12 张）、3D 演示、介绍视频。</li><li>支持批量导入：下载 Excel 模板，填好后上传。导入前先预览，逐行显示校验结果，确认后再导入。</li></ul>
+<h3>4.4 媒体管理组件（实验室和设备共用）</h3>
+<pre class="code-blk"><code>┌ 封面 ──────────┐ ┌ 画廊（3/12）───────────────────────────┐
+│ [缩略图] 更换 删除│ │ [图][图][图] [+ 上传]   可拖动排序        │
+└────────────────┘ └─────────────────────────────────────────┘
+┌ 3D 演示视频 ─────────────────────────────────────────────────┐
+│ [缩略图] e17_model3d.mp4  1920×1080 → 1280×720  00:42  32 MB │
+│          状态：● 已转码     [播放] [删除]                      │
+│ [+ 上传视频]                                                  │
+└───────────────────────────────────────────────────────────────┘</code></pre>
+<ul><li><strong>上传</strong>：可以拖放，也可以点击上传。每个文件单独显示进度条。</li><li>图片限 JPG、PNG、WebP、BMP，单个文件不超过 30 MB。</li><li>视频限 MP4、MOV、MKV、AVI，单个文件不超过 2 GB。</li><li><strong>处理状态</strong>：每个文件都显示一个状态标签，状态由后端任务推进。前端每 2 s 轮询一次，或者改用 SSE 推送。</li></ul>
+<div class="tbl-scroll"><table><thead><tr><th>状态</th><th>颜色</th><th>含义</th></tr></thead><tbody><tr><td>检查中</td><td>灰</td><td>正在用 ffprobe 检查</td></tr><tr><td>兼容</td><td>绿</td><td>不需要转码</td></tr><tr><td>转码中 x%</td><td>蓝</td><td>正在转码</td></tr><tr><td>已转码</td><td>绿</td><td>平板会使用转码后的文件</td></tr><tr><td>拒绝</td><td>红</td><td>鼠标悬停显示原因，例如&quot;无法解析的视频&quot;&quot;时长超过 10 分钟&quot;</td></tr></tbody></table></div>
+<ul><li><strong>相同文件</strong>：sha256 相同的文件只存一份。上传重复文件时提示&quot;已存在相同文件，已直接引用&quot;。</li><li><strong>播放</strong>：点&quot;播放&quot;弹出窗口，用浏览器播放转码后的文件，看到的就是平板上的效果。</li><li><strong>删除</strong>：只解除和当前实验室或设备的关联。文件实体由媒体库统一清理。</li></ul>
+<h3>4.5 平板</h3>
+<p><strong>列表页</strong></p>
+<ul><li>列：在线状态、SN、名称（可编辑的备注）、IP、绑定的实验室、当前布局、固件版本、剩余空间（进度条）、清单版本（平板上的版本 / 后台的版本，不一致时标黄）、最后在线时间、操作。</li><li><strong>操作</strong>（仅管理员）：查看截图、设置布局、重启、固件升级、解绑、删除。</li></ul>
+<p><strong>添加平板</strong>有两种方式：</p>
+<ol><li><strong>手动输入 IP</strong>：输入后调用平板的 <code>info</code>，成功就显示平板信息，并进入绑定向导。</li><li><strong>扫描网段</strong>：输入网段，例如 <code>192.168.1.0/24</code>。后端并发请求所有地址的 <code>info</code>，前端实时列出扫描到的平板，勾选后可以批量添加。扫描时显示进度，并提供&quot;停止&quot;按钮。</li></ol>
+<p><strong>绑定向导</strong>（4 步）：</p>
+<ol><li><strong>确认平板信息</strong>：SN、MAC、固件版本。</li><li><strong>修改设备密码</strong>：如果 <code>default_password</code> 为 true，必须修改。密码可以由后台随机生成（默认）或手动输入，保存在后台，界面上不再显示明文。</li><li><strong>选择实验室</strong>：一个实验室只能绑定一台平板。选了已经绑定的实验室时，提示需要先解绑原来那台。</li><li><strong>选择布局</strong>：用卡片列出 <code>layouts</code> 接口返回的布局。每张卡片上：</li><li>示意图：按 <code>regions</code> 等比例画出各区块的矩形，标上区块名；</li><li>布局名称和说明；</li><li>方向标签。</li></ol>
+<p>当前布局有高亮。选好后点&quot;完成并发布&quot;，就会执行一次首次发布。</p>
+<p><strong>设置布局</strong>（列表页的操作，也会在平板详情里出现）：</p>
+<ul><li>弹窗形式，卡片和绑定向导第 4 步相同。</li><li>右侧显示 wasm 预览，内容是这台平板当前的清单加所选布局。</li><li>点&quot;应用&quot;后调用 <code>set_layout</code>，成功时提示&quot;平板已切换为&#x27;竖屏标准&#x27;&quot;。</li></ul>
+<p><strong>截图</strong>：调用平板的 <code>screenshot</code> 接口，在弹窗里显示截图和截取时间，并提供&quot;刷新&quot;按钮。</p>
+<h3>4.6 预览与发布（实验室编辑页的第 4 个标签）</h3>
+<pre class="code-blk"><code>┌ 发布前检查 ───────────────────┐ ┌ 平板预览 ──────────────────────────┐
+│ 目标平板：门牌-201 ● 在线       │ │ 布局：[横屏标准 ▾]                  │
+│ 清单版本：平板 11 → 后台 12     │ │ ┌──────────────────────────┐      │
+│ 变更：新增 3 个文件 41.2 MB     │ │ │                          │      │
+│       删除 1 个文件            │ │ │   wasm 预览（可点击操作）   │      │
+│ 空间：剩余 812 MB  ✅           │ │ │                          │      │
+│ 媒体：2 个转码中 ⏳             │ │ └──────────────────────────┘      │
+│ 字库：1 个字缺失 ⚠️             │ │ 缺少的素材：无                      │
+│                               │ └───────────────────────────────────┘
+│ [发布到平板]                   │
+└───────────────────────────────┘</code></pre>
+<ul><li><strong>检查项</strong>：任何一项是红色时（离线、空间不够、媒体被拒绝），&quot;发布&quot;按钮禁用，并写明原因。媒体还在转码时，按钮显示&quot;等待转码完成后发布&quot;，点击后发布任务排队，等转码完成自动执行。</li><li><strong>预览</strong>：</li><li>默认用这台平板当前的布局，可以切换到其它布局预览。只在预览里切换，不会改动平板的设置。</li><li>支持鼠标点击，模拟触摸操作。</li><li>预览固件版本和平板固件版本不一致时，在预览上方提示：&quot;预览基于固件 x，平板固件为 y，画面可能有差异&quot;。</li><li><strong>发布后的进度</strong>：分步显示&quot;上传中 3/5，已传 12.4/41.2 MB&quot;→&quot;提交&quot;→&quot;完成&quot;。失败时显示原因和&quot;重试&quot;按钮；重试时，已经传过的文件会跳过。</li><li><strong>批量发布</strong>：实验室列表可以多选后批量发布。最多同时发布 4 台，其余的排队。</li></ul>
+<h3>4.7 发布记录</h3>
+<ul><li><strong>列</strong>：时间、实验室、平板、清单版本、文件数和总大小、耗时、结果、操作人。</li><li><strong>详情</strong>：显示每一步的日志。</li><li><strong>筛选</strong>：结果、实验室、时间范围。</li></ul>
+<h3>4.8 账号、审计日志、备份、系统设置</h3>
+<ul><li><strong>账号</strong>：增删账号、重置密码、启用或停用账号、分配角色。至少保留一个启用状态的管理员。</li><li><strong>审计日志</strong>：</li><li>列：时间、账号、动作、对象、IP、修改前后对比（点开查看 JSON 差异）。</li><li>只能查看，不能删除；可以导出 CSV。</li><li><strong>备份</strong>：</li><li>立即备份，结果打包成 zip，里面是数据库和素材；</li><li>定时备份：每天 / 每周、保留份数；</li><li>备份列表：可以下载、删除；</li><li>从备份恢复：二次确认后，服务会重启。</li><li><strong>系统设置</strong>：</li><li>监听网卡和端口：修改后需要重启服务；</li><li>平板默认的 <code>idle_timeout_s</code>；</li><li>转码码率；</li><li>平板在线轮询的间隔；</li><li>同时发布的平板数量上限。</li></ul>
+<h2>5. 前端调用的 HTTP API（后端提供）</h2>
+<p>以下接口统一挂在 <code>/api/v1</code> 下，返回格式和平板协议一致：<code>{&quot;code&quot;,&quot;msg&quot;,&quot;data&quot;}</code>。鉴权使用 Cookie 会话，写操作还要带 CSRF 头 <code>X-CSRF-Token</code>。</p>
+<div class="tbl-scroll"><table><thead><tr><th>资源</th><th>接口</th></tr></thead><tbody><tr><td>会话</td><td><code>POST /auth/login</code>、<code>POST /auth/logout</code>、<code>GET /auth/me</code></td></tr><tr><td>实验室</td><td><code>GET /labs</code>、<code>POST /labs</code>、<code>GET /labs/{id}</code>、<code>PUT /labs/{id}</code>、<code>DELETE /labs/{id}</code>、<code>PUT /labs/{id}/equipment</code>（请求体为有序的设备 id 列表，必要时带 <code>confirm_move: true</code>）</td></tr><tr><td>设备</td><td><code>GET /equipment</code>、<code>POST /equipment</code>、<code>GET/PUT/DELETE /equipment/{id}</code>、<code>POST /equipment/import</code>（参数 <code>dry_run=1</code> 表示只预览）</td></tr><tr><td>媒体</td><td><code>POST /media</code>（multipart 上传，返回 media 对象）、<code>GET /media/{id}</code>、<code>GET /media/{id}/file?variant=original/panel/thumb</code>、<code>PUT /{owner}/{id}/media</code>（请求体为有序的 <code>[{media_id, role}]</code>）</td></tr><tr><td>平板</td><td><code>GET /panels</code>、<code>POST /panels</code>（参数 ip）、<code>POST /panels/scan</code>（参数 cidr，返回任务 id）、<code>GET/PUT/DELETE /panels/{id}</code>、<code>POST /panels/{id}/password</code>、<code>POST /panels/{id}/bind</code>、<code>GET /panels/{id}/layouts</code>、<code>PUT /panels/{id}/layout</code>、<code>GET /panels/{id}/screenshot</code>、<code>POST /panels/{id}/reboot</code>、<code>POST /panels/{id}/ota</code></td></tr><tr><td>发布</td><td><code>GET /labs/{id}/publish/plan</code>（检查结果和变更）、<code>POST /labs/{id}/publish</code>、<code>GET /publish-jobs</code>、<code>GET /publish-jobs/{id}</code>、<code>POST /publish-jobs/{id}/retry</code></td></tr><tr><td>任务</td><td><code>GET /jobs/{id}</code>、<code>GET /jobs/stream</code>（SSE，推送任务进度）</td></tr><tr><td>文本</td><td><code>POST /text/check</code>，请求体 <code>{&quot;text&quot;:&quot;...&quot;}</code>，返回 <code>{&quot;missing&quot;:[&quot;㵘&quot;]}</code>。依据是平板字库的字符表，编进后端</td></tr><tr><td>系统</td><td><code>GET /overview</code>、<code>GET/PUT /settings</code>、<code>GET /audit</code>、<code>GET/POST /backups</code>、<code>POST /backups/{id}/restore</code>、<code>GET/POST/PUT /users</code></td></tr><tr><td>预览素材</td><td><code>GET /labs/{id}/preview-bundle</code>：返回这个实验室的清单和素材列表，前端再逐个取 <code>variant=panel</code> 的文件，交给 wasm 预览</td></tr></tbody></table></div>
+<h2>6. 验收清单</h2>
+<ol><li>三种角色分别登录：看到的菜单和按钮符合第 2 节的权限表；直接调用无权限的 API 返回 403。</li><li>一条完整流程走通：新建实验室 → 新建 3 台设备并上传媒体，其中一个视频需要转码 → 组合设备 → 绑定 PC 模拟器（或真板）→ 选择布局 → 预览 → 发布 → 平板显示正确。</li><li>把一台设备从 A 实验室移到 B 实验室：要求二次确认，两个实验室都变成&quot;待发布&quot;，历史表里有记录。</li><li>录入超长文本、平板字库里没有的字，都有对应的校验和提示。</li><li>在发布过程中拔掉平板网线：任务失败并给出原因；恢复网络后点&quot;重试&quot;，已传完的文件被跳过。</li><li>在 1366×768 分辨率下，所有页面都没有横向滚动条，没有元素重叠。</li></ol></article><article class="doc-pane " id="doc-protocol"><h1>后台 ↔ 门口平板 通信协议</h1>
+<ul><li>版本：v0.3（草案，M0 定稿）</li><li>日期：2026-11-17</li><li>适用范围：labComputer 后台，以及 <code>Video_It9868_Smec_ExtDevelop</code> 仓库的 <code>project/lab_panel</code> 固件</li></ul>
+<p>本文是两个仓库共同遵守的接口约定。修改时先改本文并升版本号，再改两边的代码。</p>
+<h2>1. 约定</h2>
+<ul><li><strong>传输</strong>：HTTP/1.1，局域网，端口 80。平板是服务端，后台是客户端。</li><li><strong>地址</strong>：<code>http://&lt;平板IP&gt;/lab/lab.cgi?action=&lt;动作&gt;</code></li><li>这个路径沿用视频机 <code>elevtor/dev.cgi</code> 的风格；最终路径在 M0 定稿。</li><li><strong>鉴权</strong>：所有写操作，以及会暴露素材内容的读操作，都要带请求头 <code>X-Device-Auth: &lt;设备密码&gt;</code>。</li><li>密码错误时返回 401。</li><li>出厂密码只能用于 <code>info</code> 和 <code>set_password</code>，绑定时必须改掉。</li><li><strong>响应</strong>：统一返回 JSON：</li></ul>
+<div class="code-tag">json</div><pre class="code-blk"><code>  {&quot;code&quot;: 0, &quot;msg&quot;: &quot;ok&quot;, &quot;data&quot;: { ... }}</code></pre>
+<ul><li><code>code</code> 为 0 表示成功；非 0 时，HTTP 状态码和 <code>code</code> 一致（400/401/404/409/413/415/507/500），<code>msg</code> 是可以直接展示给用户的中文说明。</li><li><strong>字符编码</strong>：UTF-8。</li><li><strong>并发</strong>：平板的网页服务是单线程的。后台对同一台平板的请求必须串行。不同平板之间可以并发，默认最多 4 台。</li></ul>
+<h2>2. 动作列表</h2>
+<div class="tbl-scroll"><table><thead><tr><th>动作</th><th>方法</th><th>鉴权</th><th>说明</th></tr></thead><tbody><tr><td><code>info</code></td><td>GET</td><td>否</td><td>设备信息，见 2.1</td></tr><tr><td><code>set_password</code></td><td>POST</td><td>是</td><td>修改设备密码，请求体 <code>{&quot;new&quot;:&quot;...&quot;}</code></td></tr><tr><td><code>layouts</code></td><td>GET</td><td>是</td><td>获取平板支持的布局种类和当前布局，见 2.5</td></tr><tr><td><code>set_layout</code></td><td>POST</td><td>是</td><td>设置平板布局，见 2.6</td></tr><tr><td><code>files</code></td><td>GET</td><td>是</td><td>本机素材列表，见 2.2</td></tr><tr><td><code>upload</code></td><td>POST</td><td>是</td><td>上传单个素材到暂存区，见 2.3</td></tr><tr><td><code>commit</code></td><td>POST</td><td>是</td><td>提交新清单，见 2.4</td></tr><tr><td><code>manifest</code></td><td>GET</td><td>是</td><td>读取当前生效的清单</td></tr><tr><td><code>screenshot</code></td><td>GET</td><td>是</td><td>截图（JPEG），参数 <code>quality=1..100</code>，沿用视频机</td></tr><tr><td><code>reboot</code></td><td>POST</td><td>是</td><td>重启</td></tr><tr><td><code>upload_pkg</code> / <code>pkg_upgrade</code></td><td>POST</td><td>是</td><td>固件 OTA，沿用视频机</td></tr></tbody></table></div>
+<h3>2.1 <code>info</code></h3>
+<div class="code-tag">json</div><pre class="code-blk"><code>{&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:{
+  &quot;model&quot;:&quot;lab_panel&quot;,&quot;sn&quot;:&quot;…&quot;,&quot;mac&quot;:&quot;…&quot;,&quot;ip&quot;:&quot;…&quot;,
+  &quot;fw_version&quot;:&quot;1.0.0+3e6e51ed&quot;,&quot;protocol&quot;:&quot;0.3&quot;,
+  &quot;screen&quot;:{&quot;panel_w&quot;:1280,&quot;panel_h&quot;:800,&quot;touch&quot;:true,
+            &quot;layout&quot;:&quot;landscape_std&quot;,&quot;orientation&quot;:&quot;landscape&quot;,&quot;w&quot;:1280,&quot;h&quot;:800},
+  &quot;storage&quot;:{&quot;total&quot;:…,&quot;free&quot;:…},
+  &quot;manifest_version&quot;:12,&quot;lab_code&quot;:&quot;L3-201&quot;,
+  &quot;default_password&quot;:false,
+  &quot;uptime_s&quot;:3600
+}}</code></pre>
+<ul><li>后台每 30 s 轮询一次 <code>info</code>，用来判断在线状态。</li><li><code>panel_w</code>/<code>panel_h</code> 是屏幕的物理分辨率，固定为 1280×800。</li><li><code>layout</code> 是当前布局的 id。<code>orientation</code>、<code>w</code>、<code>h</code> 由当前布局决定：横屏布局为 1280×800，竖屏布局为 800×1280。</li><li><code>default_password</code> 为 true 时，后台必须引导用户先修改密码。</li></ul>
+<h3>2.2 <code>files</code></h3>
+<div class="code-tag">json</div><pre class="code-blk"><code>{&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:{&quot;files&quot;:[
+  {&quot;name&quot;:&quot;e17_cover.jpg&quot;,&quot;size&quot;:81234,&quot;sha256&quot;:&quot;…&quot;}
+]}}</code></pre>
+<ul><li>sha256 在文件上传完成时计算并缓存，<code>files</code> 不重新计算。</li></ul>
+<h3>2.3 <code>upload</code></h3>
+<ul><li>请求格式：<code>POST ...?action=upload&amp;name=&lt;文件名&gt;&amp;sha256=&lt;hex&gt;</code>，请求头 <code>ContentSize: &lt;字节数&gt;</code>，<code>multipart/form-data</code> 的字段名为 <code>file</code>。上传方式和视频机一致。</li><li>文件名规则：只能用 <code>[A-Za-z0-9._-]</code>，最长 64 个字符。后台统一用 <code>&lt;sha256 前 16 位&gt;.&lt;扩展名&gt;</code> 命名，避免中文文件名和重名。</li><li>处理流程：</li><li>写入暂存区；</li><li>校验大小和 sha256，不一致返回 400；</li><li>检查格式。图片必须是 baseline JPEG 或 PNG，且不超过 1920×1920，否则返回 415 或 413。视频必须是 MP4 封装的 H.264；</li><li>移入素材区。</li><li>剩余空间不够时返回 507。</li><li>同名、同 sha256 的文件已经存在时，直接返回成功（幂等）。</li></ul>
+<h3>2.4 <code>commit</code></h3>
+<p>请求体为完整清单：</p>
+<div class="code-tag">json</div><pre class="code-blk"><code>{
+  &quot;version&quot;: 12,
+  &quot;lab&quot;: {
+    &quot;code&quot;: &quot;L3-201&quot;, &quot;name&quot;: &quot;材料力学实验室&quot;, &quot;status&quot;: &quot;使用中&quot;,
+    &quot;location&quot;: &quot;3号楼 2层 201&quot;, &quot;owner&quot;: &quot;张老师&quot;, &quot;phone&quot;: &quot;…&quot;,
+    &quot;open_hours&quot;: &quot;周一至周五 8:30-17:30&quot;,
+    &quot;intro&quot;: &quot;…&quot;, &quot;safety&quot;: [&quot;进入实验室须穿戴防护用品&quot;, &quot;…&quot;],
+    &quot;media&quot;: [{&quot;file&quot;:&quot;a1b2….jpg&quot;,&quot;role&quot;:&quot;cover&quot;},{&quot;file&quot;:&quot;c3d4….mp4&quot;,&quot;role&quot;:&quot;intro&quot;}]
+  },
+  &quot;equipment&quot;: [
+    {&quot;id&quot;:&quot;E17&quot;,&quot;asset_no&quot;:&quot;…&quot;,&quot;name&quot;:&quot;万能试验机&quot;,&quot;model&quot;:&quot;…&quot;,&quot;vendor&quot;:&quot;…&quot;,
+     &quot;status&quot;:&quot;可用&quot;,&quot;intro&quot;:&quot;…&quot;,&quot;specs&quot;:[[&quot;量程&quot;,&quot;300 kN&quot;],[&quot;精度&quot;,&quot;0.5 级&quot;]],
+     &quot;media&quot;:[{&quot;file&quot;:&quot;…jpg&quot;,&quot;role&quot;:&quot;cover&quot;},{&quot;file&quot;:&quot;…mp4&quot;,&quot;role&quot;:&quot;model3d&quot;}]}
+  ],
+  &quot;ui&quot;: {&quot;idle_timeout_s&quot;: 60, &quot;theme&quot;: &quot;default&quot;}
+}</code></pre>
+<ul><li><code>media[].role</code> 的取值：<code>cover</code>、<code>gallery</code>、<code>model3d</code>、<code>intro</code>。</li><li>平板的处理流程：</li><li>检查 <code>version</code> 是否大于当前版本。不大于时返回 409，除非请求带 <code>force=1</code>。</li><li>检查清单引用的所有文件都已存在。缺文件时返回 400，并在 <code>data.missing</code> 里列出缺少的文件。</li><li>写入 <code>manifest.json.tmp</code>，fsync 后重命名为 <code>manifest.json</code>。这一步是原子替换，中途断电不会损坏清单。</li><li>删除没有被新清单引用的素材。</li><li>通知 UI 重新加载。</li><li>成功时返回：</li></ul>
+<div class="code-tag">json</div><pre class="code-blk"><code>  {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:{&quot;manifest_version&quot;:12,&quot;removed&quot;:3}}</code></pre>
+<h3>2.5 <code>layouts</code></h3>
+<p>返回这台平板固件里内置的所有布局，以及当前正在使用的布局：</p>
+<div class="code-tag">json</div><pre class="code-blk"><code>{&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:{
+  &quot;current&quot;:&quot;landscape_std&quot;,
+  &quot;default&quot;:&quot;landscape_std&quot;,
+  &quot;layouts&quot;:[
+    {&quot;id&quot;:&quot;landscape_std&quot;,&quot;name&quot;:&quot;横屏标准&quot;,&quot;orientation&quot;:&quot;landscape&quot;,&quot;w&quot;:1280,&quot;h&quot;:800,
+     &quot;desc&quot;:&quot;左上视频，右上实验室信息，中间一排设备卡片，底部安全须知&quot;,
+     &quot;regions&quot;:[
+       {&quot;id&quot;:&quot;video&quot;,&quot;x&quot;:0,&quot;y&quot;:0,&quot;w&quot;:800,&quot;h&quot;:450},
+       {&quot;id&quot;:&quot;title&quot;,&quot;x&quot;:800,&quot;y&quot;:0,&quot;w&quot;:480,&quot;h&quot;:450},
+       {&quot;id&quot;:&quot;cards&quot;,&quot;x&quot;:0,&quot;y&quot;:450,&quot;w&quot;:1280,&quot;h&quot;:290},
+       {&quot;id&quot;:&quot;notice&quot;,&quot;x&quot;:0,&quot;y&quot;:740,&quot;w&quot;:1280,&quot;h&quot;:60}]},
+    {&quot;id&quot;:&quot;landscape_video&quot;,&quot;name&quot;:&quot;横屏视频优先&quot;,&quot;orientation&quot;:&quot;landscape&quot;,&quot;w&quot;:1280,&quot;h&quot;:800,
+     &quot;desc&quot;:&quot;上方整屏宽视频，底部一条标题和须知；设备卡片点击后从底部弹出&quot;,
+     &quot;regions&quot;:[
+       {&quot;id&quot;:&quot;video&quot;,&quot;x&quot;:0,&quot;y&quot;:0,&quot;w&quot;:1280,&quot;h&quot;:720},
+       {&quot;id&quot;:&quot;title&quot;,&quot;x&quot;:0,&quot;y&quot;:720,&quot;w&quot;:1280,&quot;h&quot;:80}]},
+    {&quot;id&quot;:&quot;portrait_std&quot;,&quot;name&quot;:&quot;竖屏标准&quot;,&quot;orientation&quot;:&quot;portrait&quot;,&quot;w&quot;:800,&quot;h&quot;:1280,
+     &quot;desc&quot;:&quot;从上到下：标题、视频、设备卡片、须知&quot;,
+     &quot;regions&quot;:[
+       {&quot;id&quot;:&quot;title&quot;,&quot;x&quot;:0,&quot;y&quot;:0,&quot;w&quot;:800,&quot;h&quot;:200},
+       {&quot;id&quot;:&quot;video&quot;,&quot;x&quot;:0,&quot;y&quot;:200,&quot;w&quot;:800,&quot;h&quot;:450},
+       {&quot;id&quot;:&quot;cards&quot;,&quot;x&quot;:0,&quot;y&quot;:650,&quot;w&quot;:800,&quot;h&quot;:550},
+       {&quot;id&quot;:&quot;notice&quot;,&quot;x&quot;:0,&quot;y&quot;:1200,&quot;w&quot;:800,&quot;h&quot;:80}]}
+  ]
+}}</code></pre>
+<ul><li><strong>布局编在固件里</strong>，平板通过这个接口告诉后台它支持哪些布局。后台不写死布局列表：不同固件版本支持的布局可能不同，后台按&quot;固件版本&quot;缓存这个列表。</li><li><strong>字段</strong>：</li><li><code>id</code>：只用小写字母、数字和下划线，一经发布不再改名。</li><li><code>name</code>、<code>desc</code>：直接显示在后台界面上。</li><li><code>orientation</code>：只有 <code>landscape</code> 和 <code>portrait</code> 两个取值。</li><li><code>regions</code>：各区块在逻辑坐标下的位置。后台用它画布局示意图；视频区的尺寸也可以作为转码尺寸的参考。区块 id 取值：<code>title</code>、<code>video</code>、<code>cards</code>、<code>notice</code>、<code>gallery</code>、<code>specs</code>。</li><li>布局只决定待机页的区块排布，以及其它页面按横屏还是竖屏排版。页面种类和内容不受布局影响。</li><li>第一版固件至少内置上面 3 种布局，<code>landscape_std</code> 是出厂默认。</li></ul>
+<h3>2.6 <code>set_layout</code></h3>
+<p>请求体：</p>
+<div class="code-tag">json</div><pre class="code-blk"><code>{&quot;layout&quot;: &quot;portrait_std&quot;}</code></pre>
+<ul><li>平板的处理：</li><li>检查 <code>layout</code> 是否在 <code>layouts</code> 列表里。不在时返回 400，<code>msg</code> 为&quot;不支持的布局&quot;。</li><li>把布局 id 保存到 NAND 配置；</li><li>不重启，直接按新布局重建界面。如果方向变了，屏幕旋转和触摸坐标跟着一起切换。</li><li>正在播放的视频在新的视频区里重新开始播放。</li><li>成功时返回：</li></ul>
+<div class="code-tag">json</div><pre class="code-blk"><code>  {&quot;code&quot;:0,&quot;msg&quot;:&quot;ok&quot;,&quot;data&quot;:{&quot;layout&quot;:&quot;portrait_std&quot;,&quot;orientation&quot;:&quot;portrait&quot;,&quot;w&quot;:800,&quot;h&quot;:1280}}</code></pre>
+<ul><li>布局和当前一致时直接返回成功（幂等）。</li><li>布局不属于清单内容。切换布局不需要重新发布，清单版本也不变。</li><li>固件升级后，如果保存的布局 id 已经不存在，就回退到 <code>default</code>，并在 <code>info</code> 里如实反映。</li></ul>
+<h2>3. 同步流程（后台侧）</h2>
+<pre class="code-blk"><code>生成清单 → GET files → 比较得出缺少的文件 → 检查剩余空间
+        → 逐个 upload（已存在且 sha256 一致的跳过） → commit → GET info 确认版本</code></pre>
+<ul><li><strong>断点续传</strong>：以文件为单位。中断后重新发布，已经传完的文件会被跳过。</li><li><strong>失败处理</strong>：任何一步失败，任务都标记为失败并记录 <code>msg</code>。平板上继续显示旧清单，不会出现半新半旧的状态。</li></ul>
+<h2>4. 版本演进</h2>
+<div class="tbl-scroll"><table><thead><tr><th>版本</th><th>日期</th><th>变更</th></tr></thead><tbody><tr><td>0.1</td><td>2026-11-17</td><td>初稿</td></tr><tr><td>0.2</td><td>2026-11-17</td><td>新增 <code>set_orientation</code>；<code>info.screen</code> 加 <code>orientation</code>，默认横屏 1280×800</td></tr><tr><td>0.3</td><td>2026-11-17</td><td>用 <code>layouts</code> / <code>set_layout</code> 取代 <code>set_orientation</code>，方向改为由布局决定；<code>info.screen</code> 加 <code>panel_w</code>/<code>panel_h</code>/<code>layout</code></td></tr></tbody></table></div></article>
+  </main>
+</div>
+<script>
+window.__showDoc = function(id){
+  document.querySelectorAll('.doc-btn').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  document.querySelectorAll('.doc-pane').forEach(p => p.classList.toggle('active', p.id === 'doc-' + id));
+  history.replaceState(null, '', '#' + id);
+  window.scrollTo({top:0, behavior:'smooth'});
+};
+(function(){
+  const h = location.hash.replace('#','');
+  if(h && document.getElementById('doc-' + h)) window.__showDoc(h);
+})();
+</script>
+</body>
+</html>

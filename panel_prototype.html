@@ -1,0 +1,1571 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实验室门牌平板 · 1:1 像素 UI 与交互工程原型</title>
+<style>
+:root{
+  --ui-bg:#F1F4F8; --ui-card:#FFFFFF; --ui-sunken:#E6ECF2; --ui-fg:#121923; --ui-muted:#576375; --ui-line:#D4DCE6;
+  --ui-accent:#1D6FE8; --ui-accent-soft:#E6F0FD; --ui-ok:#15803D; --ui-warn:#B45309; --ui-bad:#B91C1C;
+  --zone-color:#E11D8F; --hit-color:#06B6D4; --maint-color:#F59E0B;
+  --f-ui:"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-panel:"WenQuanYi Micro Hei","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --f-mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-host="light"]){
+    --ui-bg:#0C1016; --ui-card:#151B24; --ui-sunken:#1D2531; --ui-fg:#E6ECF2; --ui-muted:#909DAD; --ui-line:#283342;
+    --ui-accent:#4D94FF; --ui-accent-soft:#1A2C47; --ui-ok:#34D399; --ui-warn:#FBBF24; --ui-bad:#F87171;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ui-bg);color:var(--ui-fg);font:13.5px/1.55 var(--f-ui);padding:18px 20px 48px}
+.wrap{max-width:1520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--ui-line)}
+header.top h1{margin:0;font-size:21px;font-weight:700}
+header.top p{margin:4px 0 0;color:var(--ui-muted);max-width:78ch}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font:12px/1.4 var(--f-mono);padding:3px 9px;border:1px solid var(--ui-line);border-radius:999px;background:var(--ui-card);color:var(--ui-muted)}
+.pill.hi{color:var(--ui-accent);border-color:var(--ui-accent)}
+.work{display:grid;gap:16px;grid-template-columns:308px minmax(0,1fr) 316px;align-items:start}
+@media (max-width:1280px){.work{grid-template-columns:290px minmax(0,1fr)}.inspect{grid-column:1/-1}}
+@media (max-width:880px){.work{grid-template-columns:1fr}}
+.card{background:var(--ui-card);border:1px solid var(--ui-line);border-radius:10px;padding:14px;min-width:0}
+.card h2{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ui-muted);margin:0 0 7px}
+.ctl{display:flex;flex-direction:column;gap:14px}
+.grp{display:flex;flex-direction:column;gap:6px}
+.seg{display:flex;flex-wrap:wrap;gap:5px}
+.seg button,.btn{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:6px;border:1px solid var(--ui-line);background:var(--ui-bg);color:var(--ui-fg);cursor:pointer;transition:background .12s,border-color .12s}
+.seg button:hover,.btn:hover{border-color:var(--ui-accent)}
+.seg button[aria-pressed="true"]{border-color:var(--ui-accent);background:var(--ui-accent-soft);font-weight:600}
+.btn.warn{border-color:var(--ui-warn);color:var(--ui-warn)}
+select{font:inherit;font-size:12.5px;padding:5px 8px;border-radius:6px;border:1px solid var(--ui-line);background:var(--ui-bg);color:var(--ui-fg);width:100%}
+.chk{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;user-select:none}
+.stage-col{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+#bezel{position:relative;border-radius:16px;background:#040608;padding:14px;box-shadow:0 14px 36px rgba(0,0,0,.28);border:1px solid #26303D}
+#screenClip{position:relative;overflow:hidden;background:#000}
+#screen{position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden;user-select:none}
+.cap{font:12px/1.5 var(--f-mono);color:var(--ui-muted);text-align:center}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:12.5px;margin:0}
+.kv dt{color:var(--ui-muted);white-space:nowrap}
+.kv dd{margin:0;font:12px/1.45 var(--f-mono);word-break:break-all}
+.badge-ok{color:var(--ui-ok);font-weight:600}
+.badge-warn{color:var(--ui-warn);font-weight:600}
+.badge-bad{color:var(--ui-bad);font-weight:600}
+.note{font-size:12px;color:var(--ui-muted);margin:8px 0 0}
+
+/* ========== 1:1 Device Screen Styles (LVGL 8.3.7 + FreeType wqyMicroHei) ========== */
+.scr,.scr *{font-family:var(--f-panel);font-weight:400;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+.bx{position:absolute;overflow:hidden}
+.ell1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ell2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pressable{cursor:pointer;transition:background-color 50ms linear,opacity 50ms linear}
+.pressable:active{background-color:var(--p-surface-hi) !important}
+.pressable-opa:active{opacity:0.7 !important}
+.fade-in{animation:lvFade 200ms linear}
+.slide-x-next{animation:lvSlideNext 250ms ease-out}
+.slide-x-prev{animation:lvSlidePrev 250ms ease-out}
+.drawer-up{animation:lvDrawerUp 250ms ease-out}
+@keyframes lvFade{from{opacity:0}to{opacity:1}}
+@keyframes lvSlideNext{from{transform:translateX(72px);opacity:.6}to{transform:translateX(0);opacity:1}}
+@keyframes lvSlidePrev{from{transform:translateX(-72px);opacity:.6}to{transform:translateX(0);opacity:1}}
+@keyframes lvDrawerUp{from{transform:translateY(320px)}to{transform:translateY(0)}}
+@keyframes mqScroll{from{transform:translateX(var(--mq-from,600px))}to{transform:translateX(var(--mq-to,-900px))}}
+@keyframes wireShift{0%{transform:translateX(-18px)}50%{transform:translateX(18px)}100%{transform:translateX(-18px)}}
+.mq-run{position:absolute;left:0;top:0;white-space:nowrap;animation:mqScroll linear infinite}
+.vid-anim{animation:wireShift 5s ease-in-out infinite}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{scrollbar-width:none}
+
+/* Review Overlays */
+.ov-zone{position:absolute;border:2px dashed var(--zone-color);pointer-events:none;z-index:40}
+.ov-zone b{position:absolute;left:0;top:0;background:var(--zone-color);color:#fff;font:500 18px/1.25 var(--f-mono) !important;padding:2px 7px;white-space:nowrap}
+.ov-hit{position:absolute;border:2px solid var(--hit-color);background:rgba(6,182,212,.10);pointer-events:none;z-index:41}
+.ov-hit i{position:absolute;right:0;bottom:0;background:var(--hit-color);color:#022;font:600 15px/1.2 var(--f-mono) !important;padding:1px 4px}
+.ov-maint{position:absolute;left:0;top:0;width:100px;height:100px;border:3px dashed var(--maint-color);background:rgba(245,158,11,.14);pointer-events:none;z-index:42;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px}
+.ov-maint span{font:600 15px/1.2 var(--f-mono) !important;color:#FBBF24;background:rgba(0,0,0,.75);padding:1px 5px;border-radius:4px}
+
+/* Bottom spec ledger */
+section.ledger{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:1024px){section.ledger{grid-template-columns:1fr}}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--ui-line);border-radius:10px;background:var(--ui-card)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{text-align:left;padding:7px 11px;border-bottom:1px solid var(--ui-line);vertical-align:top}
+th{background:var(--ui-sunken);color:var(--ui-muted);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.mono{font-family:var(--f-mono);font-size:12px}
+.sw{display:inline-block;width:13px;height:13px;border-radius:3px;border:1px solid var(--ui-line);vertical-align:-2px;margin-right:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>实验室门牌平板 · 1:1 像素 UI 与交互定稿原型</h1>
+      <p>对齐固件 <code>docs/lab_panel/01_平板UI与交互规格.md</code> 与协议 v0.3。画面以设备真实逻辑像素（<code>1280×800</code> / <code>800×1280</code>）渲染后等比缩放，全部色值按 <code>RGB565</code> 量化，单字重 5 档字号，可直接点击、拖拽、触发 5 连点维护页与热更新边界工况。</p>
+    </div>
+    <div class="pills">
+      <a href="index.html" class="pill hi" style="text-decoration:none">← 返回设计总入口</a>
+      <a href="admin_prototype.html" class="pill" style="text-decoration:none">管理后台原型 →</a>
+      <span class="pill hi">LVGL 8.3.7 · C99</span>
+      <span class="pill">1280×800 RGB565</span>
+      <span class="pill">wqyMicroHei 5档字号</span>
+      <span class="pill">单路视频 · 同屏图片 ≤ 8</span>
+      <span class="pill">热区 ≥ 64×64 · 间距 ≥ 16</span>
+    </div>
+  </header>
+
+  <div class="work">
+    <!-- Left Controls -->
+    <aside class="card ctl" aria-label="工程控制面板">
+      <div class="grp">
+        <h2>1. 内置布局 · set_layout</h2>
+        <div class="seg" id="segLayout">
+          <button data-v="landscape_std" aria-pressed="true">横屏标准 (默认)</button>
+          <button data-v="landscape_video">横屏视频优先</button>
+          <button data-v="portrait_std">竖屏标准 800×1280</button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>2. 页面导航（也可直接在屏幕内点击）</h2>
+        <div class="seg" id="segPage">
+          <button data-v="idle" aria-pressed="true">待机页 Idle</button>
+          <button data-v="intro">实验室介绍 Intro</button>
+          <button data-v="detail">设备详情 Detail</button>
+          <button data-v="maint">维护页 Maint</button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>3. 清单数据集与边界工况</h2>
+        <select id="selDataset" aria-label="测试清单">
+          <option value="normal">标准工况：材料力学实验室（6 台设备 + 视频）</option>
+          <option value="stress62">压力工况：62 台设备（截断至 60 台 + 懒加载 ≤8 图）</option>
+          <option value="empty0">空设备工况：0 台设备（新建空实验室）</option>
+          <option value="novideo">无视频工况：0 段视频（降级显示实验室封面图）</option>
+          <option value="edge">极端文本：超长名 / 40 行参数 / 缺字“㵘”→□ / 缺文件</option>
+          <option value="unbound">出厂未绑定：lab_model_get() == NULL</option>
+        </select>
+      </div>
+
+      <div class="grp">
+        <h2>4. 实验室状态胶囊</h2>
+        <div class="seg" id="segStatus">
+          <button data-v="使用中" aria-pressed="true">使用中</button>
+          <button data-v="空闲">空闲</button>
+          <button data-v="维护">维护</button>
+          <button data-v="考试封闭">自定义文本</button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>5. 异步事件与硬件故障注入</h2>
+        <div class="seg">
+          <button class="btn" id="btnCommitKeep">推送新清单（保留当前设备）</button>
+          <button class="btn" id="btnCommitDrop">推送新清单（移除当前设备）</button>
+          <button class="btn warn" id="btnVidErr">模拟视频解码错误 (+1)</button>
+          <button class="btn" id="btnVidNext">切下一条待机视频</button>
+          <button class="btn" id="btnVidEos">模拟详情视频播完 EOS</button>
+          <button class="btn" id="btnIdleNear">快进空闲计时至 4s</button>
+        </div>
+      </div>
+
+      <div class="grp">
+        <h2>6. 评审图层与皮肤</h2>
+        <label class="chk"><input type="checkbox" id="chkZones"> 显示区块像素坐标 (regions)</label>
+        <label class="chk"><input type="checkbox" id="chkHits"> 显示 ≥64×64 热区与左上 100×100 维护区</label>
+        <div class="seg" id="segTheme" style="margin-top:4px">
+          <button data-v="default" aria-pressed="true">深色默认 (default)</button>
+          <button data-v="light">预留浅色 (light)</button>
+        </div>
+        <p class="note">提示：在屏幕左上角 <code>100×100</code> 区域 3 秒内连点 5 次可真实呼出维护页；在详情页右/下方信息区按住鼠标左右拖动可切换设备。</p>
+      </div>
+    </aside>
+
+    <!-- Center 1:1 Stage -->
+    <section class="stage-col" aria-label="1:1 设备画面">
+      <div id="bezel">
+        <div id="screenClip">
+          <div id="screen" class="scr"></div>
+        </div>
+      </div>
+      <div class="cap" id="stageCap"></div>
+    </section>
+
+    <!-- Right C-Model & Hardware Inspector -->
+    <aside class="card inspect" aria-label="固件运行态检查器">
+      <h2>导航栈与计时器 · ui_nav</h2>
+      <dl class="kv" id="insNav"></dl>
+
+      <h2 style="margin-top:14px">单路视频引擎 · hal_video (C3/C4)</h2>
+      <dl class="kv" id="insVideo"></dl>
+
+      <h2 style="margin-top:14px">IT2D 内存与硬约束核验 (C1–C11)</h2>
+      <dl class="kv" id="insGuard"></dl>
+
+      <h2 style="margin-top:14px">只读数据模型 · lab_model_t</h2>
+      <dl class="kv" id="insModel"></dl>
+    </aside>
+  </div>
+
+  <!-- Bottom Spec Ledger -->
+  <section class="ledger">
+    <div class="card">
+      <h2>色彩 Token 与 RGB565 量化核对表（§3.1）</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Token</th><th>用途</th><th>深色默认 → RGB565</th><th>预留浅色 → RGB565</th></tr></thead>
+          <tbody id="tblTokens"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h2>FreeType 5 档字阶与硬约束核对（C1–C11）</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>字号 Token</th><th>px / 行高</th><th>规定场景与截断策略</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">f_display</td><td class="mono">56 / 68</td><td>待机实验室名（横屏标准最多 2 行省略，竖屏/视频优先 1 行省略）</td></tr>
+            <tr><td class="mono">f_title</td><td class="mono">40 / 52</td><td>详情页设备名（最多 2 行）、介绍页/维护页标题、未绑定页主文案</td></tr>
+            <tr><td class="mono">f_lead</td><td class="mono">30 / 40</td><td>编号·位置、卡片标题（单行省略）、Tab 标签、主次按钮、未绑定 SN/IP</td></tr>
+            <tr><td class="mono">f_body</td><td class="mono">26 / 36</td><td>负责人/电话/开放时间、参数表键值（值最多 2 行）、简介正文</td></tr>
+            <tr><td class="mono">f_cap</td><td class="mono">22 / 30</td><td>状态胶囊、卡片型号、滚动安全须知（60px/s）、视频叠加字幕、维护日志</td></tr>
+            <tr><td class="mono">触控安全区</td><td class="mono">100×100</td><td>左上角固定透明维护入口（3s 连点 5 次），返回按钮统一从 x ≥ 108 起排</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+/* ==================== 1. RGB565 Theme & Layout Table (Single Source of Truth) ==================== */
+const THEMES = {
+  default: {
+    bg:'#0B0F14', surface:'#151B23', surface_hi:'#1F2732', line:'#2A3441',
+    text:'#F2F5F8', text_2:'#A7B1BD', accent:'#2F80ED',
+    st_idle:'#27AE60', st_busy:'#F2994A', st_maint:'#EB5757', st_unknown:'#828B96'
+  },
+  light: {
+    bg:'#EEF2F6', surface:'#FFFFFF', surface_hi:'#E2E8F0', line:'#CBD5E1',
+    text:'#0F172A', text_2:'#475569', accent:'#1D6FE8',
+    st_idle:'#15803D', st_busy:'#C26A1B', st_maint:'#C8282E', st_unknown:'#64748B'
+  }
+};
+const TOK_DESC = {
+  bg:'页面背景', surface:'卡片 / 面板', surface_hi:'按下态 / Toast', line:'分隔线 / 表格线',
+  text:'主文字', text_2:'次要文字', accent:'强调 / 选中下划线',
+  st_idle:'空闲 / 可用', st_busy:'使用中', st_maint:'维护 / 停用', st_unknown:'其他状态'
+};
+
+function hexToRgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));}
+function q565(h){const [r,g,b]=hexToRgb(h);return {r:Math.round(r*31/255),g:Math.round(g*63/255),b:Math.round(b*31/255)};}
+function snap565(h){const v=q565(h),p=x=>x.toString(16).padStart(2,'0');return '#'+p(Math.round(v.r*255/31))+p(Math.round(v.g*255/63))+p(Math.round(v.b*255/31));}
+function hex565(h){const v=q565(h);return '0x'+((v.r<<11)|(v.g<<5)|v.b).toString(16).toUpperCase().padStart(4,'0');}
+function rgba(h,a){const [r,g,b]=hexToRgb(snap565(h));return `rgba(${r},${g},${b},${a})`;}
+
+/* Exact regions matching protocol v0.3 §2.5 & ui_layouts.c */
+const UI_LAYOUTS = {
+  landscape_std: {
+    id:'landscape_std', name:'横屏标准', orientation:'landscape', w:1280, h:800,
+    desc:'左上视频，右上实验室信息，中间一排设备卡片，底部安全须知',
+    regions:[
+      {id:'video', x:0,   y:0,   w:800,  h:450},
+      {id:'title', x:800, y:0,   w:480,  h:450},
+      {id:'cards', x:0,   y:450, w:1280, h:290},
+      {id:'notice',x:0,   y:740, w:1280, h:60}
+    ]
+  },
+  landscape_video: {
+    id:'landscape_video', name:'横屏视频优先', orientation:'landscape', w:1280, h:800,
+    desc:'上方整屏宽视频，底部一条标题和须知；设备卡片点击后从底部弹出',
+    regions:[
+      {id:'video', x:0, y:0,   w:1280, h:720},
+      {id:'title', x:0, y:720, w:1280, h:80}
+    ]
+  },
+  portrait_std: {
+    id:'portrait_std', name:'竖屏标准', orientation:'portrait', w:800, h:1280,
+    desc:'从上到下：标题、视频、设备卡片、须知',
+    regions:[
+      {id:'title', x:0, y:0,    w:800, h:200},
+      {id:'video', x:0, y:200,  w:800, h:450},
+      {id:'cards', x:0, y:650,  w:800, h:550},
+      {id:'notice',x:0, y:1200, w:800, h:80}
+    ]
+  }
+};
+
+/* ==================== 2. Mock Datasets (Normal + Stress + Edge Cases) ==================== */
+const BASE_EQUIP = [
+  {
+    id:'E01', asset_no:'ZC-2024-0108', name:'微机控制电液伺服万能试验机', model:'WAW-1000D', vendor:'济南试金集团', status:'可用', hue:'#1E3A5F',
+    intro:'用于金属、非金属及复合材料的拉伸、压缩、弯曲、剪切等室温力学性能试验。配备全数字闭环伺服控制器与高精度引伸计，支持恒应力、恒应变、恒位移三闭环控制。',
+    specs:[['最大试验力','1000 kN'],['测力精度','±0.5%（0.5 级）'],['试验力测量范围','2%–100% FS'],['活塞最大行程','250 mm'],['拉伸空间','750 mm'],['压缩空间','650 mm'],['立柱净距','580 mm'],['电源功率','380V 三相 5.5 kW']],
+    media:[
+      {file:'e01_cover.jpg',role:'cover',label:'万能试验机主机正视图'},
+      {file:'e01_g1.jpg',role:'gallery',label:'液压楔形夹具特写'},
+      {file:'e01_g2.jpg',role:'gallery',label:'全数字伺服测控柜'},
+      {file:'e01_g3.jpg',role:'gallery',label:'标准拉伸试样断裂形貌'},
+      {file:'e01_3d.mp4',role:'model3d',label:'WAW-1000D 液压加载与横梁升降 3D 剖面演示',dur:'00:38'},
+      {file:'e01_intro.mp4',role:'intro',label:'万能试验机标准拉伸操作规程演示',dur:'01:15'}
+    ]
+  },
+  {
+    id:'E02', asset_no:'ZC-2024-0112', name:'高频电磁谐振疲劳试验机', model:'PLG-200C', vendor:'长春试验机研究所', status:'使用中', hue:'#2B3D34',
+    intro:'利用机械系统共振原理施加高频交变载荷，专用于测定金属结构件、紧固件、齿轮及连杆的疲劳极限（S-N 曲线）与裂纹扩展速率。',
+    specs:[['最大静态负荷','±200 kN'],['最大动态负荷','±100 kN'],['工作频率范围','80–250 Hz'],['频率稳定度','0.01 Hz'],['动态负荷误差','≤ ±1%']],
+    media:[
+      {file:'e02_cover.jpg',role:'cover',label:'高频疲劳试验机全貌'},
+      {file:'e02_g1.jpg',role:'gallery',label:'电磁激振器总成'},
+      {file:'e02_3d.mp4',role:'model3d',label:'电磁谐振激励与动态载荷传递 3D 演示',dur:'00:42'}
+    ]
+  },
+  {
+    id:'E03', asset_no:'ZC-2023-0845', name:'摆锤式金属冲击试验机', model:'JB-300B', vendor:'深圳三思纵横', status:'可用', hue:'#3F2E4C',
+    intro:'采用半自动气动扬摆、冲击、放摆与自动送样结构，用于测定金属材料在动负荷下抵抗冲击的性能（夏比 V 型/U 型缺口冲击吸收功）。',
+    specs:[['冲击能量','300 J / 150 J 双摆锤'],['摆锤预扬角','150°'],['冲击速度','5.2 m/s'],['角度分辨率','0.06°']],
+    media:[
+      {file:'e03_cover.jpg',role:'cover',label:'摆锤冲击试验机主机'},
+      {file:'e03_g1.jpg',role:'gallery',label:'低温槽自动送样机构'}
+    ]
+  },
+  {
+    id:'E04', asset_no:'ZC-2023-0911', name:'电子扭转试验机', model:'NDW-3000', vendor:'济南时代试金', status:'可用', hue:'#3B3322',
+    intro:'由交流伺服电机加载、高精度扭矩传感器检测，用于金属线材、管材、传动轴件的正反向扭转强度、切变模量及断裂扭转角测试。',
+    specs:[['最大扭矩','3000 N·m'],['扭矩准确度','±0.5%'],['扭转角分辨率','0.01°'],['扭转速度','0.05–720 °/min'],['夹头间最大距离','1200 mm']],
+    media:[
+      {file:'e04_cover.jpg',role:'cover',label:'卧式电子扭转机主机'},
+      {file:'e04_3d.mp4',role:'model3d',label:'传动轴纯扭转剪切应力分布 3D 演示',dur:'00:31'}
+    ]
+  },
+  {
+    id:'E05', asset_no:'ZC-2022-0419', name:'全自动数显维氏硬度计', model:'HVS-50Z', vendor:'上海尚材试验机', status:'维护', hue:'#4A2528',
+    intro:'配备自动转塔与高倍金相测量镜头，正在执行年度计量标定，暂停对外试验。',
+    specs:[['试验力档位','0.3 / 1 / 5 / 10 / 30 / 50 kgf'],['测量显微镜倍率','100× / 400×'],['保荷时间','5–60 s']],
+    media:[
+      {file:'e05_cover.jpg',role:'cover',label:'维氏硬度计与电动转塔'}
+    ]
+  },
+  {
+    id:'E06', asset_no:'ZC-2025-0023', name:'非接触式三维数字图像相关应变仪', model:'DIC-3D Pro', vendor:'新拓三维 XTOP', status:'可用', hue:'#1B3B48',
+    intro:'双高速工业相机同步采集试件表面散斑图像，实时解算材料变形过程中的全场三维位移与应变场云图。',
+    specs:[['相机分辨率','500 万像素 × 2'],['最高采集帧率','160 fps'],['应变测量范围','0.005%–2000%'],['应变测量精度','≤ 20 με']],
+    media:[
+      {file:'e06_cover.jpg',role:'cover',label:'双目高速相机云台'},
+      {file:'e06_3d.mp4',role:'model3d',label:'全场散斑追踪与颈缩应变云图 3D 演示',dur:'00:35'}
+    ]
+  }
+];
+
+/* Non-GB2312 rare character check: '㵘' -> rendered as □ on panel FreeType wqyMicroHei */
+function renderPanelGlyphs(str){
+  if(!str) return '';
+  return String(str).replace(/[㵘𠀀龘]/g, '□');
+}
+
+function buildModel(kind, statusOverride, versionNum, dropEquipId){
+  if(kind === 'unbound') return null;
+  let eqs = BASE_EQUIP.map(e => JSON.parse(JSON.stringify(e)));
+  let labMedia = [
+    {file:'lab_cover.jpg', role:'cover', label:'材料力学实验室全景图'},
+    {file:'lab_intro.mp4', role:'intro', label:'材料力学实验室安全导览与漫游视频', dur:'00:50'}
+  ];
+  let labName = '材料力学与结构强度实验室';
+  let location = '3号实验楼 · 2层 201室';
+  let safety = [
+    '进入实验室必须穿戴实验服与防砸护目镜，长发须盘入帽内',
+    '液压与高频加载运行期间严禁跨越黄色安全警戒线',
+    '脆性材料压缩与冲击试验前必须关闭防飞溅护罩',
+    '试验结束后请将夹具归位、切断动力电源并填写运行台账'
+  ];
+
+  if(kind === 'stress62'){
+    const big = [];
+    for(let i=1;i<=62;i++){
+      const tpl = BASE_EQUIP[(i-1)%BASE_EQUIP.length];
+      big.push(Object.assign({}, JSON.parse(JSON.stringify(tpl)), {
+        id:'E'+String(i).padStart(2,'0'),
+        asset_no:`ZC-2025-${String(i).padStart(4,'0')}`,
+        name:`${String(i).padStart(2,'0')}# ${tpl.name}`
+      }));
+    }
+    eqs = big;
+  } else if(kind === 'empty0'){
+    eqs = [];
+  } else if(kind === 'novideo'){
+    labMedia = [{file:'lab_cover.jpg', role:'cover', label:'材料力学实验室全景图'}];
+    eqs.forEach(e => { e.media = e.media.filter(m => m.role === 'cover' || m.role === 'gallery'); });
+  } else if(kind === 'edge'){
+    labName = '先进航空航天高温合金与超材料极端环境多轴耦合微纳米力学性能综合测试中心实验室（超长名称截断验证五十字符）';
+    location = '新科研综合大楼北翼连廊负二层超净恒温实验室 B2-209A 房间';
+    const manySpecs = [];
+    for(let i=1;i<=40;i++){
+      manySpecs.push([`通道参数项 #${String(i).padStart(2,'0')}`, i===2 ? '含字库缺失生僻字“㵘”测试 → 平板端自动显示方框不崩溃且最多两行超出部分自动省略号截断验证文本' : `${(i*12.5).toFixed(1)} kN · 闭环采样率 10 kHz`]);
+    }
+    eqs[0].name = '超高温真空环境双轴电液伺服热机械疲劳试验系统（㵘字缺字与两行省略验证）';
+    eqs[0].specs = manySpecs;
+    eqs[0].media = []; /* 0 media placeholder check */
+    eqs[1].media = [{file:'missing_404.jpg', role:'cover', missing:true, label:'缺失文件验证'}];
+  }
+
+  if(dropEquipId){
+    eqs = eqs.filter(e => e.id !== dropEquipId);
+  }
+
+  return {
+    version: versionNum,
+    code: 'L3-201',
+    name: labName,
+    status: statusOverride,
+    location: location,
+    owner: '张建国 教授',
+    phone: '021-6598-2201',
+    open_hours: '周一至周五 08:30–17:30（节假日需提前报备）',
+    intro: '本实验室面向机械工程、土木工程与材料科学与工程专业，承担本科材料力学基础实验（低碳钢与铸铁拉伸、压缩、扭转、冲击、纯弯曲正应力电测）及研究生构件疲劳断裂科研测试任务。实验室内配备 1000kN 电液伺服万能机、200kN 高频疲劳机、三维 DIC 全场应变测量系统等大型精密仪器。',
+    safety: safety,
+    media: labMedia,
+    equipment: eqs,
+    idle_timeout_s: 60,
+    theme: S.theme
+  };
+}
+
+/* Build idle playlist per Spec §4.3: 1) lab intro/model3d, 2) each equipment model3d */
+function buildPlaylist(model){
+  if(!model) return [];
+  const list = [];
+  (model.media || []).forEach(m => {
+    if(m.role === 'intro' || m.role === 'model3d'){
+      list.push({kind:'lab', file:m.file, label:m.label, dur:m.dur||'00:45', equipId:null, equipName:null});
+    }
+  });
+  (model.equipment || []).slice(0,60).forEach(eq => {
+    (eq.media || []).forEach(m => {
+      if(m.role === 'model3d'){
+        list.push({kind:'equip', file:m.file, label:m.label, dur:m.dur||'00:35', equipId:eq.id, equipName:eq.name, hue:eq.hue});
+      }
+    });
+  });
+  return list;
+}
+
+/* ==================== 3. Runtime State (ui_nav + hal_video + logs) ==================== */
+const S = {
+  layoutId: 'landscape_std',
+  dataset: 'normal',
+  statusText: '使用中',
+  theme: 'default',
+  manifestVer: 12,
+  dropEquipId: null,
+
+  stack: ['idle'],        /* max depth 3: ['idle'] | ['idle','intro'] | ['idle','detail'] | ['idle','intro','detail'] | ['...','maint'] */
+  detailEquipIdx: 0,
+  detailTab: 'model3d',   /* 'model3d' | 'gallery' | 'intro' */
+  detailImgIdx: 0,
+  detailImgTimer: 5,
+  detailVideoEos: false,
+  slideAnim: '',
+
+  drawerOpen: false,
+  drawerLeftS: 15,
+
+  playlistIdx: 0,
+  videoErrStreak: 0,
+
+  idleLeftS: 60,
+  navLockUntil: 0,
+  toastText: '',
+  toastTimer: null,
+
+  showZones: false,
+  showHits: false,
+  visibleImgCount: 0,
+  cardsScrollLeft: 0,
+
+  logs: [
+    '[20:42:10] [INFO] boot ok, fw=1.0.0+ae79616f, FreeType wqyMicroHei (7705 glyphs)',
+    '[20:42:11] [INFO] manifest v12 loaded (L3-201, 6 equipment), layout=landscape_std'
+  ]
+};
+
+function addLog(lvl, msg){
+  const d = new Date(), p = n => String(n).padStart(2,'0');
+  const ts = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+  S.logs.unshift(`[${ts}] [${lvl}] ${msg}`);
+  if(S.logs.length > 20) S.logs.length = 20;
+}
+
+function showToast(msg){
+  S.toastText = msg;
+  if(S.toastTimer) clearTimeout(S.toastTimer);
+  S.toastTimer = setTimeout(() => { S.toastText = ''; renderScreen(); }, 3000);
+}
+
+function curModel(){ return buildModel(S.dataset, S.statusText, S.manifestVer, S.dropEquipId); }
+function curLayout(){ return UI_LAYOUTS[S.layoutId]; }
+function curPage(){
+  const m = curModel();
+  if(!m) return S.stack[S.stack.length-1] === 'maint' ? 'maint' : 'unbound';
+  return S.stack[S.stack.length-1] || 'idle';
+}
+function C(tok){ return snap565(THEMES[S.theme][tok]); }
+
+function statusColorKey(txt){
+  if(txt === '空闲' || txt === '可用') return 'st_idle';
+  if(txt === '使用中') return 'st_busy';
+  if(txt === '维护' || txt === '停用' || txt === '故障') return 'st_maint';
+  return 'st_unknown';
+}
+
+function statusPillHTML(txt, extraStyle){
+  const ck = statusColorKey(txt);
+  const col = C(ck);
+  const bg = rgba(THEMES[S.theme][ck], 0.20);
+  return `<div style="display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 20px;border-radius:999px;background:${bg};flex:none;${extraStyle||''}">
+    <i style="width:12px;height:12px;border-radius:6px;background:${col};display:inline-block;flex:none"></i>
+    <span style="font-size:22px;line-height:30px;color:${col};white-space:nowrap">${renderPanelGlyphs(txt)}</span>
+  </div>`;
+}
+
+function navLocked(){
+  const now = Date.now();
+  if(now < S.navLockUntil) return true;
+  S.navLockUntil = now + 250;
+  return false;
+}
+
+function touchResetIdle(){
+  const m = curModel();
+  S.idleLeftS = m ? (m.idle_timeout_s || 60) : 60;
+  if(S.drawerOpen) S.drawerLeftS = 15;
+}
+
+/* Default tab selection per Spec §5.2: model3d first, else gallery, else intro */
+function pickDefaultDetailTab(eq){
+  if(!eq) return 'gallery';
+  const roles = (eq.media || []).map(m => m.role);
+  if(roles.includes('model3d')) return 'model3d';
+  if(roles.includes('cover') || roles.includes('gallery')) return 'gallery';
+  if(roles.includes('intro')) return 'intro';
+  return 'none';
+}
+
+/* ==================== 4. SVG Graphics (Offline Self-Contained) ==================== */
+function render3dViewportSVG(w, h, title, sub, hue, paused){
+  const bg1 = snap565(hue || '#13283F');
+  const gridCol = rgba('#4D94FF', 0.22);
+  const wireCol = snap565('#5CA9FF');
+  return `<div style="position:absolute;inset:0;background:#060A10;overflow:hidden">
+    <div style="position:absolute;inset:0;background:${bg1};opacity:0.55"></div>
+    <div class="${paused?'':'vid-anim'}" style="position:absolute;inset:-24px;display:flex;align-items:center;justify-content:center">
+      <svg width="${Math.min(w,620)}" height="${Math.min(h,380)}" viewBox="0 0 520 300" aria-hidden="true">
+        <g stroke="${gridCol}" stroke-width="1">
+          <line x1="40" y1="250" x2="480" y2="250"/><line x1="80" y1="220" x2="440" y2="220"/>
+          <line x1="120" y1="195" x2="400" y2="195"/><line x1="260" y1="40" x2="260" y2="265"/>
+        </g>
+        <!-- Isometric test frame schematic -->
+        <rect x="180" y="48" width="160" height="22" rx="3" fill="none" stroke="${wireCol}" stroke-width="2.5"/>
+        <line x1="204" y1="70" x2="204" y2="232" stroke="${wireCol}" stroke-width="4"/>
+        <line x1="316" y1="70" x2="316" y2="232" stroke="${wireCol}" stroke-width="4"/>
+        <rect x="192" y="128" width="136" height="24" rx="3" fill="${rgba('#2F80ED',0.35)}" stroke="#7CC0FF" stroke-width="2"/>
+        <rect x="246" y="84" width="28" height="44" fill="none" stroke="#F2994A" stroke-width="2"/>
+        <rect x="252" y="152" width="16" height="52" fill="${rgba('#27AE60',0.45)}" stroke="#5EEAD4" stroke-width="2"/>
+        <rect x="166" y="232" width="188" height="26" rx="4" fill="none" stroke="${wireCol}" stroke-width="2.5"/>
+      </svg>
+    </div>
+    <div style="position:absolute;left:20px;top:16px;padding:4px 12px;border-radius:6px;background:rgba(11,15,20,0.72);color:#A7B1BD;font-size:22px;line-height:30px">
+      ${paused ? '⏸ 已暂停帧刷新' : '● H.264 硬件解码 · 16:9 静音'} · ${renderPanelGlyphs(sub||'')}
+    </div>
+  </div>`;
+}
+
+function renderPhotoSVG(w, h, label, hue, missing, mode){
+  if(missing || !label){
+    return `<div style="position:absolute;inset:0;background:${C('surface')};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+      <svg width="56" height="56" viewBox="0 0 48 48" fill="none" stroke="${C('text_2')}" stroke-width="2.2">
+        <rect x="6" y="10" width="36" height="28" rx="4"/><circle cx="17" cy="20" r="3"/><path d="M8 34 L19 24 L27 31 L34 25 L42 34"/>
+      </svg>
+      <span style="font-size:22px;line-height:30px;color:${C('text_2')}">暂无图片</span>
+    </div>`;
+  }
+  const cw = mode === 'contain' ? Math.round(Math.min(w, h * 1.5)) : w;
+  const ch = mode === 'contain' ? Math.round(cw / 1.5) : h;
+  const ox = Math.round((w - cw)/2), oy = Math.round((h - ch)/2);
+  return `<div style="position:absolute;inset:0;background:${C('bg')}">
+    <div style="position:absolute;left:${ox}px;top:${oy}px;width:${cw}px;height:${ch}px;background:${snap565(hue||'#1E3348')};display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;text-align:center;overflow:hidden">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="rgba(255,255,255,0.72)" stroke-width="2">
+        <rect x="10" y="8" width="28" height="32" rx="3"/><line x1="16" y1="16" x2="32" y2="16"/><circle cx="24" cy="27" r="6"/>
+      </svg>
+      <div class="ell2" style="margin-top:8px;font-size:22px;line-height:30px;color:#F2F5F8">${renderPanelGlyphs(label)}</div>
+    </div>
+  </div>`;
+}
+
+/* ==================== 5. Page Renderers (1:1 Device Pixel Coordinates) ==================== */
+let ZONES = [], HITS = [];
+function bx(x, y, w, h, style, inner, attrs){
+  return `<div class="bx" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${style||''}" ${attrs||''}>${inner||''}</div>`;
+}
+function addZone(x,y,w,h,label){ ZONES.push({x,y,w,h,label}); }
+function addHit(x,y,w,h){ HITS.push({x,y,w,h}); }
+
+/* ---- 5.1 Idle Page (3 Built-in Layouts from UI_LAYOUTS) ---- */
+function renderIdle(model, lay){
+  let html = '';
+  const eqAll = model.equipment || [];
+  const eqShown = eqAll.slice(0, 60);
+  if(eqAll.length > 60 && !S._warned60){
+    S._warned60 = true;
+    addLog('WARN', `equipment count (${eqAll.length}) > 60, truncated to 60`);
+  }
+
+  const pl = buildPlaylist(model);
+  const videoBroken = S.videoErrStreak >= 3 || pl.length === 0;
+  const curVid = (!videoBroken && pl.length) ? pl[S.playlistIdx % pl.length] : null;
+  let imgBudget = 0;
+
+  lay.regions.forEach(r => {
+    addZone(r.x, r.y, r.w, r.h, `${r.id} (${r.x},${r.y}) ${r.w}×${r.h}`);
+
+    /* --- VIDEO REGION --- */
+    if(r.id === 'video'){
+      let vInner = '';
+      if(curVid){
+        vInner = render3dViewportSVG(r.w, r.h, curVid.label, `${curVid.file} (${curVid.dur})`, curVid.hue || '#16324F', S.drawerOpen);
+        /* C4: Equipment video subtitle bar <= 64px (56px high), solid rgba, no gradient, no shadow */
+        if(curVid.kind === 'equip'){
+          const barH = 56;
+          addHit(r.x, r.y + r.h - 64, r.w, 64);
+          vInner += `<div class="pressable-opa" onclick="window.__openEquipById('${curVid.equipId}')" style="position:absolute;left:0;bottom:0;width:${r.w}px;height:${barH}px;background:rgba(11,15,20,0.82);display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+            <span class="ell1" style="font-size:22px;line-height:30px;color:#F2F5F8;max-width:${r.w-180}px">▶ ${renderPanelGlyphs(curVid.equipName)} · 3D 演示</span>
+            <span style="font-size:22px;line-height:30px;color:${C('accent')};flex:none">查看详情 ›</span>
+          </div>`;
+        }
+      } else {
+        const labCover = (model.media || []).find(m => m.role === 'cover');
+        if(labCover){
+          imgBudget += 1;
+          vInner = renderPhotoSVG(r.w, r.h, labCover.label, '#1A344D', false, 'cover');
+        } else {
+          vInner = `<div style="position:absolute;inset:0;background:${C('surface')};display:flex;align-items:center;justify-content:center;padding:32px;text-align:center">
+            <span class="ell2" style="font-size:40px;line-height:52px;color:${C('text_2')}">${renderPanelGlyphs(model.name)}</span>
+          </div>`;
+        }
+      }
+      html += bx(r.x, r.y, r.w, r.h, 'border-radius:0;', vInner);
+    }
+
+    /* --- TITLE REGION --- */
+    else if(r.id === 'title'){
+      if(lay.id === 'landscape_std'){
+        addHit(r.x + 24, r.y + 362, 432, 64);
+        html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-left:1px solid ${C('line')};padding:24px;display:flex;flex-direction:column;justify-content:space-between`, `
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+            <div class="ell2" style="font-size:56px;line-height:68px;color:${C('text')}">${renderPanelGlyphs(model.name)}</div>
+            ${(model.code||model.location)?`<div class="ell1" style="font-size:30px;line-height:40px;color:${C('text_2')}">${renderPanelGlyphs([model.code,model.location].filter(Boolean).join(' · '))}</div>`:''}
+            <div style="margin-top:4px">${statusPillHTML(model.status)}</div>
+            ${(model.owner||model.phone)?`<div class="ell1" style="margin-top:8px;font-size:26px;line-height:36px;color:${C('text')}">负责人：${renderPanelGlyphs(model.owner||'')}　${renderPanelGlyphs(model.phone||'')}</div>`:''}
+            ${model.open_hours?`<div class="ell1" style="font-size:26px;line-height:36px;color:${C('text_2')}">开放：${renderPanelGlyphs(model.open_hours)}</div>`:''}
+          </div>
+          <div class="pressable" onclick="window.__pushPage('intro')" style="height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;line-height:40px;color:${C('text')}">
+            实验室介绍 ›
+          </div>
+        `);
+      } else if(lay.id === 'landscape_video'){
+        /* 1280 x 80 compact bottom bar: Name + Status + Intro btn + Marquee + [设备 N ▴] */
+        addHit(r.x + 412, r.y + 8, 132, 64);
+        addHit(r.x + 1076, r.y + 8, 180, 64);
+        const safetyStr = (model.safety || []).join('　·　');
+        html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-top:1px solid ${C('line')};padding:0 24px;display:flex;align-items:center;gap:16px`, `
+          <div class="ell1" style="max-width:240px;font-size:30px;line-height:40px;color:${C('text')};flex:none">${renderPanelGlyphs(model.name)}</div>
+          ${statusPillHTML(model.status)}
+          <div class="pressable" onclick="window.__pushPage('intro')" style="width:132px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:26px;color:${C('text')};flex:none">介绍 ›</div>
+          <div style="position:relative;flex:1;height:36px;overflow:hidden;min-width:160px">
+            ${safetyStr ? `<span class="mq-run" style="font-size:22px;line-height:36px;color:${C('text_2')};--mq-from:420px;--mq-to:-1400px;animation-duration:28s">${renderPanelGlyphs(safetyStr)}</span>` : ''}
+          </div>
+          <div class="pressable" onclick="window.__toggleDrawer(true)" style="width:180px;height:64px;border-radius:12px;background:${rgba(THEMES[S.theme].accent,0.18)};border:1px solid ${C('accent')};display:flex;align-items:center;justify-content:center;font-size:30px;line-height:40px;color:${C('text')};flex:none">
+            设备 ${eqShown.length} ▴
+          </div>
+        `);
+      } else if(lay.id === 'portrait_std'){
+        /* 800 x 200: 1-line Name, code·location, status left + [实验室介绍 ›] right */
+        addHit(r.x + 576, r.y + 124, 200, 64);
+        html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-bottom:1px solid ${C('line')};padding:14px 24px;display:flex;flex-direction:column;justify-content:space-between`, `
+          <div class="ell1" style="font-size:56px;line-height:68px;color:${C('text')}">${renderPanelGlyphs(model.name)}</div>
+          <div class="ell1" style="font-size:30px;line-height:40px;color:${C('text_2')}">${renderPanelGlyphs([model.code,model.location].filter(Boolean).join(' · '))}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;height:64px">
+            ${statusPillHTML(model.status)}
+            <div class="pressable" onclick="window.__pushPage('intro')" style="width:200px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;line-height:40px;color:${C('text')}">
+              实验室介绍 ›
+            </div>
+          </div>
+        `);
+      }
+    }
+
+    /* --- CARDS REGION --- */
+    else if(r.id === 'cards'){
+      const isPortrait = lay.orientation === 'portrait';
+      if(eqShown.length === 0){
+        html += bx(r.x, r.y, r.w, r.h, `background:${C('bg')};border-top:1px solid ${C('line')};display:flex;align-items:center;justify-content:center`,
+          `<span style="font-size:26px;line-height:36px;color:${C('text_2')}">暂无设备</span>`);
+      } else if(!isPortrait){
+        /* Single horizontal row: 280x250, gap 16px, max 5 visible <= 8 */
+        const maxImgs = Math.max(0, 8 - imgBudget);
+        const startCol = Math.max(0, Math.floor(S.cardsScrollLeft / 296));
+        let cardsHTML = '';
+        eqShown.forEach((eq, idx) => {
+          const inWindow = idx >= startCol && idx < startCol + Math.min(5, maxImgs);
+          if(inWindow) imgBudget++;
+          const cov = (eq.media || []).find(m => m.role === 'cover');
+          if(idx < 4) addHit(r.x + 24 + idx*296, r.y + 20, 280, 250);
+          cardsHTML += equipCardHTML(eq, idx, 280, 250, 160, inWindow ? cov : null, !inWindow);
+        });
+        html += bx(r.x, r.y, r.w, r.h, `background:${C('bg')};border-top:1px solid ${C('line')}`, `
+          <div id="cardsScroller" class="no-scrollbar" style="width:100%;height:100%;overflow-x:auto;overflow-y:hidden;display:flex;align-items:center;gap:16px;padding:20px 24px;scroll-snap-type:x mandatory">
+            ${cardsHTML}
+          </div>
+        `);
+      } else {
+        /* Portrait 2-row horizontal grid: card 240x250, col gap 20px, row gap 16px -> 3 cols = 6 cards resting, max 8! */
+        const maxImgs = Math.max(0, 8 - imgBudget);
+        const startCol = Math.max(0, Math.floor(S.cardsScrollLeft / 260));
+        let loadedHere = 0;
+        const cols = Math.ceil(eqShown.length / 2);
+        let colHTML = '';
+        for(let c=0; c<cols; c++){
+          let pair = '';
+          for(let rIdx=0; rIdx<2; rIdx++){
+            const idx = c*2 + rIdx;
+            if(idx >= eqShown.length) break;
+            const eq = eqShown[idx];
+            const inWindow = c >= startCol && c <= startCol + 3 && loadedHere < maxImgs;
+            if(inWindow){ loadedHere++; imgBudget++; }
+            const cov = (eq.media || []).find(m => m.role === 'cover');
+            if(c < 3) addHit(r.x + 24 + c*260, r.y + 16 + rIdx*266, 240, 250);
+            pair += equipCardHTML(eq, idx, 240, 250, 152, inWindow ? cov : null, !inWindow);
+          }
+          colHTML += `<div style="display:flex;flex-direction:column;gap:16px;flex:none;scroll-snap-align:start">${pair}</div>`;
+        }
+        html += bx(r.x, r.y, r.w, r.h, `background:${C('bg')};border-top:1px solid ${C('line')}`, `
+          <div id="cardsScroller" class="no-scrollbar" style="width:100%;height:100%;overflow-x:auto;overflow-y:hidden;display:flex;gap:20px;padding:16px 24px;scroll-snap-type:x mandatory">
+            ${colHTML}
+          </div>
+        `);
+      }
+    }
+
+    /* --- NOTICE REGION --- */
+    else if(r.id === 'notice'){
+      const safety = model.safety || [];
+      const joined = safety.join('　·　');
+      const inner = safety.length ? `
+        <span style="flex:none;padding:3px 14px;border-radius:6px;background:${rgba(THEMES[S.theme].st_busy,0.20)};color:${C('st_busy')};font-size:22px;line-height:30px">安全须知</span>
+        <div style="position:relative;flex:1;height:32px;overflow:hidden">
+          <span class="mq-run" style="font-size:22px;line-height:32px;color:${C('text_2')};--mq-from:${r.w-180}px;--mq-to:-1600px;animation-duration:30s">${renderPanelGlyphs(joined)}</span>
+        </div>
+      ` : '';
+      html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-top:1px solid ${C('line')};padding:0 24px;display:flex;align-items:center;gap:16px`, inner);
+    }
+  });
+
+  /* Drawer for landscape_video (1280 x 320, auto-closes in 15s or tap outside) */
+  if(lay.id === 'landscape_video' && S.drawerOpen){
+    addZone(0, 480, 1280, 320, 'drawer (0,480) 1280×320');
+    addHit(1136, 488, 120, 64);
+    let dCards = '';
+    eqShown.forEach((eq, idx) => {
+      const inWin = idx < 5 && imgBudget < 8;
+      if(inWin) imgBudget++;
+      const cov = (eq.media || []).find(m => m.role === 'cover');
+      dCards += equipCardHTML(eq, idx, 280, 236, 146, inWin ? cov : null, !inWin);
+    });
+    html += bx(0, 0, 1280, 480, 'background:rgba(0,0,0,0.35);z-index:20', '', 'onclick="window.__toggleDrawer(false)"');
+    html += bx(0, 480, 1280, 320, `background:${C('surface')};border-top:2px solid ${C('line')};z-index:21`, `
+      <div class="drawer-up" style="width:100%;height:100%;display:flex;flex-direction:column">
+        <div style="height:64px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid ${C('line')}">
+          <span style="font-size:26px;line-height:36px;color:${C('text')}">本实验室试验设备（${eqShown.length} 台）· ${S.drawerLeftS}s 无操作自动收起</span>
+          <div class="pressable" onclick="window.__toggleDrawer(false)" style="width:120px;height:56px;border-radius:10px;background:${C('bg')};display:flex;align-items:center;justify-content:center;font-size:26px;color:${C('text_2')}">收起 ▾</div>
+        </div>
+        <div class="no-scrollbar" style="flex:1;overflow-x:auto;display:flex;align-items:center;gap:16px;padding:10px 24px">
+          ${eqShown.length ? dCards : `<span style="font-size:26px;color:${C('text_2')}">暂无设备</span>`}
+        </div>
+      </div>
+    `);
+  }
+
+  S.visibleImgCount = imgBudget;
+  return html;
+}
+
+function equipCardHTML(eq, idx, w, h, imgH, cov, unloadedByLru){
+  const stDot = C(statusColorKey(eq.status));
+  const topImg = unloadedByLru
+    ? `<div style="position:absolute;inset:0;background:${C('surface_hi')};display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')}">[LRU 已释放]</div>`
+    : renderPhotoSVG(w, imgH, cov ? cov.label : null, eq.hue, cov && cov.missing, 'cover');
+  return `<div class="pressable" onclick="window.__openEquipIdx(${idx})" style="width:${w}px;height:${h}px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};overflow:hidden;flex:none;display:flex;flex-direction:column;scroll-snap-align:start">
+    <div style="position:relative;width:${w}px;height:${imgH}px;overflow:hidden;flex:none">${topImg}</div>
+    <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0">
+      <div class="ell1" style="font-size:30px;line-height:38px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <span class="ell1" style="font-size:22px;line-height:28px;color:${C('text_2')}">${renderPanelGlyphs(eq.model||'—')}</span>
+        <i title="${eq.status}" style="width:14px;height:14px;border-radius:7px;background:${stDot};flex:none"></i>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---- 5.2 Detail Page (Landscape 1280x800 & Portrait 800x1280) ---- */
+function renderDetail(model, lay){
+  const eqs = (model.equipment || []).slice(0, 60);
+  if(!eqs.length){ S.stack = ['idle']; return renderIdle(model, lay); }
+  if(S.detailEquipIdx >= eqs.length) S.detailEquipIdx = 0;
+  const eq = eqs[S.detailEquipIdx];
+  const P = lay.orientation === 'portrait';
+
+  const imgs = (eq.media || []).filter(m => m.role === 'cover' || m.role === 'gallery').slice(0, 12);
+  const m3d  = (eq.media || []).filter(m => m.role === 'model3d');
+  const intr = (eq.media || []).filter(m => m.role === 'intro');
+  const availTabs = [];
+  if(m3d.length)  availTabs.push({id:'model3d', label:'3D 演示'});
+  if(imgs.length) availTabs.push({id:'gallery', label:`图片 (${imgs.length})`});
+  if(intr.length) availTabs.push({id:'intro',   label:'介绍视频'});
+  if(availTabs.length && !availTabs.some(t => t.id === S.detailTab)){
+    S.detailTab = availTabs[0].id;
+  }
+  if(!availTabs.length) S.detailTab = 'none';
+
+  /* Media viewport content (800 x 450) */
+  let mediaInner = '';
+  let imgCount = 0;
+  if(S.detailTab === 'none'){
+    mediaInner = renderPhotoSVG(800, 450, null, null, true, 'contain');
+  } else if(S.detailTab === 'gallery'){
+    const curImg = imgs[S.detailImgIdx % imgs.length];
+    imgCount += 1;
+    mediaInner = `<div id="detailMediaSwipe" class="fade-in" style="position:absolute;inset:0">
+      ${renderPhotoSVG(800, 450, curImg.label, eq.hue, curImg.missing, 'contain')}
+      <div style="position:absolute;right:16px;bottom:14px;padding:3px 12px;border-radius:999px;background:rgba(11,15,20,0.75);font-size:22px;color:#F2F5F8">${(S.detailImgIdx % imgs.length)+1} / ${imgs.length}</div>
+    </div>`;
+  } else {
+    const vList = S.detailTab === 'model3d' ? m3d : intr;
+    const vItem = vList[0];
+    mediaInner = render3dViewportSVG(800, 450, vItem.label, `${vItem.file} (${vItem.dur||'00:40'})`, eq.hue, S.detailVideoEos);
+    if(S.detailVideoEos){
+      addHit(352, (P?120:96) + 177, 96, 96);
+      mediaInner += `<div class="pressable" onclick="window.__replayDetailVideo()" style="position:absolute;left:352px;top:177px;width:96px;height:96px;border-radius:16px;background:rgba(31,39,50,0.92);border:2px solid ${C('accent')};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+        <span style="font-size:30px;line-height:32px;color:#F2F5F8">↻</span>
+        <span style="font-size:22px;line-height:24px;color:#F2F5F8">重播</span>
+      </div>`;
+    }
+  }
+
+  /* Tabs bar (800 x 64) */
+  const tabY = P ? 570 : 546;
+  const tabsInner = availTabs.map((t, idx) => {
+    const active = t.id === S.detailTab;
+    addHit(24 + idx*192, tabY, 176, 64);
+    return `<div class="pressable" onclick="window.__setDetailTab('${t.id}')" style="min-width:176px;height:64px;padding:0 20px;display:flex;align-items:center;justify-content:center;position:relative;font-size:30px;line-height:40px;color:${active?C('text'):C('text_2')}">
+      ${t.label}
+      ${active ? `<i style="position:absolute;left:16px;right:16px;bottom:0;height:4px;background:${C('accent')}"></i>` : ''}
+    </div>`;
+  }).join('');
+
+  /* Thumbnail strip */
+  const thumbH = P ? 120 : 190;
+  let thumbInner = '';
+  if(S.detailTab === 'gallery'){
+    const tw = P ? 128 : 148, th = P ? 84 : 104;
+    thumbInner = `<div class="no-scrollbar" style="width:100%;height:100%;overflow-x:auto;display:flex;align-items:center;gap:16px;padding:0 24px">` +
+      imgs.map((m, idx) => {
+        if(idx < 5) imgCount++;
+        const sel = (S.detailImgIdx % imgs.length) === idx;
+        return `<div class="pressable" onclick="window.__selectDetailImg(${idx})" style="position:relative;width:${tw}px;height:${th}px;border-radius:8px;overflow:hidden;flex:none;border:${sel?`3px solid ${C('accent')}`:`1px solid ${C('line')}`}">
+          ${idx < 6 ? renderPhotoSVG(tw, th, m.label, eq.hue, m.missing, 'cover') : `<div style="position:absolute;inset:0;background:${C('surface')};display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')}">#${idx+1}</div>`}
+        </div>`;
+      }).join('') + `</div>`;
+  } else if(S.detailTab !== 'none'){
+    thumbInner = `<div style="width:100%;height:100%;display:flex;align-items:center;padding:0 24px;font-size:22px;line-height:30px;color:${C('text_2')}">
+      ${S.detailVideoEos ? '视频已播放完毕，空闲计时已恢复（点击上方“重播”可再次观看）' : '正在播放视频（走廊静音模式），播放期间暂停 60s 自动返回计时'}
+    </div>`;
+  }
+
+  /* Specs table */
+  const specsHTML = (eq.specs && eq.specs.length) ? `
+    <div style="margin-top:20px;font-size:30px;line-height:40px;color:${C('text')};margin-bottom:8px">技术参数</div>
+    <div style="border-top:1px solid ${C('line')}">
+      ${eq.specs.map(([k,v]) => `<div style="min-height:56px;padding:8px 0;border-bottom:1px solid ${C('line')};display:flex;align-items:center;gap:12px">
+        <div class="ell1" style="width:40%;font-size:26px;line-height:36px;color:${C('text_2')};flex:none">${renderPanelGlyphs(k)}</div>
+        <div class="ell2" style="width:60%;font-size:26px;line-height:36px;color:${C('text')}">${renderPanelGlyphs(v)}</div>
+      </div>`).join('')}
+    </div>
+  ` : '';
+
+  const introTxt = (eq.intro || '').length > 2000 ? eq.intro.slice(0,2000)+'…' : (eq.intro || '暂无简介');
+  S.visibleImgCount = Math.min(8, imgCount);
+
+  if(!P){
+    /* Landscape 1280 x 800 */
+    addZone(0,0,800,96,'顶栏 800×96'); addZone(0,96,800,450,'媒体区 800×450');
+    addZone(0,546,800,64,'标签栏 800×64'); addZone(0,610,800,190,'缩略图条 800×190');
+    addZone(800,0,480,704,'信息滚动区 480×704'); addZone(800,704,480,96,'切换栏 480×96');
+    addHit(112, 12, 152, 72);
+    if(eqs.length > 1){ addHit(824, 720, 208, 64); addHit(1048, 720, 208, 64); }
+
+    return `
+      ${bx(0, 0, 800, 96, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center;justify-content:space-between;padding:0 24px 0 0`, `
+        <div style="display:flex;align-items:center">
+          <div style="width:100px;height:96px;display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')}">${String(S.detailEquipIdx+1).padStart(2,'0')}/${String(eqs.length).padStart(2,'0')}</div>
+          <div class="pressable" onclick="window.__popPage()" style="margin-left:12px;width:152px;height:72px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;gap:8px;font-size:30px;color:${C('text')}">‹ 返回</div>
+        </div>
+        <span class="ell1" style="max-width:440px;font-size:26px;color:${C('text_2')}">${renderPanelGlyphs(model.name)}</span>
+      `)}
+      ${bx(0, 96, 800, 450, 'background:#000', mediaInner)}
+      ${bx(0, 546, 800, 64, `background:${C('surface')};border-bottom:1px solid ${C('line')};display:flex;align-items:center;gap:16px;padding:0 24px`, tabsInner)}
+      ${bx(0, 610, 800, 190, `background:${C('bg')}`, thumbInner)}
+      ${bx(800, 0, 480, 704, `background:${C('surface')};border-left:1px solid ${C('line')}`, `
+        <div id="detailInfoSwipe" class="no-scrollbar ${S.slideAnim}" style="width:100%;height:100%;overflow-y:auto;padding:24px">
+          <div class="ell2" style="font-size:40px;line-height:52px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
+          <div class="ell2" style="margin-top:8px;font-size:22px;line-height:30px;color:${C('text_2')}">${renderPanelGlyphs([eq.asset_no, eq.model, eq.vendor].filter(Boolean).join(' · '))}</div>
+          <div style="margin-top:14px">${statusPillHTML(eq.status)}</div>
+          ${specsHTML}
+          <div style="margin-top:22px;font-size:30px;line-height:40px;color:${C('text')};margin-bottom:8px">设备简介</div>
+          <div style="font-size:26px;line-height:36px;color:${C('text_2')}">${renderPanelGlyphs(introTxt)}</div>
+        </div>
+      `)}
+      ${bx(800, 704, 480, 96, `background:${C('surface')};border-left:1px solid ${C('line')};border-top:1px solid ${C('line')};padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px`, eqs.length > 1 ? `
+        <div class="pressable" onclick="window.__stepEquip(-1)" style="width:208px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">‹ 上一台</div>
+        <div class="pressable" onclick="window.__stepEquip(1)" style="width:208px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">下一台 ›</div>
+      ` : `<span style="font-size:22px;color:${C('text_2')};margin:0 auto">共 1 台设备</span>`)}
+    `;
+  } else {
+    /* Portrait 800 x 1280: 120 + 450 + 64 + 120 + 446 + 80 = 1280 */
+    addZone(0,0,800,120,'顶栏 800×120'); addZone(0,120,800,450,'媒体区 800×450');
+    addZone(0,570,800,64,'标签栏 800×64'); addZone(0,634,800,120,'缩略图条 800×120');
+    addZone(0,754,800,446,'信息滚动区 800×446'); addZone(0,1200,800,80,'切换栏 800×80');
+    addHit(108, 24, 72, 72);
+    if(eqs.length > 1){ addHit(24, 1208, 368, 64); addHit(408, 1208, 368, 64); }
+
+    return `
+      ${bx(0, 0, 800, 120, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center;padding:0 24px 0 0`, `
+        <div style="width:100px;height:120px;display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')};flex:none">${S.detailEquipIdx+1}/${eqs.length}</div>
+        <div class="pressable" onclick="window.__popPage()" style="margin-left:8px;width:72px;height:72px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:36px;color:${C('text')};flex:none">‹</div>
+        <div class="ell2" style="flex:1;margin:0 16px;font-size:40px;line-height:50px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
+        ${statusPillHTML(eq.status)}
+      `)}
+      ${bx(0, 120, 800, 450, 'background:#000', mediaInner)}
+      ${bx(0, 570, 800, 64, `background:${C('surface')};border-bottom:1px solid ${C('line')};display:flex;align-items:center;gap:16px;padding:0 24px`, tabsInner)}
+      ${bx(0, 634, 800, 120, `background:${C('bg')};border-bottom:1px solid ${C('line')}`, thumbInner)}
+      ${bx(0, 754, 800, 446, `background:${C('surface')}`, `
+        <div id="detailInfoSwipe" class="no-scrollbar ${S.slideAnim}" style="width:100%;height:100%;overflow-y:auto;padding:20px 24px">
+          <div style="font-size:22px;line-height:30px;color:${C('text_2')}">${renderPanelGlyphs([eq.asset_no, eq.model, eq.vendor].filter(Boolean).join(' · '))}</div>
+          ${specsHTML}
+          <div style="margin-top:20px;font-size:30px;line-height:40px;color:${C('text')};margin-bottom:8px">设备简介</div>
+          <div style="font-size:26px;line-height:36px;color:${C('text_2')}">${renderPanelGlyphs(introTxt)}</div>
+        </div>
+      `)}
+      ${bx(0, 1200, 800, 80, `background:${C('surface')};border-top:1px solid ${C('line')};padding:8px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px`, eqs.length > 1 ? `
+        <div class="pressable" onclick="window.__stepEquip(-1)" style="width:368px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">‹ 上一台</div>
+        <div class="pressable" onclick="window.__stepEquip(1)" style="width:368px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">下一台 ›</div>
+      ` : `<span style="font-size:22px;color:${C('text_2')};margin:0 auto">共 1 台设备</span>`)}
+    `;
+  }
+}
+
+/* ---- 5.3 Lab Intro Page (Landscape 760+520 & Portrait Single Column) ---- */
+function renderIntro(model, lay){
+  const P = lay.orientation === 'portrait';
+  const eqs = (model.equipment || []).slice(0, 60);
+  S.visibleImgCount = Math.min(7, eqs.length);
+
+  const infoBlock = `
+    <div style="font-size:40px;line-height:52px;color:${C('text')}">${renderPanelGlyphs(model.name)}</div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <span style="font-size:30px;line-height:40px;color:${C('text_2')}">${renderPanelGlyphs([model.code, model.location].filter(Boolean).join(' · '))}</span>
+      ${statusPillHTML(model.status)}
+    </div>
+    <div style="margin-top:20px;padding:16px 20px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;flex-direction:column;gap:8px;font-size:26px;line-height:36px;color:${C('text')}">
+      <div><span style="color:${C('text_2')}">负责人：</span>${renderPanelGlyphs(model.owner||'—')}　　<span style="color:${C('text_2')}">电话：</span>${renderPanelGlyphs(model.phone||'—')}</div>
+      <div><span style="color:${C('text_2')}">开放时间：</span>${renderPanelGlyphs(model.open_hours||'—')}</div>
+    </div>
+    <div style="margin-top:24px;font-size:30px;line-height:40px;color:${C('text')}">实验室简介</div>
+    <div style="margin-top:8px;font-size:26px;line-height:36px;color:${C('text_2')}">${renderPanelGlyphs(model.intro||'暂无简介')}</div>
+    <div style="margin-top:24px;font-size:30px;line-height:40px;color:${C('text')}">安全须知</div>
+    <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px">
+      ${(model.safety||[]).map((s,i)=>`<div style="font-size:26px;line-height:36px;color:${C('text_2')}">${i+1}. ${renderPanelGlyphs(s)}</div>`).join('')}
+    </div>
+  `;
+
+  const rowsHTML = eqs.map((eq, idx) => {
+    const cov = (eq.media || []).find(m => m.role === 'cover');
+    const dot = C(statusColorKey(eq.status));
+    return `<div class="pressable" onclick="window.__openEquipIdx(${idx})" style="height:88px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};padding:4px 16px 4px 4px;display:flex;align-items:center;gap:16px;flex:none">
+      <div style="position:relative;width:120px;height:80px;border-radius:8px;overflow:hidden;flex:none">
+        ${idx < 7 ? renderPhotoSVG(120, 80, cov?cov.label:null, eq.hue, cov&&cov.missing, 'cover') : `<div style="position:absolute;inset:0;background:${C('surface_hi')}"></div>`}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="ell1" style="font-size:30px;line-height:38px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
+        <div class="ell1" style="font-size:22px;line-height:28px;color:${C('text_2')}">${renderPanelGlyphs(eq.model||'—')}</div>
+      </div>
+      <i style="width:14px;height:14px;border-radius:7px;background:${dot};flex:none"></i>
+      <span style="font-size:30px;color:${C('text_2')}">›</span>
+    </div>`;
+  }).join('');
+
+  if(!P){
+    addZone(0,0,760,800,'左栏介绍 760×800'); addZone(760,0,520,800,'右栏设备清单 520×800');
+    addHit(112, 12, 152, 72);
+    eqs.slice(0,5).forEach((_,i) => addHit(784, 112 + i*104, 472, 88));
+    return `
+      ${bx(0, 0, 760, 96, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center`, `
+        <div style="width:100px;height:96px"></div>
+        <div class="pressable" onclick="window.__popPage()" style="margin-left:12px;width:152px;height:72px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">‹ 返回</div>
+        <span style="margin-left:20px;font-size:40px;line-height:52px;color:${C('text')}">实验室介绍</span>
+      `)}
+      ${bx(0, 96, 760, 704, `background:${C('bg')}`, `<div class="no-scrollbar" style="width:100%;height:100%;overflow-y:auto;padding:24px">${infoBlock}</div>`)}
+      ${bx(760, 0, 520, 800, `background:${C('surface')};border-left:1px solid ${C('line')};display:flex;flex-direction:column`, `
+        <div style="height:96px;padding:0 24px;border-bottom:1px solid ${C('line')};display:flex;align-items:center;font-size:40px;line-height:52px;color:${C('text')};flex:none">设备清单（${eqs.length}）</div>
+        <div class="no-scrollbar" style="flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:16px">
+          ${eqs.length ? rowsHTML : `<span style="font-size:26px;color:${C('text_2')}">暂无设备</span>`}
+        </div>
+      `)}
+    `;
+  } else {
+    addZone(0,0,800,104,'顶栏 800×104'); addZone(0,104,800,1176,'单栏滚动 800×1176');
+    addHit(108, 16, 152, 72);
+    return `
+      ${bx(0, 0, 800, 104, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center`, `
+        <div style="width:100px;height:104px"></div>
+        <div class="pressable" onclick="window.__popPage()" style="margin-left:8px;width:152px;height:72px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">‹ 返回</div>
+        <span style="margin-left:20px;font-size:40px;line-height:52px;color:${C('text')}">实验室介绍</span>
+      `)}
+      ${bx(0, 104, 800, 1176, `background:${C('bg')}`, `
+        <div class="no-scrollbar" style="width:100%;height:100%;overflow-y:auto;padding:24px">
+          ${infoBlock}
+          <div style="margin-top:28px;font-size:40px;line-height:52px;color:${C('text')};margin-bottom:14px">设备清单（${eqs.length}）</div>
+          <div style="display:flex;flex-direction:column;gap:16px">${rowsHTML}</div>
+        </div>
+      `)}
+    `;
+  }
+}
+
+/* ---- 5.4 Maintenance Page (Read-only, f_cap 22px, Exit button) & Unbound Page ---- */
+function renderMaint(model, lay){
+  S.visibleImgCount = 0;
+  const W = lay.w, H = lay.h;
+  addHit(W - 164, 16, 140, 64);
+  const items = [
+    ['序列号 SN', 'HL-LP9868-26110201'],
+    ['MAC 地址', '00:E0:4C:98:68:21'],
+    ['IPv4 地址', '192.168.10.201'],
+    ['固件版本', '1.0.0+ae79616f'],
+    ['通信协议', 'v0.3 (/lab/lab.cgi)'],
+    ['清单版本', model ? `v${model.version} (${model.code})` : '无清单 (未绑定)'],
+    ['当前布局', `${lay.id} (${lay.w}×${lay.h})`],
+    ['NAND 剩余空间', '812 MB / 1024 MB'],
+    ['连续运行时长', '14 天 06 小时 28 分'],
+    ['FreeType 字库', 'wqyMicroHei.ttf (6762/6763)']
+  ];
+  return bx(0, 0, W, H, `background:${C('bg')};padding:0 24px 24px;display:flex;flex-direction:column;gap:20px`, `
+    <div style="height:96px;border-bottom:1px solid ${C('line')};display:flex;align-items:center;justify-content:space-between;padding-left:96px;flex:none">
+      <div>
+        <span style="font-size:40px;line-height:52px;color:${C('text')}">工程维护页</span>
+        <span style="margin-left:16px;font-size:22px;line-height:30px;color:${C('text_2')}">只读诊断 · ${S.idleLeftS}s 无操作自动退出</span>
+      </div>
+      <div class="pressable" onclick="window.__popPage()" style="width:140px;height:64px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">退出</div>
+    </div>
+    <div style="padding:20px 24px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 32px;flex:none">
+      ${items.map(([k,v]) => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid ${C('line')};padding-bottom:6px;font-size:22px;line-height:30px">
+        <span style="color:${C('text_2')}">${k}</span><span style="color:${C('text')}">${v}</span>
+      </div>`).join('')}
+    </div>
+    <div style="flex:1;min-height:0;padding:18px 24px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;flex-direction:column">
+      <div style="font-size:26px;line-height:36px;color:${C('text')};margin-bottom:8px;flex:none">最近事件日志（最多 20 条）</div>
+      <div class="no-scrollbar" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;font-size:22px;line-height:30px;color:${C('text_2')}">
+        ${S.logs.map(l => `<div class="ell1" style="color:${l.includes('[ERR]')?C('st_maint'):l.includes('[WARN]')?C('st_busy'):C('text_2')}">${l}</div>`).join('')}
+      </div>
+    </div>
+  `);
+}
+
+function renderUnbound(lay){
+  S.visibleImgCount = 0;
+  const W = lay.w, H = lay.h;
+  return bx(0, 0, W, H, `background:${C('bg')};display:flex;flex-direction:column;align-items:center;justify-content:center`, `
+    <div style="width:640px;padding:44px 40px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};text-align:center;display:flex;flex-direction:column;gap:18px">
+      <div style="font-size:40px;line-height:52px;color:${C('text')}">本平板尚未绑定实验室</div>
+      <div style="font-size:26px;line-height:36px;color:${C('text_2')}">请在实验室管理后台「平板」页面扫描或输入 IP 完成绑定与首次发布</div>
+      <div style="margin-top:8px;padding:16px 24px;border-radius:10px;background:${C('bg')};border:1px solid ${C('line')};font-size:30px;line-height:40px;color:${C('accent')}">
+        SN: HL-LP9868-26110201　·　IP: 192.168.10.201
+      </div>
+    </div>
+    <div style="position:absolute;bottom:28px;font-size:22px;line-height:30px;color:${C('text_2')}">
+      固件版本 1.0.0+ae79616f · 通信协议 v0.3 · 出厂默认布局 landscape_std
+    </div>
+  `);
+}
+
+/* ==================== 6. Master Render, Touch Gestures & Timers ==================== */
+function renderScreen(){
+  const lay = curLayout();
+  const model = curModel();
+  const page = curPage();
+  const scr = document.getElementById('screen');
+  scr.style.width = lay.w + 'px';
+  scr.style.height = lay.h + 'px';
+  scr.style.background = C('bg');
+  scr.style.setProperty('--p-surface-hi', C('surface_hi'));
+
+  ZONES = []; HITS = [];
+  let body = '';
+  if(page === 'unbound')     body = renderUnbound(lay);
+  else if(page === 'maint')  body = renderMaint(model, lay);
+  else if(page === 'intro')  body = renderIntro(model, lay);
+  else if(page === 'detail') body = renderDetail(model, lay);
+  else                       body = renderIdle(model, lay);
+
+  /* Top-left 100x100 invisible 5-tap hotspot on every page except Maint itself */
+  if(page !== 'maint'){
+    body += `<div onclick="window.__tapMaintCorner(event)" title="隐藏维护入口：3s 内连点 5 次" style="position:absolute;left:0;top:0;width:100px;height:100px;z-index:30;cursor:pointer"></div>`;
+  }
+
+  /* Toast bar (bottom center, h=64, radius=12, surface_hi) */
+  if(S.toastText){
+    body += `<div class="fade-in" style="position:absolute;left:50%;bottom:32px;transform:translateX(-50%);height:64px;padding:0 32px;border-radius:12px;background:${C('surface_hi')};border:1px solid ${C('accent')};display:flex;align-items:center;justify-content:center;font-size:26px;line-height:36px;color:${C('text')};z-index:35;white-space:nowrap">${S.toastText}</div>`;
+  }
+
+  /* Optional engineering review overlays */
+  if(S.showZones){
+    body += ZONES.map(z => `<div class="ov-zone" style="left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px"><b>${z.label}</b></div>`).join('');
+  }
+  if(S.showHits){
+    body += HITS.map(h => `<div class="ov-hit" style="left:${h.x}px;top:${h.y}px;width:${h.w}px;height:${h.h}px"><i>${h.w}×${h.h}</i></div>`).join('');
+    body += `<div class="ov-maint"><span>5连点维护区</span></div>`;
+  }
+
+  scr.innerHTML = body;
+  S.slideAnim = '';
+
+  bindScrollAndSwipe();
+  fitStage();
+  updateInspector();
+  syncControls();
+}
+
+function bindScrollAndSwipe(){
+  const cs = document.getElementById('cardsScroller');
+  if(cs){
+    cs.scrollLeft = S.cardsScrollLeft;
+    let raf = null;
+    cs.addEventListener('scroll', () => {
+      touchResetIdle();
+      S.cardsScrollLeft = cs.scrollLeft;
+      if(!raf){
+        raf = requestAnimationFrame(() => { raf = null; updateLazyCardsBadge(); });
+      }
+    });
+  }
+  /* Swipe gestures on Detail page per Spec §5.3 */
+  attachHorizontalSwipe(document.getElementById('detailMediaSwipe'), dx => {
+    if(dx < -40) window.__stepDetailImg(1);
+    else if(dx > 40) window.__stepDetailImg(-1);
+  });
+  attachHorizontalSwipe(document.getElementById('detailInfoSwipe'), dx => {
+    if(dx < -45) window.__stepEquip(1);
+    else if(dx > 45) window.__stepEquip(-1);
+  });
+}
+
+function updateLazyCardsBadge(){
+  const el = document.getElementById('insImgBadge');
+  if(el) el.innerHTML = `<span class="badge-ok">${S.visibleImgCount} / 8 张（IT2D LRU 合规）</span>`;
+}
+
+function attachHorizontalSwipe(el, onSwipe){
+  if(!el) return;
+  let sx = null, sy = null;
+  el.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; touchResetIdle(); });
+  el.addEventListener('pointerup', e => {
+    if(sx === null) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    sx = null; sy = null;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4) onSwipe(dx);
+  });
+}
+
+function fitStage(){
+  const lay = curLayout();
+  const col = document.querySelector('.stage-col');
+  const availW = Math.max(260, col.clientWidth - 32);
+  const maxH = Math.max(400, window.innerHeight * (lay.orientation === 'portrait' ? 0.80 : 0.72));
+  const scale = Math.min(availW / lay.w, maxH / lay.h, 1);
+  const scr = document.getElementById('screen');
+  const clip = document.getElementById('screenClip');
+  scr.style.transform = `scale(${scale})`;
+  clip.style.width = Math.round(lay.w * scale) + 'px';
+  clip.style.height = Math.round(lay.h * scale) + 'px';
+  document.getElementById('stageCap').textContent =
+    `逻辑分辨率 ${lay.w}×${lay.h} (${lay.orientation}) · 缩放 ${(scale*100).toFixed(1)}% · RGB565 量化开启 · 物理面板 1280×800`;
+}
+
+/* ==================== 7. Global Navigation & Interaction Handlers ==================== */
+let cornerTaps = [];
+window.__tapMaintCorner = function(ev){
+  ev.stopPropagation();
+  touchResetIdle();
+  const now = Date.now();
+  cornerTaps = cornerTaps.filter(t => now - t <= 3000);
+  cornerTaps.push(now);
+  if(cornerTaps.length >= 5){
+    cornerTaps = [];
+    if(curPage() !== 'maint'){
+      S.stack.push('maint');
+      addLog('INFO', 'entered maintenance page via 5-tap top-left hotspot');
+      renderScreen();
+    }
+  } else if(cornerTaps.length >= 3){
+    showToast(`维护入口：再连点 ${5 - cornerTaps.length} 次`);
+    renderScreen();
+  }
+};
+
+window.__pushPage = function(p){
+  if(navLocked()) return;
+  touchResetIdle();
+  S.drawerOpen = false;
+  if(S.stack[S.stack.length-1] !== p && S.stack.length < 3){
+    S.stack.push(p);
+  }
+  renderScreen();
+};
+
+window.__popPage = function(){
+  if(navLocked()) return;
+  touchResetIdle();
+  if(S.stack.length > 1) S.stack.pop();
+  else S.stack = ['idle'];
+  renderScreen();
+};
+
+window.__openEquipIdx = function(idx){
+  if(navLocked()) return;
+  touchResetIdle();
+  S.drawerOpen = false;
+  const m = curModel();
+  const eq = (m.equipment || [])[idx];
+  if(!eq) return;
+  S.detailEquipIdx = idx;
+  S.detailTab = pickDefaultDetailTab(eq);
+  S.detailImgIdx = 0;
+  S.detailVideoEos = false;
+  if(S.stack[S.stack.length-1] !== 'detail'){
+    if(S.stack.length >= 3) S.stack[2] = 'detail';
+    else S.stack.push('detail');
+  }
+  renderScreen();
+};
+
+window.__openEquipById = function(id){
+  const m = curModel();
+  const idx = (m.equipment || []).findIndex(e => e.id === id);
+  if(idx >= 0) window.__openEquipIdx(idx);
+};
+
+window.__stepEquip = function(dir){
+  if(navLocked()) return;
+  touchResetIdle();
+  const m = curModel();
+  const eqs = (m.equipment || []).slice(0, 60);
+  if(eqs.length <= 1) return;
+  S.detailEquipIdx = (S.detailEquipIdx + dir + eqs.length) % eqs.length;
+  S.detailTab = pickDefaultDetailTab(eqs[S.detailEquipIdx]);
+  S.detailImgIdx = 0;
+  S.detailVideoEos = false;
+  S.slideAnim = dir > 0 ? 'slide-x-next' : 'slide-x-prev';
+  renderScreen();
+};
+
+window.__setDetailTab = function(tab){
+  touchResetIdle();
+  S.detailTab = tab;
+  S.detailVideoEos = false;
+  S.detailImgTimer = 5;
+  renderScreen();
+};
+
+window.__selectDetailImg = function(idx){
+  touchResetIdle();
+  S.detailImgIdx = idx;
+  S.detailImgTimer = 5;
+  renderScreen();
+};
+
+window.__stepDetailImg = function(dir){
+  touchResetIdle();
+  const m = curModel(), eq = (m.equipment||[])[S.detailEquipIdx];
+  const imgs = (eq ? eq.media : []).filter(x => x.role==='cover'||x.role==='gallery').slice(0,12);
+  if(!imgs.length) return;
+  S.detailImgIdx = (S.detailImgIdx + dir + imgs.length) % imgs.length;
+  S.detailImgTimer = 5;
+  renderScreen();
+};
+
+window.__replayDetailVideo = function(){
+  touchResetIdle();
+  S.detailVideoEos = false;
+  renderScreen();
+};
+
+window.__toggleDrawer = function(open){
+  touchResetIdle();
+  S.drawerOpen = open;
+  S.drawerLeftS = 15;
+  renderScreen();
+};
+
+/* ==================== 8. Inspector & Control Bindings ==================== */
+function isDetailVideoPlaying(){
+  return curPage() === 'detail' && (S.detailTab === 'model3d' || S.detailTab === 'intro') && !S.detailVideoEos;
+}
+
+function updateInspector(){
+  const page = curPage();
+  const lay = curLayout();
+  const model = curModel();
+  const pl = buildPlaylist(model);
+
+  const idleStatus = page === 'unbound' ? '未绑定（不启用自动返回）'
+    : page === 'idle' ? '已在待机页'
+    : isDetailVideoPlaying() ? `<span class="badge-warn">已暂停（视频播放中）</span>`
+    : `${S.idleLeftS} s 后淡出回待机页`;
+
+  document.getElementById('insNav').innerHTML = `
+    <dt>页面栈</dt><dd>${page === 'unbound' ? 'Unbound' : S.stack.join(' → ')}${page==='detail'?` [#${S.detailEquipIdx+1}]`:''}</dd>
+    <dt>60s 空闲计时</dt><dd>${idleStatus}</dd>
+    <dt>抽屉 15s 计时</dt><dd>${S.drawerOpen ? `${S.drawerLeftS} s` : '关闭'}</dd>
+    <dt>跳转防抖锁</dt><dd>250 ms（快速连点保护）</dd>
+  `;
+
+  let vState = '已停止 (hal_video_stop)';
+  let vRect = '—';
+  if(page === 'idle' && pl.length && S.videoErrStreak < 3){
+    const r = lay.regions.find(x => x.id === 'video');
+    const cur = pl[S.playlistIdx % pl.length];
+    vState = S.drawerOpen ? `暂停刷新 (${cur.file})` : `循环播放 ${S.playlistIdx%pl.length+1}/${pl.length} (${cur.file})`;
+    vRect = `(${r.x},${r.y}) ${r.w}×${r.h} · vol=0`;
+  } else if(page === 'detail' && (S.detailTab === 'model3d' || S.detailTab === 'intro')){
+    vState = S.detailVideoEos ? '停在末帧 (等待重播)' : `播放详情 (${S.detailTab})`;
+    vRect = `(0,${lay.orientation==='portrait'?120:96}) 800×450 · vol=0`;
+  }
+
+  document.getElementById('insVideo').innerHTML = `
+    <dt>解码状态</dt><dd>${vState}</dd>
+    <dt>绑定视口</dt><dd>${vRect}</dd>
+    <dt>连续错误计数</dt><dd>${S.videoErrStreak >= 3 ? `<span class="badge-bad">${S.videoErrStreak}/3 已降级静态封面</span>` : `${S.videoErrStreak} / 3`}</dd>
+  `;
+
+  document.getElementById('insGuard').innerHTML = `
+    <dt>同屏挂载图片</dt><dd id="insImgBadge"><span class="badge-ok">${S.visibleImgCount} / 8 张（IT2D LRU 合规）</span></dd>
+    <dt>旋转模式</dt><dd>${lay.orientation === 'portrait' ? 'LV_DISP_ROT_90 (800×1280)' : 'LV_DISP_ROT_NONE (1280×800)'}</dd>
+    <dt>左上维护热区</dt><dd>(0,0) 100×100 无按钮遮挡 ✅</dd>
+  `;
+
+  document.getElementById('insModel').innerHTML = model ? `
+    <dt>version</dt><dd>${model.version}</dd>
+    <dt>lab.code</dt><dd>${model.code} · ${model.status}</dd>
+    <dt>equipment</dt><dd>${model.equipment.length} 台${model.equipment.length>60?' (UI 显示前 60 台)':''}</dd>
+    <dt>playlist</dt><dd>${pl.length} 段 16:9 视频</dd>
+  ` : `<dt>lab_model_get()</dt><dd><span class="badge-warn">NULL（出厂未绑定状态）</span></dd>`;
+}
+
+function syncControls(){
+  document.querySelectorAll('#segLayout button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === S.layoutId)));
+  const p = curPage();
+  document.querySelectorAll('#segPage button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === p)));
+  document.querySelectorAll('#segStatus button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === S.statusText)));
+  document.querySelectorAll('#segTheme button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === S.theme)));
+  document.getElementById('selDataset').value = S.dataset;
+}
+
+function buildTokenTable(){
+  document.getElementById('tblTokens').innerHTML = Object.keys(THEMES.default).map(k => {
+    const d = THEMES.default[k], l = THEMES.light[k];
+    return `<tr>
+      <td class="mono">${k}</td>
+      <td>${TOK_DESC[k]}</td>
+      <td class="mono"><span class="sw" style="background:${snap565(d)}"></span>${d} → ${hex565(d)}</td>
+      <td class="mono"><span class="sw" style="background:${snap565(l)}"></span>${l} → ${hex565(l)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* Wire up left control panel */
+document.getElementById('segLayout').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  /* Spec §7 set_layout: close drawers, clear page stack, rebuild Idle in < 3s */
+  S.layoutId = b.dataset.v;
+  S.drawerOpen = false;
+  S.cardsScrollLeft = 0;
+  S.stack = ['idle'];
+  touchResetIdle();
+  addLog('INFO', `set_layout -> ${S.layoutId} (${curLayout().w}x${curLayout().h}), stack cleared`);
+  renderScreen();
+});
+
+document.getElementById('segPage').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  const target = b.dataset.v;
+  if(S.dataset === 'unbound' && target !== 'maint') S.dataset = 'normal';
+  S.drawerOpen = false;
+  if(target === 'idle') S.stack = ['idle'];
+  else if(target === 'intro') S.stack = ['idle', 'intro'];
+  else if(target === 'detail'){
+    const m = curModel();
+    if(m && m.equipment.length){
+      S.detailEquipIdx = 0;
+      S.detailTab = pickDefaultDetailTab(m.equipment[0]);
+      S.stack = ['idle', 'detail'];
+    }
+  } else if(target === 'maint') S.stack = ['idle', 'maint'];
+  touchResetIdle();
+  renderScreen();
+});
+
+document.getElementById('selDataset').addEventListener('change', e => {
+  S.dataset = e.target.value;
+  S.dropEquipId = null;
+  S.videoErrStreak = 0;
+  S.cardsScrollLeft = 0;
+  S._warned60 = false;
+  S.stack = ['idle'];
+  touchResetIdle();
+  renderScreen();
+});
+
+document.getElementById('segStatus').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  S.statusText = b.dataset.v;
+  renderScreen();
+});
+
+document.getElementById('segTheme').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  S.theme = b.dataset.v;
+  renderScreen();
+});
+
+document.getElementById('chkZones').addEventListener('change', e => { S.showZones = e.target.checked; renderScreen(); });
+document.getElementById('chkHits').addEventListener('change', e => { S.showHits = e.target.checked; renderScreen(); });
+
+/* Async Event Injectors (Spec §7) */
+document.getElementById('btnCommitKeep').addEventListener('click', () => {
+  if(S.dataset === 'unbound') S.dataset = 'normal';
+  S.manifestVer++;
+  addLog('INFO', `commit v${S.manifestVer} applied (in-place refresh)`);
+  if(curPage() !== 'idle') showToast('内容已更新');
+  renderScreen();
+});
+
+document.getElementById('btnCommitDrop').addEventListener('click', () => {
+  const m = curModel();
+  if(!m || !m.equipment.length) return;
+  const curEq = m.equipment[S.detailEquipIdx] || m.equipment[0];
+  S.dropEquipId = curEq.id;
+  S.manifestVer++;
+  addLog('INFO', `commit v${S.manifestVer} applied, equipment ${curEq.id} removed -> fallback Idle`);
+  if(curPage() === 'detail'){
+    S.stack = ['idle'];
+    showToast('内容已更新');
+  } else if(curPage() === 'intro'){
+    showToast('内容已更新');
+  }
+  renderScreen();
+});
+
+document.getElementById('btnVidErr').addEventListener('click', () => {
+  S.videoErrStreak++;
+  S.playlistIdx++;
+  if(S.videoErrStreak >= 3){
+    addLog('ERR', `3 consecutive video errors (${S.videoErrStreak}/3) -> stopped playback, showing cover`);
+    showToast('连续 3 段视频解码失败，已降级静态封面');
+  } else {
+    addLog('ERR', `video open/decode failed (${S.videoErrStreak}/3), skipped to next`);
+  }
+  renderScreen();
+});
+
+document.getElementById('btnVidNext').addEventListener('click', () => {
+  S.videoErrStreak = 0;
+  S.playlistIdx++;
+  renderScreen();
+});
+
+document.getElementById('btnVidEos').addEventListener('click', () => {
+  if(curPage() !== 'detail'){
+    const m = curModel();
+    if(m && m.equipment.length){ S.stack = ['idle','detail']; S.detailEquipIdx = 0; S.detailTab = 'model3d'; }
+  }
+  S.detailVideoEos = true;
+  touchResetIdle();
+  renderScreen();
+});
+
+document.getElementById('btnIdleNear').addEventListener('click', () => {
+  if(curPage() === 'idle' && curModel()){
+    S.stack = ['idle', 'intro'];
+  }
+  S.detailVideoEos = true;
+  S.idleLeftS = 4;
+  renderScreen();
+});
+
+/* 1-second hardware tick loop (60s idle timer, 15s drawer timer, 5s gallery auto-carousel) */
+setInterval(() => {
+  const page = curPage();
+  let dirty = false;
+
+  if(S.drawerOpen){
+    S.drawerLeftS--;
+    if(S.drawerLeftS <= 0){ S.drawerOpen = false; dirty = true; }
+    else dirty = true;
+  }
+
+  if(page === 'detail' && S.detailTab === 'gallery'){
+    S.detailImgTimer--;
+    if(S.detailImgTimer <= 0){
+      S.detailImgTimer = 5;
+      S.detailImgIdx++;
+      dirty = true;
+    }
+  }
+
+  if(page !== 'idle' && page !== 'unbound' && !isDetailVideoPlaying()){
+    S.idleLeftS--;
+    if(S.idleLeftS <= 0){
+      S.stack = ['idle'];
+      S.drawerOpen = false;
+      touchResetIdle();
+      addLog('INFO', 'idle timeout reached -> returned to Idle page');
+      dirty = true;
+    } else {
+      updateInspector();
+      if(page === 'maint') dirty = true;
+    }
+  }
+
+  if(dirty) renderScreen();
+}, 1000);
+
+window.addEventListener('resize', fitStage);
+buildTokenTable();
+renderScreen();
+})();
+</script>
+</body>
+</html>

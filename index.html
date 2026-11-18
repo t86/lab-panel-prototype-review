@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>实验室门牌平板系统 · 双端交互设计与最终 UI 定稿总入口</title>
+<style>
+:root{
+  --ink:#132030; --muted:#546578; --line:#D9E2EC; --paper:#FFFFFF; --bg:#F2F5F9;
+  --pri:#1D6FE8; --pri-dark:#0F172A; --ok:#15803D; --warn:#B45309;
+  --f-sans:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.68 var(--f-sans)}
+a{color:var(--pri);text-decoration:none}
+a:hover{text-decoration:underline}
+.hero{background:linear-gradient(120deg,#0F172A,#1E3A5F);color:#fff;padding:44px max(24px,calc((100% - 1180px)/2)) 38px}
+.tag{font:600 12px/1.4 var(--f-mono);letter-spacing:.1em;color:#93C5FD;text-transform:uppercase}
+.hero h1{margin:10px 0 10px;font-size:32px;line-height:1.22}
+.hero p{margin:0;max-width:780px;color:#CBD5E1;font-size:15px}
+.hero-btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.hbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-weight:600;font-size:14px;text-decoration:none !important}
+.hbtn.pri{background:#2F80ED;color:#fff}
+.hbtn.sec{background:rgba(255,255,255,.12);color:#F8FAFC;border:1px solid rgba(255,255,255,.28)}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 64px;display:flex;flex-direction:column;gap:20px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:22px 24px}
+.card h2{margin:0 0 10px;font-size:20px}
+.mono{font-family:var(--f-mono);font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#F8FAFC;color:var(--muted);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:10px}
+@media (max-width:860px){.steps{grid-template-columns:1fr}}
+.step{background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:13px 15px;font-size:13.5px}
+.step b{display:block;color:var(--pri);margin-bottom:4px}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="tag">M0 交付基线 · 协议 v0.3 · FreeType wqyMicroHei 定案</div>
+  <h1>实验室门牌平板系统 · 交互设计与最终 UI 定稿</h1>
+  <p>涵盖<strong>管理后台（Go + Vue3 + Element Plus）</strong>与<strong>门口平板（IT9868 + LVGL 8.3.7）</strong>全套可交互高保真原型与像素级设计规格。所有演示均使用本地模拟数据，不连接真实设备。</p>
+  <div class="hero-btns">
+    <a class="hbtn pri" href="admin_prototype.html">打开管理后台交互与 UI 原型 →</a>
+    <a class="hbtn sec" href="panel_prototype.html">打开门口平板 1:1 像素工程评审台 →</a>
+    <a class="hbtn sec" href="spec.html">在线阅读完整设计规格文档 →</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid2">
+    <section class="card">
+      <h2>1. 门口平板端（IT9868 · LVGL 8.3.7）</h2>
+      <p style="color:var(--muted);margin-top:0">严格遵循实测 11 条硬件约束（C1–C11），按真实设备像素 1:1 渲染并启用 RGB565 量化。</p>
+      <ul>
+        <li><strong>3 套内置布局动态切换</strong>：横屏标准 <code>1280×800</code>、横屏视频优先 <code>1280×800</code>（含 15s 自动收起底部抽屉）、竖屏标准 <code>800×1280</code>。</li>
+        <li><strong>5 类页面全状态闭环</strong>：待机页、设备详情页（横竖双版式、媒体 Tab、左右滑切图 vs 切设备防冲突）、实验室介绍页、只读维护页（左上 <code>100×100</code> 3s 连点 5 次呼出，返回按钮统一从 <code>x ≥ 108</code> 避让）、未绑定页。</li>
+        <li><strong>实时硬件守卫核验</strong>：单路视频绑定、设备视频底部 <code>≤64px</code> 纯色字幕条、同屏图片 <code>≤8</code> 张 LRU 懒加载计数、<code>≥64×64</code> 热区与 <code>≥16px</code> 间距可视化校验层。</li>
+      </ul>
+      <p><a href="panel_prototype.html"><strong>进入门口平板 1:1 像素原型 →</strong></a> · <a href="spec.html#panel-ui-final">阅读平板 UI 定稿说明</a></p>
+    </section>
+
+    <section class="card">
+      <h2>2. 管理后台端（Vue3 + Element Plus）</h2>
+      <p style="color:var(--muted);margin-top:0">适配 <code>≥1366×768</code> 桌面浏览器无横向滚动条，覆盖首次初始化向导、登录页与全部 10 大模块。</p>
+      <ul>
+        <li><strong>三级角色权限实时切换</strong>：顶部评审栏可随时切换「管理员 / 编辑 / 只读」，验证无权限菜单和按钮直接隐藏（不做灰置展示）。</li>
+        <li><strong>核心业务细节全覆盖</strong>：字段字数上限与平板一一对应；失焦检查 <code>wqyMicroHei.ttf</code> 缺字（如“㵘”）非阻断黄条提示；设备跨实验室调拨二次确认且双侧清单版本 <code>+1</code>。</li>
+        <li><strong>媒体、绑定与发布闭环</strong>：5 种媒体状态（检查中/兼容/转码中/已转码/拒绝）与 SHA-256 去重提示；按固件 <code>regions</code> 坐标动态等比画布局示意图；内嵌 WASM 实时触摸预览与断点续传重试。</li>
+      </ul>
+      <p><a href="admin_prototype.html"><strong>进入管理后台交互与 UI 原型 →</strong></a> · <a href="spec.html#admin-ui-final">阅读后台 UI 定稿说明</a></p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>推荐验收与评审走查路径（对应双端规格文档末尾验收清单）</h2>
+    <div class="steps">
+      <div class="step"><b>走查 01 · 平板布局与边界</b>在平板原型切换 3 种布局 × 4 个页面，开启「显示 ≥64×64 热区与 100×100 维护区」，切换「62 台设备 / 极端超长缺字 / 视频连续报错」核对无溢出、图片 ≤ 8。</div>
+      <div class="step"><b>走查 02 · 跨室调拨与缺字校验</b>在后台原型进入「实验室 → 编辑」，在基本信息点「填入生僻字“㵘”」观察黄色方框提示；在「设备组合」勾选显示其他实验室设备并添加，验证二次确认框与双侧待发布状态。</div>
+      <div class="step"><b>走查 03 · 布局示意图与断点发布</b>在后台「平板」打开「绑定向导」第 4 步或「设置布局」核对按 <code>regions</code> 等比绘制的示意图；在「预览与发布」切换顶部预检工况，体验断网失败后跳过已传文件的重试流程。</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>在线原型与规格文档索引</h2>
+    <table>
+      <thead><tr><th>端</th><th>在线链接</th><th>内容说明</th></tr></thead>
+      <tbody>
+        <tr><td>管理后台</td><td><a href="admin_prototype.html"><strong>admin_prototype.html</strong>（可交互 UI 原型）</a></td><td>全页面高保真 Web 交互原型（含角色切换、缺字检测、跨室移动确认、绑定向导与发布模拟）</td></tr>
+        <tr><td>门口平板</td><td><a href="panel_prototype.html"><strong>panel_prototype.html</strong>（1:1 像素工程评审台）</a></td><td>1280×800 / 800×1280 真实像素比例缩放、RGB565 量化、5 连点维护入口与热更新故障注入</td></tr>
+        <tr><td>门口平板</td><td><a href="spec.html#panel-ui-final">02_交互设计与UI定稿</a> · <a href="spec.html#panel-spec">01_平板UI与交互规格</a></td><td>1:1 像素坐标账本、RGB565 色值表、11 条硬件实测硬约束、状态机与 LVGL 8.3.7 控件映射</td></tr>
+        <tr><td>管理后台</td><td><a href="spec.html#admin-ui-final">04_后台交互设计与UI定稿</a> · <a href="spec.html#admin-spec">03_后台界面与交互规格</a></td><td>Element Plus 视觉变量、1366×768 栅格账本、三级角色权限表、HTTP API 清单与预检规则</td></tr>
+        <tr><td>双端协议</td><td><a href="spec.html#protocol">01_平板通信协议 v0.3</a></td><td><code>info</code> / <code>files</code> / <code>upload</code> / <code>commit</code> / <code>layouts</code> / <code>set_layout</code> 接口契约</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+</body>
+</html>
