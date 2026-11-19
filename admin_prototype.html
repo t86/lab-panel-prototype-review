@@ -7,73 +7,76 @@
 <style>
 :root{
   --bg:#F3F5F8; --card:#FFFFFF; --sunken:#F8FAFC; --header:#0F172A; --sider:#FFFFFF;
-  --fg:#1E293B; --fg2:#475569; --muted:#64748B; --line:#E2E8F0; --line2:#CBD5E1;
-  --pri:#2F80ED; --pri-hover:#1D6FE8; --pri-soft:#EAF2FD;
-  --ok:#27AE60; --ok-soft:#EAF7EF;
-  --warn:#D97706; --warn-panel:#F2994A; --warn-soft:#FEF5EB;
-  --bad:#EB5757; --bad-soft:#FDEDED;
+  --fg:#1E293B; --fg2:#334155; --muted:#475569; --line:#E2E8F0; --line2:#CBD5E1;
+  /* WCAG AA >= 4.5:1 primary & status text tokens (dots keep exact tablet RGB565 hues) */
+  --pri:#1D5FD6; --pri-hover:#174EB5; --pri-soft:#EAF2FD;
+  --dot-idle:#27AE60; --txt-idle:#166534; --bg-idle:#EAF7EF;
+  --dot-busy:#F2994A; --txt-busy:#9A3412; --bg-busy:#FEF5EB;
+  --dot-maint:#EB5757; --txt-maint:#B91C1C; --bg-maint:#FDEDED;
+  --dot-proc:#2F80ED; --txt-proc:#1E40AF; --bg-proc:#EAF2FD;
+  --dot-neutral:#64748B; --txt-neutral:#334155; --bg-neutral:#F1F5F9;
   --f-sans:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
   --f-mono:"JetBrains Mono","SF Mono",Consolas,Menlo,monospace;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--fg);font:13.5px/1.5 var(--f-sans);min-width:1340px}
+html,body{margin:0;padding:0;min-height:100%;background:var(--bg);color:var(--fg);font:13.5px/1.5 var(--f-sans)}
 button,input,select,textarea{font:inherit;color:inherit}
-a{color:var(--pri);text-decoration:none;cursor:pointer}
-a:hover{text-decoration:underline}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+a,button.link-btn{color:var(--pri);text-decoration:none;cursor:pointer;background:none;border:none;padding:0;font:inherit}
+a:hover,button.link-btn:hover{text-decoration:underline}
+button.link-btn.del{color:var(--txt-maint)}
 
-/* Top Review Bar (Engineering Review Helper) */
-.rev-bar{height:36px;background:#1E293B;color:#E2E8F0;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:12px;border-bottom:1px solid #334155}
-.rev-grp{display:flex;align-items:center;gap:8px}
-.rev-seg{display:inline-flex;background:#0F172A;border:1px solid #334155;border-radius:5px;overflow:hidden}
-.rev-seg button{border:none;background:transparent;color:#94A3B8;padding:3px 9px;font-size:12px;cursor:pointer}
+/* Top Review Bar (Wraps cleanly at 1366px without overflow) */
+.rev-bar{min-height:38px;height:auto;background:#1E293B;color:#E2E8F0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 14px;padding:6px 16px;font-size:12px;border-bottom:1px solid #334155}
+.rev-grp{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.rev-seg{display:inline-flex;background:#0F172A;border:1px solid #475569;border-radius:5px;overflow:hidden}
+.rev-seg button{border:none;background:transparent;color:#CBD5E1;padding:3px 9px;font-size:12px;cursor:pointer}
 .rev-seg button.on{background:var(--pri);color:#fff;font-weight:600}
-.rev-sel{background:#0F172A;color:#E2E8F0;border:1px solid #334155;border-radius:5px;padding:2px 6px;font-size:12px}
+.rev-sel{background:#0F172A;color:#F8FAFC;border:1px solid #475569;border-radius:5px;padding:3px 7px;font-size:12px}
 
 /* App Global Frame: Header 56px + Sider 208px + Main */
 .app-header{height:56px;background:var(--header);color:#F8FAFC;display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 1px 4px rgba(0,0,0,.16)}
 .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;letter-spacing:.02em}
 .brand-mark{width:28px;height:28px;border-radius:7px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
-.g-search{position:relative;width:360px}
-.g-search input{width:100%;height:34px;border-radius:6px;border:1px solid #334155;background:#1E293B;color:#F8FAFC;padding:0 12px 0 32px;font-size:13px;outline:none}
-.g-search input:focus{border-color:var(--pri)}
-.g-search .ico{position:absolute;left:10px;top:8px;color:#94A3B8;font-size:13px}
+.g-search{position:relative;width:340px}
+.g-search input{width:100%;height:34px;border-radius:6px;border:1px solid #475569;background:#1E293B;color:#F8FAFC;padding:0 12px 0 32px;font-size:13px}
+.g-search .ico{position:absolute;left:10px;top:8px;color:#94A3B8;font-size:13px;pointer-events:none}
 .g-drop{position:absolute;left:0;right:0;top:40px;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 28px rgba(15,23,42,.18);z-index:80;max-height:340px;overflow-y:auto}
-.g-item{padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.g-item{width:100%;text-align:left;background:#fff;border:none;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:13px}
 .g-item:hover{background:var(--sunken)}
 .g-item:last-child{border-bottom:none}
 .hdr-right{display:flex;align-items:center;gap:14px}
-.online-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:#1E293B;border:1px solid #334155;cursor:pointer;font-size:12.5px;transition:border-color .15s}
-.online-pill:hover{border-color:var(--pri)}
+.online-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:#1E293B;color:#F8FAFC;border:1px solid #475569;cursor:pointer;font-size:12.5px}
+.online-pill:hover{border-color:#93C5FD}
 .user-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:#E2E8F0}
-.role-tag{font-size:11.5px;padding:1px 7px;border-radius:4px;background:rgba(47,128,237,.25);color:#93C5FD;border:1px solid rgba(47,128,237,.45)}
+.role-tag{font-size:11.5px;padding:2px 8px;border-radius:4px;background:#1E3A8A;color:#DBEAFE;border:1px solid #3B82F6}
 
-.app-body{display:flex;height:calc(100vh - 92px);min-height:640px}
-.app-sider{width:208px;flex:none;background:var(--sider);border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
-.nav-item{height:38px;padding:0 12px;border-radius:7px;display:flex;align-items:center;justify-content:space-between;color:var(--fg2);cursor:pointer;font-size:13.5px;user-select:none}
+.app-body{display:flex;min-height:calc(100vh - 96px)}
+.app-sider{width:208px;flex:none;background:var(--sider);border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.nav-item{width:100%;height:38px;padding:0 12px;border-radius:7px;border:none;background:transparent;display:flex;align-items:center;justify-content:space-between;color:var(--fg2);cursor:pointer;font-size:13.5px;text-align:left}
 .nav-item:hover{background:var(--sunken);color:var(--fg)}
 .nav-item.active{background:var(--pri-soft);color:var(--pri);font-weight:600}
 .nav-sep{height:1px;background:var(--line);margin:8px 6px}
-.nav-badge{font:600 11px/1.4 var(--f-mono);padding:1px 6px;border-radius:999px;background:var(--bad-soft);color:var(--bad)}
+.nav-badge{font:600 11px/1.4 var(--f-mono);padding:1px 6px;border-radius:999px;background:var(--bg-maint);color:var(--txt-maint)}
 
-.app-main{flex:1;min-width:0;overflow-y:auto;overflow-x:hidden;padding:16px 20px 36px}
+.app-main{flex:1;min-width:0;overflow-x:hidden;padding:16px 20px 40px}
 .crumb{font-size:12.5px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.page-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
 .page-hd h1{margin:0;font-size:19px;font-weight:600;display:flex;align-items:center;gap:10px}
 
-/* Common UI Components (Element Plus Style) */
+/* Common UI Components */
 .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px}
-.card-title{font-size:14.5px;font-weight:600;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14.5px;font-weight:600;margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .btn{height:32px;padding:0 13px;border-radius:6px;border:1px solid var(--line2);background:#fff;color:var(--fg);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
 .btn:hover{border-color:var(--pri);color:var(--pri)}
 .btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
 .btn.pri:hover{background:var(--pri-hover);color:#fff}
-.btn.danger{background:#fff;border-color:#FCA5A5;color:var(--bad)}
-.btn.danger:hover{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.danger{background:#fff;border-color:#FCA5A5;color:var(--txt-maint)}
+.btn.danger:hover{background:#B91C1C;border-color:#B91C1C;color:#fff}
 .btn.sm{height:26px;padding:0 9px;font-size:12px}
-.btn:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.btn:disabled{opacity:.48;cursor:not-allowed}
 
-.inp,.sel,textarea.ta{border:1px solid var(--line2);border-radius:6px;padding:5px 10px;font-size:13px;background:#fff;outline:none}
-.inp:focus,.sel:focus,textarea.ta:focus{border-color:var(--pri)}
+.inp,.sel,textarea.ta{border:1px solid var(--line2);border-radius:6px;padding:5px 10px;font-size:13px;background:#fff}
 .inp{height:32px}
 .sel{height:32px}
 textarea.ta{width:100%;resize:vertical;line-height:1.55}
@@ -82,50 +85,54 @@ textarea.ta{width:100%;resize:vertical;line-height:1.55}
 .filter-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 .filter-left{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 
-/* Capsules & Badges (Aligned with Panel RGB565 Tokens) */
-.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:500;white-space:nowrap}
-.pill i{width:7px;height:7px;border-radius:50%;display:inline-block}
-.pill.idle{background:var(--ok-soft);color:var(--ok)}.pill.idle i{background:var(--ok)}
-.pill.busy{background:var(--warn-soft);color:var(--warn)}.pill.busy i{background:var(--warn-panel)}
-.pill.maint{background:var(--bad-soft);color:var(--bad)}.pill.maint i{background:var(--bad)}
-.pill.proc{background:var(--pri-soft);color:var(--pri)}.pill.proc i{background:var(--pri)}
-.pill.neutral{background:#F1F5F9;color:var(--muted)}.pill.neutral i{background:var(--muted)}
+/* Capsules (Dots match tablet RGB565, text >= 4.5:1 WCAG AA) */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
+.pill.idle{background:var(--bg-idle);color:var(--txt-idle)}.pill.idle i{background:var(--dot-idle)}
+.pill.busy{background:var(--bg-busy);color:var(--txt-busy)}.pill.busy i{background:var(--dot-busy)}
+.pill.maint{background:var(--bg-maint);color:var(--txt-maint)}.pill.maint i{background:var(--dot-maint)}
+.pill.proc{background:var(--bg-proc);color:var(--txt-proc)}.pill.proc i{background:var(--dot-proc)}
+.pill.neutral{background:var(--bg-neutral);color:var(--txt-neutral)}.pill.neutral i{background:var(--dot-neutral)}
 
-/* Tables */
-.tbl-box{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
+/* Responsive Zero-Overflow Tables for 1366x768 */
+.tbl-box{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:visible}
 table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
-th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-th{background:var(--sunken);color:var(--muted);font-weight:600;font-size:12.5px}
+th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.cell-wrap{white-space:normal;overflow:visible}
+th{background:var(--sunken);color:var(--muted);font-weight:600;font-size:12px}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#FAFBFD}
+.sub-line{font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
 .mono{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums}
-.ops{display:flex;align-items:center;gap:8px}
-.ops a{font-size:12.5px}
-.ops a.del{color:var(--bad)}
-.pager{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--sunken);border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.ops{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.more-wrap{position:relative;display:inline-block}
+.more-menu{position:absolute;right:0;top:24px;min-width:118px;background:#fff;border:1px solid var(--line2);border-radius:7px;box-shadow:0 8px 22px rgba(15,23,42,.16);z-index:90;padding:4px}
+.more-menu button{width:100%;text-align:left;background:#fff;border:none;border-radius:5px;padding:6px 10px;font-size:12.5px;cursor:pointer;display:block}
+.more-menu button:hover{background:var(--sunken)}
+.more-menu button.del{color:var(--txt-maint)}
+.pager{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--sunken);border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
 
-/* Tabs */
-.tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin-bottom:16px}
-.tab{padding:9px 2px;cursor:pointer;color:var(--fg2);font-weight:500;position:relative}
+/* Keyboard-accessible Tabs */
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.tab{padding:9px 4px;cursor:pointer;color:var(--fg2);font-weight:500;position:relative;background:none;border:none}
 .tab.active{color:var(--pri);font-weight:600}
 .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--pri)}
 
 /* Forms & Validation */
-.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
 .f-item{display:flex;flex-direction:column;gap:5px}
 .f-item.full{grid-column:1/-1}
 .f-lbl{font-size:13px;font-weight:500;color:var(--fg2);display:flex;align-items:center;justify-content:space-between}
-.f-req::before{content:"* ";color:var(--bad)}
+.f-req::before{content:"* ";color:var(--txt-maint)}
 .f-cnt{font:11.5px var(--f-mono);color:var(--muted);font-weight:400}
-.f-err{font-size:12px;color:var(--bad)}
-.f-glyph{font-size:12px;color:#92400E;background:#FEF3C7;border:1px solid #FDE68A;border-radius:5px;padding:4px 9px}
+.f-glyph{font-size:12px;color:#78350F;background:#FEF3C7;border:1px solid #F59E0B;border-radius:5px;padding:5px 9px}
 
 /* Notifications & Modals */
-.toast-stack{position:fixed;right:20px;top:104px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:380px}
+.toast-stack{position:fixed;right:20px;top:106px;z-index:200;display:flex;flex-direction:column;gap:8px;max-width:400px}
 .msg{padding:10px 14px;border-radius:8px;background:#fff;border:1px solid var(--line);box-shadow:0 8px 24px rgba(15,23,42,.15);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;font-size:13px}
-.msg.ok{border-left:4px solid var(--ok)}
-.msg.err{border-left:4px solid var(--bad)}
-.modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:150;display:flex;align-items:center;justify-content:center;padding:20px}
+.msg.ok{border-left:4px solid var(--dot-idle)}
+.msg.err{border-left:4px solid var(--dot-maint)}
+.modal-mask{position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:150;display:flex;align-items:center;justify-content:center;padding:18px}
 .modal{background:#fff;border-radius:10px;border:1px solid var(--line);box-shadow:0 20px 48px rgba(15,23,42,.26);max-height:90vh;display:flex;flex-direction:column;width:640px;max-width:96vw}
 .modal.lg{width:1020px}
 .modal-hd{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:600}
@@ -133,16 +140,16 @@ tr:hover td{background:#FAFBFD}
 .modal-ft{padding:12px 18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:8px;background:var(--sunken);border-radius:0 0 10px 10px}
 
 /* Transfer & Media Cards */
-.transfer{display:grid;grid-template-columns:460px 76px minmax(0,1fr);gap:12px;align-items:stretch}
-.tr-box{border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;height:410px;background:#fff}
-.tr-hd{padding:10px 12px;background:var(--sunken);border-bottom:1px solid var(--line);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:space-between}
+.transfer{display:grid;grid-template-columns:minmax(0,1fr) 72px minmax(0,1.12fr);gap:12px;align-items:stretch}
+.tr-box{border:1px solid var(--line);border-radius:8px;display:flex;flex-direction:column;height:410px;background:#fff;min-width:0}
+.tr-hd{padding:10px 12px;background:var(--sunken);border-bottom:1px solid var(--line);font-weight:600;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .tr-list{flex:1;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
 .tr-row{padding:7px 10px;border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;background:#fff}
 .tr-row:hover{border-color:var(--pri)}
-.media-grid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px}
-.thumb-card{width:116px;height:82px;border-radius:6px;border:1px solid var(--line);overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:11.5px;text-align:center;padding:6px}
+.media-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:14px}
+.thumb-card{width:112px;height:78px;border-radius:6px;border:1px solid var(--line);overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-size:11.5px;text-align:center;padding:6px}
 .layout-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.l-card{border:2px solid var(--line);border-radius:8px;padding:12px;cursor:pointer;background:#fff;transition:border-color .15s}
+.l-card{border:2px solid var(--line);border-radius:8px;padding:11px;cursor:pointer;background:#fff;text-align:left;width:100%}
 .l-card.sel{border-color:var(--pri);background:#F8FBFF}
 .prog-track{height:8px;border-radius:999px;background:#E2E8F0;overflow:hidden}
 .prog-bar{height:100%;background:var(--pri);transition:width .25s}
@@ -154,30 +161,31 @@ tr:hover td{background:#FAFBFD}
 <div class="rev-bar">
   <div class="rev-grp">
     <strong style="color:#93C5FD">评审控制台</strong>
-    <span>当前角色（验证无权限项直接隐藏）：</span>
+    <span>角色（无权限直接隐藏）：</span>
     <div class="rev-seg" id="revRole">
-      <button data-v="admin" class="on">管理员 (Admin)</button>
-      <button data-v="editor">编辑 (Editor)</button>
-      <button data-v="viewer">只读 (Viewer)</button>
+      <button type="button" data-v="admin" class="on">管理员</button>
+      <button type="button" data-v="editor">编辑</button>
+      <button type="button" data-v="viewer">只读</button>
     </div>
-    <span style="margin-left:8px">场景页：</span>
+    <span>场景页：</span>
     <div class="rev-seg" id="revMode">
-      <button data-v="app" class="on">管理工作台</button>
-      <button data-v="setup">首次初始化向导</button>
-      <button data-v="login">登录页</button>
+      <button type="button" data-v="app" class="on">工作台</button>
+      <button type="button" data-v="setup">首次初始化向导</button>
+      <button type="button" data-v="login">登录页</button>
     </div>
   </div>
   <div class="rev-grp">
-    <span>发布预检工况：</span>
-    <select class="rev-sel" id="revPubCase">
+    <span>发布演练工况：</span>
+    <select class="rev-sel" id="revPubCase" aria-label="发布演练工况">
       <option value="ready">正常：检查全部通过</option>
       <option value="transcoding">媒体转码中：排队等待发布</option>
       <option value="offline">红灯阻断：目标平板离线</option>
       <option value="nospace">红灯阻断：NAND 空间不足 (507)</option>
       <option value="rejected">红灯阻断：含被拒绝的损坏视频</option>
-      <option value="netdrop">异常演练：发布中途断网失败→断点续传重试</option>
+      <option value="netdrop">异常演练：上传中途断网 → 断点续传重试</option>
+      <option value="commit_lost">异常演练：commit 回包丢失 → 待核验回读确认</option>
     </select>
-    <a href="index.html" style="color:#93C5FD;margin-left:8px">← 返回设计总入口</a>
+    <a href="index.html" style="color:#93C5FD">← 返回设计总入口</a>
   </div>
 </div>
 
@@ -187,42 +195,50 @@ tr:hover td{background:#FAFBFD}
 
 <script>
 (function(){
-/* ==================== 1. Core Mock Database & State ==================== */
+/* ==================== 1. Core Mock Database & Immutable Snapshots ==================== */
 const LAYOUT_DEFS = [
-  {id:'landscape_std', name:'横屏标准', orientation:'landscape', w:1280, h:800, isDefault:true,
+  {id:'landscape_std', name:'横屏标准', orientation:'landscape', w:1280, h:800, isDefault:true, previewSupported:true,
    desc:'左上视频，右上实验室信息，中间一排设备卡片，底部安全须知',
    regions:[{id:'video',x:0,y:0,w:800,h:450},{id:'title',x:800,y:0,w:480,h:450},{id:'cards',x:0,y:450,w:1280,h:290},{id:'notice',x:0,y:740,w:1280,h:60}]},
-  {id:'landscape_video', name:'横屏视频优先', orientation:'landscape', w:1280, h:800, isDefault:false,
+  {id:'landscape_video', name:'横屏视频优先', orientation:'landscape', w:1280, h:800, isDefault:false, previewSupported:true,
    desc:'上方整屏宽视频，底部一条标题和须知；设备卡片点击后从底部弹出',
    regions:[{id:'video',x:0,y:0,w:1280,h:720},{id:'title',x:0,y:720,w:1280,h:80}]},
-  {id:'portrait_std', name:'竖屏标准', orientation:'portrait', w:800, h:1280, isDefault:false,
+  {id:'portrait_std', name:'竖屏标准', orientation:'portrait', w:800, h:1280, isDefault:false, previewSupported:true,
    desc:'从上到下：标题、视频、设备卡片、须知',
-   regions:[{id:'title',x:0,y:0,w:800,h:200},{id:'video',x:0,y:200,w:800,h:450},{id:'cards',x:0,y:650,w:800,h:550},{id:'notice',x:0,y:1200,w:800,h:80}]}
+   regions:[{id:'title',x:0,y:0,w:800,h:200},{id:'video',x:0,y:200,w:800,h:450},{id:'cards',x:0,y:650,w:800,h:550},{id:'notice',x:0,y:1200,w:800,h:80}]},
+  {id:'portrait_split', name:'竖屏双图展板 (固件新布局)', orientation:'portrait', w:800, h:1280, isDefault:false, previewSupported:false,
+   desc:'演示：固件新增布局但旧版预览器未收录时，降级展示区块示意图仍可正常下发',
+   regions:[{id:'title',x:0,y:0,w:800,h:180},{id:'video',x:0,y:180,w:800,h:450},{id:'gallery',x:0,y:630,w:800,h:260},{id:'cards',x:0,y:890,w:800,h:310},{id:'notice',x:0,y:1200,w:800,h:80}]}
 ];
+
+function computeSha(lab){
+  const raw = JSON.stringify({id:lab.id, ver:lab.manifest_version, name:lab.name, st:lab.status, eq:lab.equipIds, sf:lab.safety});
+  let h = 2166136261;
+  for(let i=0;i<raw.length;i++){ h ^= raw.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return ((h>>>0).toString(16).padStart(8,'0') + '9a4f7c2e');
+}
 
 const DB = {
   labs: [
     {id:'L1', code:'L3-201', name:'材料力学实验室', bld:'3号楼', flr:'2层', rm:'201', status:'使用中', owner:'张建国', phone:'021-6598-2201', open_hours:'周一至周五 08:30-17:30',
      intro:'面向机械与土木工程专业，开展金属拉伸、压缩、扭转、冲击及疲劳断裂试验。',
      safety:['进入实验室须穿戴实验服与护目镜','液压加载期间严禁跨越黄色警戒线','脆性材料试验前必须合上防护罩'],
-     manifest_version:12, updated:'2026-11-17 19:40', equipIds:['E01','E02','E03','E06'],
-     media:[
-       {id:'M01', name:'lab201_cover.jpg', kind:'image', role:'cover', size:'420 KB', dim:'800×450', status:'ok', hue:'#1D3B58'},
-       {id:'M02', name:'lab201_safety_tour.mp4', kind:'video', role:'intro', size:'28.4 MB', dim:'1920×1080 → 1280×720', dur:'00:50', status:'transcoded', hue:'#16324F'}
-     ]},
+     manifest_version:12, updated:'2026-11-18 14:40', equipIds:['E01','E02','E03','E06']},
     {id:'L2', code:'L3-205', name:'岩土与结构工程实验室', bld:'3号楼', flr:'2层', rm:'205', status:'空闲', owner:'李敏华', phone:'021-6598-2205', open_hours:'周一至周五 09:00-17:00',
      intro:'承担土工三轴剪切、固结渗透及混凝土结构构件拟静力加载实验。',
      safety:['起重吊装构件时必须佩戴安全帽','高压油源开启前确认各油路接头锁紧'],
-     manifest_version:8, updated:'2026-11-17 16:15', equipIds:['E04','E05'],
-     media:[{id:'M03', name:'lab205_cover.jpg', kind:'image', role:'cover', size:'390 KB', dim:'800×450', status:'ok', hue:'#274237'}]},
+     manifest_version:8, updated:'2026-11-17 16:15', equipIds:['E04','E05']},
     {id:'L3', code:'L4-102', name:'精密金相与电镜分析室', bld:'4号楼', flr:'1层', rm:'102', status:'维护', owner:'王志远', phone:'021-6598-3102', open_hours:'预约制开放 08:30-20:30',
      intro:'配备场发射扫描电子显微镜、能谱仪与全自动维氏硬度测试系统。',
      safety:['强磁场环境，心脏起搏器佩戴者严禁入内','液氮杜瓦罐取用必须佩戴防冻手套'],
-     manifest_version:5, updated:'2026-11-16 14:20', equipIds:['E07'],
-     media:[]},
+     manifest_version:5, updated:'2026-11-16 14:20', equipIds:['E07']},
     {id:'L4', code:'L4-308', name:'流体力学与风洞实验室', bld:'4号楼', flr:'3层', rm:'308', status:'空闲', owner:'赵鹏', phone:'021-6598-3308', open_hours:'周一至周五 08:30-17:00',
      intro:'低速回流式风洞与粒子图像测速 PIV 实验教学平台。', safety:['风机启动前确认试验段内无散落工具'],
-     manifest_version:4, updated:'2026-11-15 11:05', equipIds:[], media:[]}
+     manifest_version:1, updated:'2026-11-18 11:05', equipIds:[]},
+    {id:'L5', code:'L5-106', name:'新能源电池安全实验室', bld:'5号楼', flr:'1层', rm:'106', status:'空闲', owner:'陈晓东', phone:'021-6598-5106', open_hours:'周一至周五 08:30-17:30',
+     intro:'开展动力电芯针刺、热失控与充放电循环测试（未绑定平板样例，可直接用于绑定向导验收）。',
+     safety:['测试舱关闭联锁后方可启动高压充放电'],
+     manifest_version:1, updated:'2026-11-18 15:20', equipIds:['E08']}
   ],
   equipment: [
     {id:'E01', asset_no:'ZC-2024-0108', name:'电液伺服万能试验机', model:'WAW-1000D', vendor:'济南试金', cat:'力学加载', status:'可用', mediaCnt:4, updated:'2026-11-17 19:30', hue:'#1E3A5F',
@@ -239,98 +255,110 @@ const DB = {
      specs:[['相机分辨率','500 万像素 × 2'],['帧率','160 fps']], intro:'非接触式全场三维变形与应变云图测量。'},
     {id:'E07', asset_no:'ZC-2021-0009', name:'场发射扫描电子显微镜', model:'GeminiSEM 300', vendor:'蔡司 ZEISS', cat:'微观表征', status:'维护', mediaCnt:2, updated:'2026-11-16 14:15', hue:'#4A2528',
      specs:[['二次电子分辨率','0.8 nm @ 15 kV'],['加速电压','0.02–30 kV']], intro:'纳米级断口形貌观察与微区成分分析。'},
-    {id:'E08', asset_no:'ZC-2025-0101', name:'激光衍射粒度分析仪', model:'Mastersizer 3000', vendor:'马尔文帕纳科', cat:'物性分析', status:'可用', mediaCnt:1, updated:'2026-11-17 11:00', hue:'#2C3E50',
-     specs:[['粒径范围','0.01–3500 μm'],['重复性误差','< 0.5%']], intro:'干湿两用粉体颗粒粒径分布快速测试（当前未分配实验室）。'},
+    {id:'E08', asset_no:'ZC-2025-0101', name:'动力电芯充放电测试柜', model:'CT-4008Q', vendor:'新威 NEWARE', cat:'电池测试', status:'可用', mediaCnt:1, updated:'2026-11-18 11:00', hue:'#2C3E50',
+     specs:[['通道数','8 通道独立'],['电压精度','±0.05% FS']], intro:'支持多温区电芯循环寿命与倍率测试。'},
     {id:'E09', asset_no:'ZC-2025-0109', name:'同步热分析仪 TGA/DSC', model:'STA 449 F3', vendor:'耐驰 NETZSCH', cat:'热分析', status:'可用', mediaCnt:1, updated:'2026-11-17 11:20', hue:'#34495E',
-     specs:[['温度范围','室温–1600 °C'],['天平分辨率','0.1 μg']], intro:'热重与差示扫描量热同步测定（当前未分配实验室）。'}
+     specs:[['温度范围','室温–1600 °C'],['天平分辨率','0.1 μg']], intro:'热重与差示扫描量热同步测定（未分配实验室）。'}
   ],
-  panels: [
-    {id:'P1', sn:'HL-LP9868-26110201', name:'门牌-3号楼201', mac:'00:E0:4C:98:68:21', ip:'192.168.10.201', labId:'L1', layout:'landscape_std', fw:'1.0.0+ae79616f', freeMB:812, totalMB:1024, online:true, lastSeen:'2026-11-17 21:05', committedVer:11, lastErr:''},
-    {id:'P2', sn:'HL-LP9868-26110205', name:'门牌-3号楼205', mac:'00:E0:4C:98:68:25', ip:'192.168.10.205', labId:'L2', layout:'landscape_video', fw:'1.0.0+ae79616f', freeMB:740, totalMB:1024, online:true, lastSeen:'2026-11-17 21:05', committedVer:8, lastErr:''},
-    {id:'P3', sn:'HL-LP9868-26110102', name:'门牌-4号楼102', mac:'00:E0:4C:98:68:32', ip:'192.168.10.102', labId:'L3', layout:'portrait_std', fw:'1.0.0+3e6e51ed', freeMB:690, totalMB:1024, online:false, lastSeen:'2026-11-17 18:12', committedVer:4, lastErr:'连接超时 (192.168.10.102:80)'},
-    {id:'P4', sn:'HL-LP9868-26110308', name:'门牌-4号楼308', mac:'00:E0:4C:98:68:38', ip:'192.168.10.108', labId:'L4', layout:'landscape_std', fw:'1.0.0+ae79616f', freeMB:910, totalMB:1024, online:false, lastSeen:'2026-11-17 09:45', committedVer:4, lastErr:'网口未插线'}
-  ],
+  panels: [],
   mediaLib: [
-    {id:'M01', sha:'a1b2c3d4e5f60718', name:'lab201_cover.jpg', kind:'image', orig:'2400×1350 (2.1 MB)', panel:'800×450 (142 KB)', status:'transcoded', refs:'材料力学实验室 (封面)'},
-    {id:'M02', sha:'9f8e7d6c5b4a3210', name:'lab201_safety_tour.mp4', kind:'video', orig:'1920×1080 B帧=2 (68 MB)', panel:'1280×720 无B帧 (28.4 MB)', status:'transcoded', refs:'材料力学实验室 (介绍视频)'},
-    {id:'M04', sha:'778899aabbccddee', name:'waw1000d_3d_section.mp4', kind:'video', orig:'1280×720 无B帧 (19.2 MB)', panel:'直接复用原片 (19.2 MB)', status:'ok', refs:'电液伺服万能试验机 (3D 演示)'},
-    {id:'M05', sha:'5544332211ffeedd', name:'plg200c_render_raw.mov', kind:'video', orig:'3840×2160 ProRes (412 MB)', panel:'转码中 64%…', status:'transcoding', refs:'高频电磁谐振疲劳试验机 (3D 演示)'},
+    {id:'M01', sha:'a1b2c3d4e5f60718', name:'lab201_cover.jpg', kind:'image', orig:'2400×1350 (2.1 MB)', panel:'800×450 Baseline JPG (142 KB)', status:'transcoded', refs:'材料力学实验室 (封面)'},
+    {id:'M02', sha:'9f8e7d6c5b4a3210', name:'lab201_safety_tour.mp4', kind:'video', orig:'1920×1080 B帧=2 (68 MB)', panel:'MP4 H.264 1280×720 无B帧 (28.4 MB)', status:'transcoded', refs:'材料力学实验室 (介绍视频)'},
+    {id:'M04', sha:'778899aabbccddee', name:'waw1000d_3d_section.mp4', kind:'video', orig:'MP4 1280×720 无B帧 (19.2 MB)', panel:'直接复用原片 (19.2 MB)', status:'ok', refs:'电液伺服万能试验机 (3D 演示)'},
+    {id:'M05', sha:'5544332211ffeedd', name:'plg200c_render_raw.mov', kind:'video', orig:'MOV H.264 (非MP4封装需重封/转码)', panel:'转码为 MP4 中 64%…', status:'transcoding', refs:'高频电磁谐振疲劳试验机 (3D 演示)'},
     {id:'M06', sha:'deadbeef00001111', name:'corrupted_export.avi', kind:'video', orig:'未知封装 (12.8 MB)', panel:'—', status:'rejected', reason:'ffprobe 无法解析视频流（文件头损坏）', refs:'未关联（可清理）'}
   ],
   publishJobs: [
-    {id:'PJ-109', time:'2026-11-17 19:15', lab:'岩土与结构工程实验室', panel:'门牌-3号楼205', ver:'v8', files:'4 个 / 31.6 MB', dur:'6.4 s', status:'成功', user:'admin',
-     logs:['[19:15:01] 生成清单 v8，共引用 4 个素材文件','[19:15:01] GET /lab/lab.cgi?action=files → 平板已有 3 个文件 sha256 一致，跳过上传','[19:15:04] POST action=upload (a91c82f0.mp4, 14.2 MB) → 200 ok','[19:15:06] POST action=commit (version=8) → 200 ok, removed=1','[19:15:07] GET action=info 核验通过：manifest_version=8']},
-    {id:'PJ-108', time:'2026-11-17 18:14', lab:'精密金相与电镜分析室', panel:'门牌-4号楼102', ver:'v5', files:'3 个 / 24.0 MB', dur:'12.1 s', status:'失败', user:'zhang',
+    {id:'PJ-109', time:'2026-11-17 19:15', labId:'L2', lab:'岩土与结构工程实验室', panelId:'P2', panel:'门牌-3号楼205', ver:'v8', snapId:'SNAP-L2-v8', files:'4 个 / 31.6 MB', dur:'6.4 s', status:'成功', user:'admin',
+     logs:['[19:15:01] 冻结快照 SNAP-L2-v8 (lab_id=L2, ver=8, binding_rev=1)','[19:15:01] GET action=files → 3 个文件 sha256 一致，跳过上传','[19:15:04] POST action=upload (a91c82f0.mp4, 14.2 MB) → 200 ok','[19:15:06] POST action=commit (version=8) → UI 切换确认后清理 1 个旧文件','[19:15:07] GET action=info 回读三元组 (L2, v8, sha) 核验通过']},
+    {id:'PJ-108', time:'2026-11-17 18:14', labId:'L3', lab:'精密金相与电镜分析室', panelId:'P3', panel:'门牌-4号楼102', ver:'v5', snapId:'SNAP-L3-v5', files:'3 个 / 24.0 MB', dur:'12.1 s', status:'失败', user:'zhang',
      err:'上传第 2/3 个文件时网络中断 (dial tcp 192.168.10.102:80: i/o timeout)',
-     logs:['[18:14:02] 生成清单 v5，需新增上传 2 个文件','[18:14:06] POST action=upload (1/2, 8.1 MB) → 200 ok（断点已记录）','[18:14:14] POST action=upload (2/2, 15.9 MB) → 超时失败，平板仍保持旧清单 v4']},
-    {id:'PJ-107', time:'2026-11-17 14:30', lab:'材料力学实验室', panel:'门牌-3号楼201', ver:'v11', files:'8 个 / 64.2 MB', dur:'11.8 s', status:'成功', user:'admin',
+     logs:['[18:14:02] 冻结快照 SNAP-L3-v5 (lab_id=L3, ver=5)','[18:14:06] POST action=upload (1/2, 8.1 MB) → 200 ok（断点已记录）','[18:14:14] POST action=upload (2/2, 15.9 MB) → 超时失败，未发 commit，平板仍显示 v4']},
+    {id:'PJ-107', time:'2026-11-17 14:30', labId:'L1', lab:'材料力学实验室', panelId:'P1', panel:'门牌-3号楼201', ver:'v11', snapId:'SNAP-L1-v11', files:'8 个 / 64.2 MB', dur:'11.8 s', status:'成功', user:'admin',
      logs:['[14:30:00] 全部 8 个文件校验通过，commit v11 成功']}
   ],
   users: [
-    {id:'U1', username:'admin', name:'系统管理员', role:'admin', enabled:true, lastLogin:'2026-11-17 20:55'},
-    {id:'U2', username:'zhang', name:'张建国（实验中心编辑）', role:'editor', enabled:true, lastLogin:'2026-11-17 18:10'},
+    {id:'U1', username:'admin', name:'系统管理员', role:'admin', enabled:true, lastLogin:'2026-11-18 16:40'},
+    {id:'U2', username:'zhang', name:'张建国（实验中心编辑）', role:'editor', enabled:true, lastLogin:'2026-11-18 14:10'},
     {id:'U3', username:'guest', name:'教务巡检账号', role:'viewer', enabled:true, lastLogin:'2026-11-16 10:05'}
   ],
   audits: [
-    {id:'A1', time:'2026-11-17 19:40', user:'admin', action:'PUT /labs/L1', target:'材料力学实验室 (L3-201)', ip:'192.168.10.10',
-     before:'{"status":"空闲","open_hours":"周一至周五 09:00-17:00","manifest_version":11}',
-     after:'{"status":"使用中","open_hours":"周一至周五 08:30-17:30","manifest_version":12}'},
+    {id:'A1', time:'2026-11-18 14:40', user:'admin', action:'PUT /labs/L1', target:'材料力学实验室 (L3-201)', ip:'192.168.10.10',
+     before:'{"status":"空闲","manifest_version":11}', after:'{"status":"使用中","manifest_version":12}'},
     {id:'A2', time:'2026-11-17 19:12', user:'admin', action:'PUT /panels/P2/layout', target:'门牌-3号楼205', ip:'192.168.10.10',
      before:'{"layout":"landscape_std"}', after:'{"layout":"landscape_video"}'},
-    {id:'A3', time:'2026-11-17 17:50', user:'zhang', action:'PUT /labs/L1/equipment', target:'设备跨实验室调拨 E06', ip:'192.168.10.46',
-     before:'{"lab":"L3-205","equipment_id":"E06"}', after:'{"lab":"L3-201","equipment_id":"E06","confirm_move":true}'}
+    {id:'A3', time:'2026-11-17 17:50', user:'zhang', action:'PUT /labs/L1/equipment', target:'设备跨室调拨 E06 (并发修订核验)', ip:'192.168.10.46',
+     before:'{"expected_from_lab_id":"L2","expected_from_manifest_version":7}', after:'{"target_lab_id":"L1","confirm_move":true}'}
   ],
   backups: [
-    {id:'B1', name:'labComputer-backup-20261117-0300.zip', time:'2026-11-17 03:00', size:'184.6 MB', kind:'定时自动备份'},
+    {id:'B1', name:'labComputer-backup-20261118-0300.zip', time:'2026-11-18 03:00', size:'184.6 MB', kind:'定时自动备份'},
     {id:'B2', name:'labComputer-backup-20261116-2015.zip', time:'2026-11-16 20:15', size:'179.2 MB', kind:'手动备份 (admin)'}
-  ],
-  history: [
-    {time:'2026-11-17 17:50', user:'zhang', action:'加入 L3-201 / 移出 L3-205', equip:'DIC-3D Pro (ZC-2025-0023)'}
   ]
 };
 
-const S = {
-  role: 'admin',       /* 'admin' | 'editor' | 'viewer' */
-  mode: 'app',         /* 'app' | 'setup' | 'login' */
-  pubCase: 'ready',
-  route: 'overview',   /* overview | labs | lab-edit | equipment | equip-edit | media | panels | publish-jobs | users | audit | backups | settings */
+/* Initialize panels with explicit committedLabId, committedVer, committedSha & committedSnapshot.
+   Note P4 demonstrates P1-1 Rebind: previously bound to L1 (v12), now rebound to L4 (v1)! */
+function makeSnapCopy(lab, overrideVer){
+  const copy = JSON.parse(JSON.stringify(lab));
+  if(overrideVer !== undefined) copy.manifest_version = overrideVer;
+  copy.sha = computeSha(copy);
+  return copy;
+}
+DB.panels = [
+  {id:'P1', sn:'HL-LP9868-26110201', name:'门牌-3号楼201', mac:'00:E0:4C:98:68:21', ip:'192.168.10.201', labId:'L1', bindingRev:1, layout:'landscape_std', fw:'1.0.0+ae79616f', freeMB:812, totalMB:1024, online:true, lastSeen:'2026-11-18 16:50',
+   committedLabId:'L1', committedVer:11, committedSha:computeSha(Object.assign({},DB.labs[0],{manifest_version:11})), committedSnapshot:makeSnapCopy(DB.labs[0],11), lastErr:''},
+  {id:'P2', sn:'HL-LP9868-26110205', name:'门牌-3号楼205', mac:'00:E0:4C:98:68:25', ip:'192.168.10.205', labId:'L2', bindingRev:1, layout:'landscape_video', fw:'1.0.0+ae79616f', freeMB:740, totalMB:1024, online:true, lastSeen:'2026-11-18 16:50',
+   committedLabId:'L2', committedVer:8, committedSha:computeSha(DB.labs[1]), committedSnapshot:makeSnapCopy(DB.labs[1]), lastErr:''},
+  {id:'P3', sn:'HL-LP9868-26110102', name:'门牌-4号楼102', mac:'00:E0:4C:98:68:32', ip:'192.168.10.102', labId:'L3', bindingRev:1, layout:'portrait_std', fw:'1.0.0+3e6e51ed', freeMB:690, totalMB:1024, online:false, lastSeen:'2026-11-18 12:12',
+   committedLabId:'L3', committedVer:4, committedSha:computeSha(Object.assign({},DB.labs[2],{manifest_version:4})), committedSnapshot:makeSnapCopy(DB.labs[2],4), lastErr:'连接超时 (192.168.10.102:80)'},
+  {id:'P4', sn:'HL-LP9868-26110308', name:'门牌-4号楼308', mac:'00:E0:4C:98:68:38', ip:'192.168.10.108', labId:'L4', bindingRev:2, layout:'landscape_std', fw:'1.0.0+ae79616f', freeMB:910, totalMB:1024, online:true, lastSeen:'2026-11-18 16:50',
+   /* Rebound from L1 v12 -> L4 v1! Tests P1-1 explicit force=1 replacement & accurate pending count */
+   committedLabId:'L1', committedVer:12, committedSha:computeSha(DB.labs[0]), committedSnapshot:makeSnapCopy(DB.labs[0],12), lastErr:''}
+];
 
-  /* Filters synced with URL hash */
+const S = {
+  role: 'admin',
+  mode: 'app',
+  pubCase: 'ready',
+  route: 'overview',
+
   labFilter: {status:'', pub:'', kw:''},
   eqFilter: {cat:'', status:'', lab:'', kw:''},
   panelFilter: {online:''},
   selectedLabIds: [],
+  openMorePanelId: null,
 
-  /* Editing state + dirty guard */
+  /* Isolated edit drafts (fixes P1-4 focus loss & discard rollback) */
   editLabId: 'L1',
-  editLabTab: 'basic', /* basic | equip | media | publish */
+  labDraft: null,
+  editLabTab: 'basic',
   showOtherLabEq: false,
+
+  /* Per-lab publish snapshots & job states (fixes P1-3 cross-lab retry leak & TOCTOU) */
+  pubSnapshots: {},      /* labId -> {snapId, labId, version, sha, panelId, bindingRev, rebindFromLabId, labCopy} */
+  pubStateByLab: {},     /* labId -> {jobId, running, status:'idle'|'running'|'failed'|'unverified'|'done', text, progress, snapId, targetPanelId, committedOnDevice} */
   previewLayout: 'landscape_std',
   previewFwDiff: false,
   previewEquipDetailId: null,
-  pubRunning: false,
-  pubStepText: '',
-  pubProgress: 0,
-  pubFailedOnce: false,
 
   editEqId: 'E01',
+  eqDraft: null,
+  eqIsNew: false,
+
   isDirty: false,
   searchKw: '',
   setupStep: 1
 };
 
-/* Helpers */
 const canEdit = () => S.role === 'admin' || S.role === 'editor';
 const isAdmin = () => S.role === 'admin';
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-/* Rare / Non-GB2312 glyph detector simulating POST /api/v1/text/check against wqyMicroHei.ttf */
 function findMissingGlyphs(text){
   if(!text) return [];
   const rare = [];
   for(const ch of text){
     const cp = ch.codePointAt(0);
-    /* Simulate wqyMicroHei coverage: CJK Ext-A/B+ (0x3400..0x4DBF, >=0x20000) or rare test chars */
     if((cp >= 0x3400 && cp <= 0x4DBF) || cp >= 0x20000 || '龘㵘𠀀喆镕'.includes(ch)){
       if(!rare.includes(ch)) rare.push(ch);
     }
@@ -338,19 +366,59 @@ function findMissingGlyphs(text){
   return rare;
 }
 
-function labOfEquip(eqId){
-  return DB.labs.find(l => l.equipIds.includes(eqId)) || null;
-}
-function panelOfLab(labId){
-  return DB.panels.find(p => p.labId === labId) || null;
-}
+function labOfEquip(eqId){ return DB.labs.find(l => l.equipIds.includes(eqId)) || null; }
+function panelOfLab(labId){ return DB.panels.find(p => p.labId === labId) || null; }
+
+/* P1-1 Fix: identify sync status by (committedLabId, committedVer, committedSha), NOT mere numeric > */
 function labPubState(lab){
   const p = panelOfLab(lab.id);
-  if(!p) return {k:'neutral', t:'未绑平板'};
-  if(DB.publishJobs.find(j => j.lab === lab.name && j.status === '失败')) return {k:'maint', t:'发布失败'};
-  if(lab.manifest_version > p.committedVer) return {k:'busy', t:`待发布 (v${p.committedVer}→v${lab.manifest_version})`};
-  return {k:'idle', t:`已同步 v${lab.manifest_version}`};
+  if(!p) return {k:'neutral', t:'未绑平板', isPending:false};
+  const ps = S.pubStateByLab[lab.id];
+  if(ps && ps.status === 'unverified') return {k:'proc', t:'待核验 (commit 回包超时)', isPending:true};
+  if(DB.publishJobs.find(j => j.labId === lab.id && j.status === '失败' && p.committedVer < lab.manifest_version)) return {k:'maint', t:'发布失败', isPending:true};
+  const curSha = computeSha(lab);
+  if(p.committedLabId && p.committedLabId !== lab.id){
+    const oldLab = DB.labs.find(x => x.id === p.committedLabId);
+    return {k:'busy', t:`待换绑替换 (${oldLab?oldLab.code:p.committedLabId} v${p.committedVer}→v${lab.manifest_version})`, isPending:true, isRebind:true};
+  }
+  if(!p.committedLabId || p.committedVer !== lab.manifest_version || p.committedSha !== curSha){
+    return {k:'busy', t:`待发布 (v${p.committedVer||0}→v${lab.manifest_version})`, isPending:true};
+  }
+  return {k:'idle', t:`已同步 v${lab.manifest_version}`, isPending:false};
 }
+
+function ensurePublishSnapshot(lab, forceRefresh=false){
+  const p = panelOfLab(lab.id);
+  const existing = S.pubSnapshots[lab.id];
+  if(!forceRefresh && existing) return existing;
+  const sha = computeSha(lab);
+  const snap = {
+    snapId: `SNAP-${lab.id}-v${lab.manifest_version}-${sha.slice(0,6)}`,
+    labId: lab.id,
+    version: lab.manifest_version,
+    sha,
+    panelId: p ? p.id : '',
+    bindingRev: p ? p.bindingRev : 0,
+    rebindFromLabId: (p && p.committedLabId && p.committedLabId !== lab.id) ? p.committedLabId : '',
+    labCopy: JSON.parse(JSON.stringify(lab))
+  };
+  S.pubSnapshots[lab.id] = snap;
+  return snap;
+}
+
+function isSnapshotStale(lab, snap){
+  const p = panelOfLab(lab.id);
+  if(!snap) return {stale:true, reason:'尚未生成快照'};
+  const curSha = computeSha(lab);
+  if(lab.manifest_version !== snap.version || curSha !== snap.sha){
+    return {stale:true, reason:`后台内容已并发更新至 v${lab.manifest_version}（当前预览快照为 v${snap.version}）`};
+  }
+  if((p ? p.id : '') !== snap.panelId || (p ? p.bindingRev : 0) !== snap.bindingRev){
+    return {stale:true, reason:'目标平板绑定关系已发生变化（binding_rev 不一致）'};
+  }
+  return {stale:false, reason:''};
+}
+
 function statusPill(st){
   const k = (st==='空闲'||st==='可用') ? 'idle' : st==='使用中' ? 'busy' : (st==='维护'||st==='停用') ? 'maint' : 'neutral';
   return `<span class="pill ${k}"><i></i>${esc(st)}</span>`;
@@ -360,17 +428,17 @@ function notify(text, kind='ok'){
   const box = document.getElementById('toastStack');
   const el = document.createElement('div');
   el.className = `msg ${kind}`;
-  el.innerHTML = `<span>${esc(text)}</span><a onclick="this.parentElement.remove()" style="color:var(--muted)">✕</a>`;
+  el.innerHTML = `<span>${esc(text)}</span><button type="button" class="link-btn" onclick="this.parentElement.remove()" style="color:var(--muted)">✕</button>`;
   box.appendChild(el);
-  if(kind === 'ok') setTimeout(() => el.remove(), 2200);
+  if(kind === 'ok') setTimeout(() => el.remove(), 2500);
 }
 window.__notify = notify;
 
 function openModal(title, bodyHTML, footHTML, large=false){
   document.getElementById('modalRoot').innerHTML = `
     <div class="modal-mask" onclick="if(event.target===this)window.__closeModal()">
-      <div class="modal ${large?'lg':''}">
-        <div class="modal-hd"><span>${title}</span><a onclick="window.__closeModal()" style="color:var(--muted);font-size:16px">✕</a></div>
+      <div class="modal ${large?'lg':''}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+        <div class="modal-hd"><span>${title}</span><button type="button" class="link-btn" onclick="window.__closeModal()" style="color:var(--muted);font-size:16px">✕</button></div>
         <div class="modal-bd">${bodyHTML}</div>
         ${footHTML ? `<div class="modal-ft">${footHTML}</div>` : ''}
       </div>
@@ -381,20 +449,47 @@ window.__closeModal = function(){ document.getElementById('modalRoot').innerHTML
 function confirmBox(title, msg, dangerText, onConfirm){
   window.__confirmCb = () => { window.__closeModal(); onConfirm(); };
   openModal(title, `<p style="margin:4px 0;font-size:14px;line-height:1.65">${msg}</p>`,
-    `<button class="btn" onclick="window.__closeModal()">取消</button>
-     <button class="btn ${dangerText.includes('删除')||dangerText.includes('解绑')||dangerText.includes('恢复')?'danger':'pri'}" onclick="window.__confirmCb()">${dangerText}</button>`);
+    `<button type="button" class="btn" onclick="window.__closeModal()">取消</button>
+     <button type="button" class="btn ${dangerText.includes('删除')||dangerText.includes('解绑')||dangerText.includes('恢复')||dangerText.includes('放弃')?'danger':'pri'}" onclick="window.__confirmCb()">${dangerText}</button>`);
+}
+
+function openLabEditor(labId, tab='basic'){
+  const src = DB.labs.find(x => x.id === labId) || DB.labs[0];
+  S.editLabId = src.id;
+  S.labDraft = JSON.parse(JSON.stringify(src));
+  S.editLabTab = tab;
+  S.previewEquipDetailId = null;
+  const p = panelOfLab(src.id);
+  S.previewLayout = p ? p.layout : 'landscape_std';
+  if(tab === 'publish') ensurePublishSnapshot(src, true);
+}
+
+function openEquipEditor(eqId, isNew=false){
+  if(isNew){
+    S.eqIsNew = true;
+    S.editEqId = '';
+    S.eqDraft = {id:'', asset_no:'', name:'', model:'', vendor:'', cat:'力学加载', status:'可用', mediaCnt:0, updated:'待保存', hue:'#1E3A5F', specs:[['','']], intro:''};
+  } else {
+    const src = DB.equipment.find(x => x.id === eqId) || DB.equipment[0];
+    S.eqIsNew = false;
+    S.editEqId = src.id;
+    S.eqDraft = JSON.parse(JSON.stringify(src));
+  }
 }
 
 function navigate(route, opts={}){
   const go = () => {
     S.isDirty = false;
+    S.openMorePanelId = null;
     S.route = route;
     Object.assign(S, opts);
+    if(route === 'lab-edit') openLabEditor(opts.editLabId || S.editLabId, opts.editLabTab || S.editLabTab || 'basic');
+    if(route === 'equip-edit') openEquipEditor(opts.editEqId || S.editEqId, !!opts.eqIsNew);
     syncHash();
     render();
   };
   if(S.isDirty){
-    confirmBox('离开未保存的页面', '当前表单有未保存的修改，离开后修改将丢失，是否确认离开？', '放弃修改并离开', go);
+    confirmBox('离开未保存的页面', '当前表单有未保存的修改，离开后修改将丢失（列表将保持原值），是否确认离开？', '放弃修改并离开', go);
   } else go();
 }
 window.__nav = navigate;
@@ -411,20 +506,21 @@ function syncHash(){
   history.replaceState(null, '', `#/${S.route}${qs ? '?' + qs : ''}`);
 }
 
-/* ==================== 2. Proportional Layout Region Schematic SVG (Spec §4.5) ==================== */
+/* ==================== 2. Proportional Layout Region Schematic SVG ==================== */
 function renderLayoutSchematicSVG(lay, w=156, h=104){
   const pad = 6;
   const sc = Math.min((w - pad*2) / lay.w, (h - pad*2) / lay.h);
   const rw = lay.w * sc, rh = lay.h * sc;
   const ox = (w - rw) / 2, oy = (h - rh) / 2;
   const palette = {
-    video:  ['#DBEAFE','#2563EB','视频'],
-    title:  ['#FEF3C7','#D97706','标题'],
-    cards:  ['#DCFCE7','#16A34A','卡片'],
-    notice: ['#F1F5F9','#475569','须知']
+    video:  ['#DBEAFE','#1D4ED8','视频'],
+    title:  ['#FEF3C7','#92400E','标题'],
+    cards:  ['#DCFCE7','#166534','卡片'],
+    gallery:['#FCE7F3','#9D174D','画廊'],
+    notice: ['#F1F5F9','#334155','须知']
   };
   const rects = lay.regions.map(r => {
-    const [fill, stroke, cn] = palette[r.id] || ['#E2E8F0','#64748B',r.id];
+    const [fill, stroke, cn] = palette[r.id] || ['#E2E8F0','#475569',r.id];
     const x = ox + r.x*sc, y = oy + r.y*sc, bw = r.w*sc, bh = r.h*sc;
     return `<g>
       <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${fill}" stroke="${stroke}" stroke-width="1.2"/>
@@ -437,17 +533,43 @@ function renderLayoutSchematicSVG(lay, w=156, h=104){
   </svg>`;
 }
 
-/* ==================== 3. Embedded Interactive WASM Preview Simulator ==================== */
-function renderEmbeddedPanelPreview(lab, layoutId){
+/* ==================== 3. Prototype HTML Panel Simulator (Clearly Labelled as Mock) ==================== */
+function renderEmbeddedPanelPreview(labSnapshot, layoutId, sourceTag, interactive=true){
   const lay = LAYOUT_DEFS.find(x => x.id === layoutId) || LAYOUT_DEFS[0];
-  const eqs = (lab.equipIds || []).map(id => DB.equipment.find(e => e.id === id)).filter(Boolean);
+  /* Fallback when firmware supports a new layout not yet compiled into previewer */
+  if(!lay.previewSupported){
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;border:1px dashed var(--line2);border-radius:8px;background:#fff">
+      <div class="f-glyph" style="width:100%">⚠️ 固件支持布局「${esc(lay.name)} (<code>${lay.id}</code>)」，但当前预览器版本尚未收录该布局，已自动降级显示区块示意图（不影响正常下发 <code>set_layout</code>）。</div>
+      ${renderLayoutSchematicSVG(lay, 260, 220)}
+      <span style="font-size:12px;color:var(--muted)">数据来源：${esc(sourceTag)} · 逻辑尺寸 ${lay.w}×${lay.h}</span>
+    </div>`;
+  }
+
   const isP = lay.orientation === 'portrait';
-  const scale = isP ? 0.35 : 0.52;
+  const scale = isP ? 0.34 : 0.49;
   const sw = Math.round(lay.w * scale), sh = Math.round(lay.h * scale);
+
+  if(!labSnapshot){
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+      <div style="padding:8px;border-radius:10px;background:#05080D;border:1px solid #334155">
+        <div style="position:relative;width:${sw}px;height:${sh}px;overflow:hidden">
+          <div style="position:absolute;left:0;top:0;width:${lay.w}px;height:${lay.h}px;transform:scale(${scale});transform-origin:0 0;background:#0B0F14;display:flex;align-items:center;justify-content:center;color:#F2F5F8">
+            <div style="width:620px;padding:42px;border-radius:12px;background:#151B23;border:1px solid #2A3441;text-align:center">
+              <div style="font-size:40px">本平板尚未绑定实验室</div>
+              <div style="font-size:26px;color:#A7B1BD;margin-top:16px">未绑定状态 (Unbound) · 当前无生效清单</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <span style="font-size:12px;color:var(--muted)">原型 HTML 模拟预览（生产环境替换为真实 lab_preview.wasm）· 来源：${esc(sourceTag)}</span>
+    </div>`;
+  }
+
+  const eqs = (labSnapshot.equipIds || []).map(id => DB.equipment.find(e => e.id === id)).filter(Boolean);
   const g = s => esc(String(s||'').replace(/[㵘𠀀龘]/g, '□'));
 
   let screenInner = '';
-  if(S.previewEquipDetailId){
+  if(interactive && S.previewEquipDetailId){
     const eq = eqs.find(e => e.id === S.previewEquipDetailId) || eqs[0];
     screenInner = `<div style="position:absolute;inset:0;background:#0B0F14;color:#F2F5F8;padding:24px;display:flex;flex-direction:column;gap:18px">
       <div style="display:flex;align-items:center;gap:20px;border-bottom:1px solid #2A3441;padding-bottom:14px">
@@ -455,7 +577,7 @@ function renderEmbeddedPanelPreview(lab, layoutId){
         <span style="font-size:38px">${g(eq.name)}</span>
       </div>
       <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:24px;flex:1">
-        <div style="background:#13283F;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#93C5FD">▶ 3D 演示视口 (${eq.model})</div>
+        <div style="background:#13283F;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#93C5FD">▶ 3D 演示视口 (${esc(eq.model)})</div>
         <div style="background:#151B23;border-radius:12px;padding:20px;font-size:26px;color:#A7B1BD">
           <div style="color:#F2F5F8;margin-bottom:10px">资产编号：${g(eq.asset_no)} · 状态：${g(eq.status)}</div>
           ${(eq.specs||[]).map(([k,v])=>`<div style="padding:8px 0;border-bottom:1px solid #2A3441;display:flex;justify-content:space-between"><span>${g(k)}</span><span style="color:#F2F5F8">${g(v)}</span></div>`).join('')}
@@ -466,27 +588,27 @@ function renderEmbeddedPanelPreview(lab, layoutId){
     lay.regions.forEach(r => {
       if(r.id === 'video'){
         screenInner += `<div style="position:absolute;left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background:#10253B;display:flex;flex-direction:column;justify-content:space-between;padding:18px">
-          <span style="font-size:22px;color:#93C5FD">● WASM 预览 · 16:9 硬件解码视口 (${r.w}×${r.h})</span>
-          ${eqs[0] ? `<div onclick="window.__previewOpenEq('${eqs[0].id}')" style="cursor:pointer;background:rgba(11,15,20,.82);padding:12px 20px;font-size:22px;color:#F2F5F8;display:flex;justify-content:space-between"><span>▶ ${g(eqs[0].name)} · 3D 演示</span><span style="color:#2F80ED">点击交互 ›</span></div>` : ''}
+          <span style="font-size:22px;color:#93C5FD">● 模拟视口 · 16:9 静音 (${r.w}×${r.h})</span>
+          ${eqs[0] ? `<div ${interactive?`onclick="window.__previewOpenEq('${eqs[0].id}')" style="cursor:pointer;`:'style="'}background:rgba(11,15,20,.82);height:64px;padding:0 20px;font-size:22px;color:#F2F5F8;display:flex;align-items:center;justify-content:space-between"><span>▶ ${g(eqs[0].name)} · 3D 演示</span><span style="color:#60A5FA">查看详情 ›</span></div>` : ''}
         </div>`;
       } else if(r.id === 'title'){
         screenInner += `<div style="position:absolute;left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background:#151B23;border:1px solid #2A3441;padding:${r.h<=80?'0 24px':'22px'};display:flex;flex-direction:${r.h<=80?'row':'column'};align-items:${r.h<=80?'center':'flex-start'};justify-content:space-between;color:#F2F5F8">
           <div>
-            <div style="font-size:${r.h<=80?'30px':'52px'};line-height:1.2">${g(lab.name)}</div>
-            ${r.h > 80 ? `<div style="font-size:28px;color:#A7B1BD;margin-top:8px">${g(lab.code)} · ${g(lab.bld+lab.flr+lab.rm)}</div>` : ''}
+            <div style="font-size:${r.h<=80?'30px':'52px'};line-height:1.2">${g(labSnapshot.name)}</div>
+            ${r.h > 80 ? `<div style="font-size:28px;color:#A7B1BD;margin-top:8px">${g(labSnapshot.code)} · ${g([labSnapshot.bld,labSnapshot.flr,labSnapshot.rm].filter(Boolean).join(' '))}</div>` : ''}
           </div>
-          <span style="padding:6px 18px;border-radius:999px;background:rgba(242,153,74,.2);color:#F2994A;font-size:22px">● ${g(lab.status)}</span>
+          <span style="padding:6px 18px;border-radius:999px;background:rgba(242,153,74,.2);color:#F2994A;font-size:22px">● ${g(labSnapshot.status)}</span>
         </div>`;
       } else if(r.id === 'cards'){
         screenInner += `<div style="position:absolute;left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background:#0B0F14;border-top:1px solid #2A3441;padding:18px 24px;display:flex;gap:16px;overflow:hidden;flex-wrap:${isP?'wrap':'nowrap'}">
-          ${eqs.length ? eqs.slice(0, isP?6:4).map(e => `<div onclick="window.__previewOpenEq('${e.id}')" style="cursor:pointer;width:${isP?232:272}px;height:242px;border-radius:12px;background:#151B23;border:1px solid #2A3441;overflow:hidden;flex:none">
+          ${eqs.length ? eqs.slice(0, isP?6:4).map(e => `<div ${interactive?`onclick="window.__previewOpenEq('${e.id}')" style="cursor:pointer;`:'style="'}width:${isP?232:272}px;height:242px;border-radius:12px;background:#151B23;border:1px solid #2A3441;overflow:hidden;flex:none">
             <div style="height:146px;background:${e.hue||'#1E3A5F'};display:flex;align-items:center;justify-content:center;color:#CBD5E1;font-size:22px">${g(e.model)}</div>
             <div style="padding:12px;color:#F2F5F8;font-size:28px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g(e.name)}</div>
           </div>`).join('') : `<div style="margin:auto;color:#A7B1BD;font-size:26px">暂无试验设备</div>`}
         </div>`;
       } else if(r.id === 'notice'){
         screenInner += `<div style="position:absolute;left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background:#151B23;border-top:1px solid #2A3441;padding:0 24px;display:flex;align-items:center;gap:16px;color:#A7B1BD;font-size:22px;white-space:nowrap;overflow:hidden">
-          <span style="color:#F2994A">[安全须知]</span><span>${g((lab.safety||[]).join(' · '))}</span>
+          <span style="color:#F2994A">[安全须知]</span><span>${g((labSnapshot.safety||[]).join(' · '))}</span>
         </div>`;
       }
     });
@@ -498,17 +620,16 @@ function renderEmbeddedPanelPreview(lab, layoutId){
         <div style="position:absolute;left:0;top:0;width:${lay.w}px;height:${lay.h}px;transform:scale(${scale});transform-origin:0 0;user-select:none">${screenInner}</div>
       </div>
     </div>
-    <span style="font-size:12px;color:var(--muted)">逻辑像素 ${lay.w}×${lay.h} · 支持直接在画面内点击设备卡片模拟触摸交互</span>
+    <span style="font-size:12px;color:var(--muted)">原型 HTML 模拟预览（生产环境替换为真实 <code>lab_preview.wasm</code>）· 数据来源：<strong>${esc(sourceTag)}</strong></span>
   </div>`;
 }
 window.__previewOpenEq = id => { S.previewEquipDetailId = id; render(); };
 window.__previewBack = () => { S.previewEquipDetailId = null; render(); };
 
 /* ==================== 4. Page Views ==================== */
-
 function renderSetupOrLogin(){
   if(S.mode === 'login'){
-    return `<div style="height:calc(100vh - 36px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F172A,#1E293B)">
+    return `<div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F172A,#1E293B);padding:20px">
       <div class="card" style="width:390px;padding:28px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
           <div class="brand-mark">L</div><strong style="font-size:18px">实验室管理后台</strong>
@@ -517,13 +638,12 @@ function renderSetupOrLogin(){
         <div style="display:flex;flex-direction:column;gap:12px">
           <div class="f-item"><label class="f-lbl">账号</label><input class="inp" value="admin"></div>
           <div class="f-item"><label class="f-lbl">密码</label><input class="inp" type="password" value="••••••••••"></div>
-          <button class="btn pri" style="height:38px;margin-top:6px" onclick="window.__setMode('app')">登 录</button>
+          <button type="button" class="btn pri" style="height:38px;margin-top:6px" onclick="window.__setMode('app')">登 录</button>
         </div>
       </div>
     </div>`;
   }
-  /* First-run Windows Setup Wizard (Spec 00 §7.2) */
-  return `<div style="height:calc(100vh - 36px);display:flex;align-items:center;justify-content:center;background:#E2E8F0">
+  return `<div style="min-height:calc(100vh - 40px);display:flex;align-items:center;justify-content:center;background:#E2E8F0;padding:20px">
     <div class="card" style="width:580px;padding:28px">
       <div style="font-size:12px;color:var(--pri);font-weight:600;margin-bottom:4px">WINDOWS 服务首次运行初始化向导 · 步骤 ${S.setupStep} / 3</div>
       <h2 style="margin:0 0 16px;font-size:20px">${['设置初始管理员密码','绑定局域网通信网卡','初始化完成'][S.setupStep-1]}</h2>
@@ -534,71 +654,81 @@ function renderSetupOrLogin(){
           <div class="f-item"><label class="f-lbl f-req">确认密码</label><input class="inp" type="password" value="LabAdmin2026!"></div>
         </div>` : S.setupStep === 2 ? `
         <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="f-item"><label class="f-lbl f-req">选择连接门口平板的局域网网卡（仅监听内网，不对公网开放）</label>
+          <div class="f-item"><label class="f-lbl f-req">选择连接门口平板的局域网网卡（仅监听内网）</label>
             <select class="sel"><option>以太网 2 (Intel I219-LM) — 192.168.10.10 / 24（推荐）</option><option>仅本机回环 — 127.0.0.1</option></select>
           </div>
-          <div class="f-item"><label class="f-lbl">后台 HTTP 服务端口（Windows 防火墙已放行局域网）</label><input class="inp mono" value="8686"></div>
+          <div class="f-item"><label class="f-lbl">后台 HTTP 服务端口</label><input class="inp mono" value="8686"></div>
         </div>` : `
-        <div style="padding:14px;border-radius:8px;background:var(--ok-soft);color:#14532D;font-size:13.5px;line-height:1.7">
+        <div style="padding:14px;border-radius:8px;background:var(--bg-idle);color:var(--txt-idle);font-size:13.5px;line-height:1.7">
           ✅ 服务已就绪（数据目录：<code>C:\\ProgramData\\labComputer</code>）。<br>
           局域网管理地址：<strong>http://192.168.10.10:8686</strong>
         </div>`}
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px">
-        ${S.setupStep > 1 ? `<button class="btn" onclick="window.__stepSetup(-1)">上一步</button>` : ''}
-        ${S.setupStep < 3 ? `<button class="btn pri" onclick="window.__stepSetup(1)">下一步</button>` : `<button class="btn pri" onclick="window.__setMode('app')">进入实验室管理后台 →</button>`}
+        ${S.setupStep > 1 ? `<button type="button" class="btn" onclick="window.__stepSetup(-1)">上一步</button>` : ''}
+        ${S.setupStep < 3 ? `<button type="button" class="btn pri" onclick="window.__stepSetup(1)">下一步</button>` : `<button type="button" class="btn pri" onclick="window.__setMode('app')">进入实验室管理后台 →</button>`}
       </div>
     </div>
   </div>`;
 }
 
-/* 4.1 Overview Page */
 function renderOverview(){
   const onlineCnt = DB.panels.filter(p => p.online).length;
   const offlinePanels = DB.panels.filter(p => !p.online);
-  const pendingLabs = DB.labs.filter(l => { const p=panelOfLab(l.id); return p && l.manifest_version > p.committedVer; });
-  const failedJobs = DB.publishJobs.filter(j => j.status === '失败');
+  const pendingLabs = DB.labs.filter(l => labPubState(l).isPending);
+  const failedJobs = DB.publishJobs.filter(j => j.status === '失败' || j.status === '待核验');
   const badMedia = DB.mediaLib.filter(m => m.status === 'rejected');
 
   return `
-    <div class="page-hd"><h1>系统概览</h1><span style="font-size:12.5px;color:var(--muted)">每 30 秒自动轮询平板 info 接口刷新状态</span></div>
+    <div class="page-hd"><h1>系统概览</h1><span style="font-size:12.5px;color:var(--muted)">每 30 秒轮询平板 info 核对 (lab_id, version, sha256)</span></div>
     <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px">
-      <div class="card"><div style="color:var(--muted);font-size:12.5px">实验室总数</div><div style="font-size:28px;font-weight:700;margin-top:4px">${DB.labs.length}</div><div style="font-size:12px;color:var(--muted);margin-top:4px">已绑定平板 ${DB.panels.length} 间</div></div>
+      <div class="card"><div style="color:var(--muted);font-size:12.5px">实验室总数</div><div style="font-size:28px;font-weight:700;margin-top:4px">${DB.labs.length}</div><div style="font-size:12px;color:var(--muted);margin-top:4px">已绑定平板 ${DB.panels.filter(p=>p.labId).length} 间 · 未绑定 ${DB.labs.filter(l=>!panelOfLab(l.id)).length} 间</div></div>
       <div class="card"><div style="color:var(--muted);font-size:12.5px">试验设备总数</div><div style="font-size:28px;font-weight:700;margin-top:4px">${DB.equipment.length}</div><div style="font-size:12px;color:var(--muted);margin-top:4px">未分配 ${DB.equipment.filter(e=>!labOfEquip(e.id)).length} 台</div></div>
-      <div class="card" style="cursor:pointer" onclick="window.__nav('panels',{panelFilter:{online:'0'}})"><div style="color:var(--muted);font-size:12.5px">门口平板在线</div><div style="font-size:28px;font-weight:700;margin-top:4px;color:${offlinePanels.length?'var(--warn)':'var(--ok)'}">${onlineCnt} / ${DB.panels.length}</div><div style="font-size:12px;color:var(--pri);margin-top:4px">点击查看 ${offlinePanels.length} 台离线平板 →</div></div>
-      <div class="card" style="cursor:pointer" onclick="window.__nav('labs',{labFilter:{status:'',pub:'pending',kw:''}})"><div style="color:var(--muted);font-size:12.5px">待发布实验室</div><div style="font-size:28px;font-weight:700;margin-top:4px;color:var(--warn)">${pendingLabs.length}</div><div style="font-size:12px;color:var(--pri);margin-top:4px">后台清单版本高于平板 →</div></div>
+      <button type="button" class="card" style="text-align:left;cursor:pointer" onclick="window.__nav('panels',{panelFilter:{online:'0'}})">
+        <div style="color:var(--muted);font-size:12.5px">门口平板在线</div>
+        <div style="font-size:28px;font-weight:700;margin-top:4px;color:${offlinePanels.length?'var(--txt-busy)':'var(--txt-idle)'}">${onlineCnt} / ${DB.panels.length}</div>
+        <div style="font-size:12px;color:var(--pri);margin-top:4px">点击筛选 ${offlinePanels.length} 台离线平板 →</div>
+      </button>
+      <button type="button" class="card" style="text-align:left;cursor:pointer" onclick="window.__nav('labs',{labFilter:{status:'',pub:'pending',kw:''}})">
+        <div style="color:var(--muted);font-size:12.5px">待发布实验室</div>
+        <div style="font-size:28px;font-weight:700;margin-top:4px;color:var(--txt-busy)">${pendingLabs.length}</div>
+        <div style="font-size:12px;color:var(--pri);margin-top:4px">含换绑替换 (A v12→B v1) 与版本落后 →</div>
+      </button>
     </div>
 
     <div class="card">
       <div class="card-title"><span>需要处理的事项（点击直接跳转对应页面）</span></div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        ${offlinePanels.map(p => `<div class="tr-row" style="cursor:pointer" onclick="window.__nav('panels',{panelFilter:{online:'0'}})">
-          <div><span class="pill maint"><i></i>平板离线</span> <strong style="margin-left:8px">${esc(p.name)} (${p.ip})</strong> <span style="color:var(--muted);margin-left:8px">最后在线 ${p.lastSeen} · ${esc(p.lastErr)}</span></div>
-          <a>去处理 →</a>
+        ${offlinePanels.map(p => `<div class="tr-row">
+          <div><span class="pill maint"><i></i>平板离线</span> <strong style="margin-left:8px">${esc(p.name)} (${p.ip})</strong> <span style="color:var(--muted);margin-left:8px">${esc(p.lastErr)}</span></div>
+          <button type="button" class="link-btn" onclick="window.__nav('panels',{panelFilter:{online:'0'}})">去处理 →</button>
         </div>`).join('')}
-        ${pendingLabs.map(l => `<div class="tr-row" style="cursor:pointer" onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'publish'})">
-          <div><span class="pill busy"><i></i>待发布</span> <strong style="margin-left:8px">${esc(l.name)} (${l.code})</strong> <span style="color:var(--muted);margin-left:8px">后台清单 v${l.manifest_version} 尚未同步至门口平板</span></div>
-          <a>预览并发布 →</a>
+        ${pendingLabs.map(l => {
+          const ps = labPubState(l);
+          return `<div class="tr-row">
+            <div><span class="pill ${ps.k}"><i></i>${ps.isRebind?'换绑待替换':'待发布'}</span> <strong style="margin-left:8px">${esc(l.name)} (${l.code})</strong> <span style="color:var(--muted);margin-left:8px">${esc(ps.t)}</span></div>
+            <button type="button" class="link-btn" onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'publish'})">预览并发布 →</button>
+          </div>`;
+        }).join('')}
+        ${failedJobs.map(j => `<div class="tr-row">
+          <div><span class="pill ${j.status==='待核验'?'proc':'maint'}"><i></i>${j.status}</span> <strong style="margin-left:8px">${esc(j.lab)} → ${esc(j.panel)}</strong> <span style="color:var(--muted);margin-left:8px">${esc(j.err||'需回读确认')}</span></div>
+          <button type="button" class="link-btn" onclick="window.__nav('publish-jobs')">查看日志与处理 →</button>
         </div>`).join('')}
-        ${failedJobs.map(j => `<div class="tr-row" style="cursor:pointer" onclick="window.__nav('publish-jobs')">
-          <div><span class="pill maint"><i></i>近24h失败任务</span> <strong style="margin-left:8px">${esc(j.lab)} → ${esc(j.panel)}</strong> <span style="color:var(--muted);margin-left:8px">${esc(j.err)}</span></div>
-          <a>查看日志与重试 →</a>
-        </div>`).join('')}
-        ${badMedia.map(m => `<div class="tr-row" style="cursor:pointer" onclick="window.__nav('media')">
+        ${badMedia.map(m => `<div class="tr-row">
           <div><span class="pill maint"><i></i>被拒绝媒体</span> <strong style="margin-left:8px">${esc(m.name)}</strong> <span style="color:var(--muted);margin-left:8px">${esc(m.reason)}</span></div>
-          <a>前往媒体库清理 →</a>
+          <button type="button" class="link-btn" onclick="window.__nav('media')">前往媒体库清理 →</button>
         </div>`).join('')}
       </div>
     </div>`;
 }
 
-/* 4.2 Labs List & 4-Tab Lab Editor */
+/* 4.2 Labs List (100% fits 1366x768 with zero clipping) */
 function renderLabs(){
   const list = DB.labs.filter(l => {
     if(S.labFilter.status && l.status !== S.labFilter.status) return false;
     const ps = labPubState(l);
-    if(S.labFilter.pub === 'pending' && !ps.t.startsWith('待发布')) return false;
-    if(S.labFilter.pub === 'synced' && !ps.t.startsWith('已同步')) return false;
-    if(S.labFilter.pub === 'failed' && ps.t !== '发布失败') return false;
+    if(S.labFilter.pub === 'pending' && !ps.isPending) return false;
+    if(S.labFilter.pub === 'synced' && ps.k !== 'idle') return false;
+    if(S.labFilter.pub === 'failed' && ps.k !== 'maint') return false;
     if(S.labFilter.kw && !(l.name+l.code+l.owner).includes(S.labFilter.kw)) return false;
     return true;
   });
@@ -607,58 +737,57 @@ function renderLabs(){
     <div class="page-hd">
       <h1>实验室管理</h1>
       <div style="display:flex;gap:8px">
-        ${canEdit() ? `<button class="btn" onclick="window.__batchPublish()">批量发布已选 (${S.selectedLabIds.length})</button>
-        <button class="btn pri" onclick="window.__createLab()">+ 新建实验室</button>` : ''}
+        ${canEdit() ? `<button type="button" class="btn" onclick="window.__batchPublish()">批量发布已选 (${S.selectedLabIds.length})</button>
+        <button type="button" class="btn pri" onclick="window.__createLab()">+ 新建实验室</button>` : ''}
       </div>
     </div>
     <div class="filter-bar">
       <div class="filter-left">
-        <select class="sel" onchange="window.__setLabFilter('status',this.value)">
+        <select class="sel" aria-label="状态筛选" onchange="window.__setLabFilter('status',this.value)">
           <option value="">全部运行状态</option>
           ${['空闲','使用中','维护'].map(s=>`<option value="${s}" ${S.labFilter.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
-        <select class="sel" onchange="window.__setLabFilter('pub',this.value)">
+        <select class="sel" aria-label="发布状态筛选" onchange="window.__setLabFilter('pub',this.value)">
           <option value="">全部发布状态</option>
-          <option value="pending" ${S.labFilter.pub==='pending'?'selected':''}>待发布</option>
+          <option value="pending" ${S.labFilter.pub==='pending'?'selected':''}>待发布 / 待换绑替换</option>
           <option value="synced" ${S.labFilter.pub==='synced'?'selected':''}>已同步</option>
           <option value="failed" ${S.labFilter.pub==='failed'?'selected':''}>发布失败</option>
         </select>
         <input class="inp" placeholder="搜索编号 / 实验室名称 / 负责人" value="${esc(S.labFilter.kw)}" oninput="window.__setLabFilter('kw',this.value)" style="width:230px">
       </div>
-      <span style="font-size:12px;color:var(--muted)">筛选条件已同步至 URL 查询参数</span>
+      <span style="font-size:12px;color:var(--muted)">1366×768 零横向裁切 · 筛选已同步 URL</span>
     </div>
     <div class="tbl-box">
       <table>
         <thead><tr>
-          <th style="width:36px"><input type="checkbox" onchange="window.__toggleAllLabs(this.checked)"></th>
-          <th style="width:92px">编号</th>
-          <th style="width:180px">名称</th>
-          <th style="width:130px">位置</th>
-          <th style="width:94px">状态</th>
-          <th style="width:70px">设备数</th>
-          <th style="width:160px">绑定平板</th>
-          <th style="width:146px">发布状态</th>
-          <th style="width:136px">更新时间</th>
-          <th style="width:140px">操作</th>
+          <th style="width:3.5%"><input type="checkbox" aria-label="全选" onchange="window.__toggleAllLabs(this.checked)"></th>
+          <th style="width:22%">实验室名称 / 编号</th>
+          <th style="width:12%">位置</th>
+          <th style="width:8.5%">状态</th>
+          <th style="width:6.5%">设备</th>
+          <th style="width:14%">绑定平板</th>
+          <th style="width:20%">发布状态</th>
+          <th style="width:13.5%">操作</th>
         </tr></thead>
         <tbody>
           ${list.map(l => {
             const p = panelOfLab(l.id);
             const ps = labPubState(l);
             return `<tr>
-              <td><input type="checkbox" ${S.selectedLabIds.includes(l.id)?'checked':''} onchange="window.__toggleLabSel('${l.id}',this.checked)"></td>
-              <td class="mono">${esc(l.code)}</td>
-              <td><a onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'basic'})"><strong>${esc(l.name)}</strong></a></td>
+              <td><input type="checkbox" aria-label="选择${esc(l.name)}" ${S.selectedLabIds.includes(l.id)?'checked':''} onchange="window.__toggleLabSel('${l.id}',this.checked)"></td>
+              <td>
+                <button type="button" class="link-btn" onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'basic'})"><strong>${esc(l.name)}</strong></button>
+                <div class="sub-line mono">${esc(l.code)} · ${l.updated.slice(5)}</div>
+              </td>
               <td>${esc(l.bld+' '+l.flr+' '+l.rm)}</td>
               <td>${statusPill(l.status)}</td>
               <td class="mono">${l.equipIds.length} 台</td>
-              <td>${p ? `<span style="color:${p.online?'var(--ok)':'var(--bad)'}">●</span> ${esc(p.name)}` : '<span style="color:var(--muted)">未绑定</span>'}</td>
-              <td><span class="pill ${ps.k}"><i></i>${ps.t}</span></td>
-              <td class="mono">${l.updated}</td>
+              <td>${p ? `<span style="color:${p.online?'var(--dot-idle)':'var(--dot-maint)'}">●</span> ${esc(p.name)}` : '<span style="color:var(--muted)">未绑定</span>'}</td>
+              <td><span class="pill ${ps.k}" title="${esc(ps.t)}"><i></i>${esc(ps.t)}</span></td>
               <td><div class="ops">
-                <a onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'basic'})">${canEdit()?'编辑':'查看'}</a>
-                ${canEdit() ? `<a onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'publish'})">发布</a>
-                <a class="del" onclick="window.__deleteLab('${l.id}')">删除</a>` : ''}
+                <button type="button" class="link-btn" onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'basic'})">${canEdit()?'编辑':'查看'}</button>
+                ${canEdit() ? `<button type="button" class="link-btn" onclick="window.__nav('lab-edit',{editLabId:'${l.id}',editLabTab:'publish'})">发布</button>
+                <button type="button" class="link-btn del" onclick="window.__deleteLab('${l.id}')">删除</button>` : ''}
               </div></td>
             </tr>`;
           }).join('')}
@@ -668,93 +797,96 @@ function renderLabs(){
     </div>`;
 }
 
-function glyphHintHTML(val){
+function glyphHintInner(val){
   const miss = findMissingGlyphs(val);
   if(!miss.length) return '';
   return `<div class="f-glyph">⚠️ 以下字在平板字库 (wqyMicroHei) 中缺失，在平板上会显示为方框：<strong>${miss.join('、')}</strong>（仅提示，不阻止保存）</div>`;
 }
 
 function renderLabEdit(){
-  const lab = DB.labs.find(x => x.id === S.editLabId) || DB.labs[0];
+  const committedLab = DB.labs.find(x => x.id === S.editLabId) || DB.labs[0];
+  if(!S.labDraft || S.labDraft.id !== committedLab.id) S.labDraft = JSON.parse(JSON.stringify(committedLab));
+  const lab = S.labDraft;
   const ro = !canEdit();
-  const locLen = (lab.bld + ' ' + lab.flr + ' ' + lab.rm).trim().length;
+  const locLen = [lab.bld, lab.flr, lab.rm].filter(Boolean).join(' ').length;
 
   let tabBody = '';
   if(S.editLabTab === 'basic'){
     tabBody = `<div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="font-size:12.5px;color:var(--muted)">字段长度上限与门口平板 LVGL 排版能力严格一一对应；失焦时自动调用 <code>POST /api/v1/text/check</code> 检查缺字。</span>
-        ${!ro ? `<button class="btn sm" onclick="window.__injectRareChar()">填入生僻字“㵘”验证缺字提示</button>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12.5px;color:var(--muted)">编辑独立草稿副本（连续中文输入绝不失焦；离开不保存自动丢弃草稿）；失焦检查平板字库缺字。</span>
+        ${!ro ? `<button type="button" class="btn sm" onclick="window.__injectRareChar()">填入生僻字“㵘”验证缺字提示</button>` : ''}
       </div>
       <div class="form-grid">
         <div class="f-item">
-          <label class="f-lbl"><span class="f-req">实验室编号（唯一，[A-Za-z0-9-]）</span><span class="f-cnt">${lab.code.length}/16</span></label>
-          <input class="inp mono" maxlength="16" value="${esc(lab.code)}" ${ro?'readonly':''} oninput="window.__updLab('code',this.value)">
+          <label class="f-lbl"><span class="f-req">实验室编号（唯一，[A-Za-z0-9-]）</span><span class="f-cnt" id="cnt-lab-code">${lab.code.length}/16</span></label>
+          <input class="inp mono" maxlength="16" value="${esc(lab.code)}" ${ro?'readonly':''} oninput="window.__updLabField('code',this.value,16)">
         </div>
         <div class="f-item">
-          <label class="f-lbl"><span class="f-req">实验室名称</span><span class="f-cnt">${lab.name.length}/30</span></label>
-          <input class="inp" maxlength="30" value="${esc(lab.name)}" ${ro?'readonly':''} oninput="window.__updLab('name',this.value)">
-          ${glyphHintHTML(lab.name)}
+          <label class="f-lbl"><span class="f-req">实验室名称</span><span class="f-cnt" id="cnt-lab-name">${lab.name.length}/30</span></label>
+          <input class="inp" maxlength="30" value="${esc(lab.name)}" ${ro?'readonly':''} oninput="window.__updLabField('name',this.value,30,true)">
+          <div id="glyph-lab-name">${glyphHintInner(lab.name)}</div>
         </div>
         <div class="f-item">
-          <label class="f-lbl"><span>楼栋 / 楼层 / 房间号（拼接后 ≤ 30 字）</span><span class="f-cnt">${locLen}/30</span></label>
+          <label class="f-lbl"><span>楼栋 / 楼层 / 房间号（拼接后 ≤ 30 字）</span><span class="f-cnt" id="cnt-lab-loc">${locLen}/30</span></label>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <input class="inp" placeholder="楼栋" value="${esc(lab.bld)}" ${ro?'readonly':''} oninput="window.__updLab('bld',this.value)">
-            <input class="inp" placeholder="楼层" value="${esc(lab.flr)}" ${ro?'readonly':''} oninput="window.__updLab('flr',this.value)">
-            <input class="inp" placeholder="房间号" value="${esc(lab.rm)}" ${ro?'readonly':''} oninput="window.__updLab('rm',this.value)">
+            <input class="inp" placeholder="楼栋" value="${esc(lab.bld)}" ${ro?'readonly':''} oninput="window.__updLabLoc('bld',this.value)">
+            <input class="inp" placeholder="楼层" value="${esc(lab.flr)}" ${ro?'readonly':''} oninput="window.__updLabLoc('flr',this.value)">
+            <input class="inp" placeholder="房间号" value="${esc(lab.rm)}" ${ro?'readonly':''} oninput="window.__updLabLoc('rm',this.value)">
           </div>
         </div>
         <div class="f-item">
-          <label class="f-lbl"><span>当前状态（可选或手输 ≤ 6 字）</span><span class="f-cnt">${lab.status.length}/6</span></label>
+          <label class="f-lbl"><span>当前状态（可选或手输 ≤ 6 字）</span><span class="f-cnt" id="cnt-lab-status">${lab.status.length}/6</span></label>
           <div style="display:flex;gap:8px">
-            <select class="sel" ${ro?'disabled':''} onchange="window.__updLab('status',this.value)" style="width:140px">
+            <select class="sel" ${ro?'disabled':''} onchange="window.__updLabStatusSelect(this.value)" style="width:130px">
               ${['空闲','使用中','维护'].map(s=>`<option value="${s}" ${lab.status===s?'selected':''}>${s}</option>`).join('')}
             </select>
-            <input class="inp" maxlength="6" placeholder="或手动输入自定义状态" value="${esc(lab.status)}" ${ro?'readonly':''} oninput="window.__updLab('status',this.value)" style="flex:1">
+            <input id="inp-lab-status" class="inp" maxlength="6" placeholder="或手动输入自定义状态" value="${esc(lab.status)}" ${ro?'readonly':''} oninput="window.__updLabField('status',this.value,6)" style="flex:1">
           </div>
         </div>
         <div class="f-item">
-          <label class="f-lbl"><span>负责人</span><span class="f-cnt">${lab.owner.length}/20</span></label>
-          <input class="inp" maxlength="20" value="${esc(lab.owner)}" ${ro?'readonly':''} oninput="window.__updLab('owner',this.value)">
-          ${glyphHintHTML(lab.owner)}
+          <label class="f-lbl"><span>负责人</span><span class="f-cnt" id="cnt-lab-owner">${lab.owner.length}/20</span></label>
+          <input class="inp" maxlength="20" value="${esc(lab.owner)}" ${ro?'readonly':''} oninput="window.__updLabField('owner',this.value,20,true)">
+          <div id="glyph-lab-owner">${glyphHintInner(lab.owner)}</div>
         </div>
         <div class="f-item">
-          <label class="f-lbl"><span>联系电话</span><span class="f-cnt">${lab.phone.length}/20</span></label>
-          <input class="inp mono" maxlength="20" value="${esc(lab.phone)}" ${ro?'readonly':''} oninput="window.__updLab('phone',this.value)">
+          <label class="f-lbl"><span>联系电话</span><span class="f-cnt" id="cnt-lab-phone">${lab.phone.length}/20</span></label>
+          <input class="inp mono" maxlength="20" value="${esc(lab.phone)}" ${ro?'readonly':''} oninput="window.__updLabField('phone',this.value,20)">
         </div>
         <div class="f-item full">
-          <label class="f-lbl"><span>开放时间</span><span class="f-cnt">${lab.open_hours.length}/40</span></label>
-          <input class="inp" maxlength="40" value="${esc(lab.open_hours)}" ${ro?'readonly':''} oninput="window.__updLab('open_hours',this.value)">
+          <label class="f-lbl"><span>开放时间</span><span class="f-cnt" id="cnt-lab-open_hours">${lab.open_hours.length}/40</span></label>
+          <input class="inp" maxlength="40" value="${esc(lab.open_hours)}" ${ro?'readonly':''} oninput="window.__updLabField('open_hours',this.value,40)">
         </div>
         <div class="f-item full">
-          <label class="f-lbl"><span>实验室简介</span><span class="f-cnt">${lab.intro.length}/2000</span></label>
-          <textarea class="ta" rows="3" maxlength="2000" ${ro?'readonly':''} oninput="window.__updLab('intro',this.value)">${esc(lab.intro)}</textarea>
-          ${glyphHintHTML(lab.intro)}
+          <label class="f-lbl"><span>实验室简介</span><span class="f-cnt" id="cnt-lab-intro">${lab.intro.length}/2000</span></label>
+          <textarea class="ta" rows="3" maxlength="2000" ${ro?'readonly':''} oninput="window.__updLabField('intro',this.value,2000,true)">${esc(lab.intro)}</textarea>
+          <div id="glyph-lab-intro">${glyphHintInner(lab.intro)}</div>
         </div>
         <div class="f-item full">
-          <label class="f-lbl"><span>安全须知（可拖动/上下调整顺序 · 最多 10 条，每条 ≤ 40 字）</span><span class="f-cnt">${lab.safety.length}/10 条</span></label>
+          <label class="f-lbl"><span>安全须知（可调整顺序 · 最多 10 条，每条 ≤ 40 字）</span><span class="f-cnt">${lab.safety.length}/10 条</span></label>
           <div style="display:flex;flex-direction:column;gap:6px">
             ${lab.safety.map((s, idx) => `<div style="display:flex;align-items:center;gap:8px">
               <span class="mono" style="color:var(--muted);width:22px">${idx+1}.</span>
               <input class="inp" maxlength="40" value="${esc(s)}" ${ro?'readonly':''} oninput="window.__updSafety(${idx},this.value)" style="flex:1">
-              ${!ro ? `<button class="btn sm" onclick="window.__moveSafety(${idx},-1)">↑</button>
-              <button class="btn sm" onclick="window.__moveSafety(${idx},1)">↓</button>
-              <button class="btn sm danger" onclick="window.__delSafety(${idx})">删除</button>` : ''}
+              ${!ro ? `<button type="button" class="btn sm" onclick="window.__moveSafety(${idx},-1)">↑</button>
+              <button type="button" class="btn sm" onclick="window.__moveSafety(${idx},1)">↓</button>
+              <button type="button" class="btn sm danger" onclick="window.__delSafety(${idx})">删除</button>` : ''}
             </div>`).join('')}
-            ${(!ro && lab.safety.length < 10) ? `<div><button class="btn sm" onclick="window.__addSafety()">+ 添加一条安全须知</button></div>` : ''}
+            ${(!ro && lab.safety.length < 10) ? `<div><button type="button" class="btn sm" onclick="window.__addSafety()">+ 添加一条安全须知</button></div>` : ''}
           </div>
         </div>
       </div>
       ${!ro ? `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px">
-        <button class="btn pri" onclick="window.__saveLab()">保存基本信息（清单版本 +1）</button>
+        <button type="button" class="btn" onclick="window.__nav('labs')">取消并返回</button>
+        <button type="button" class="btn pri" onclick="window.__saveLab()">保存基本信息（清单版本 +1）</button>
       </div>` : ''}
     </div>`;
   }
 
   else if(S.editLabTab === 'equip'){
-    const curEqs = lab.equipIds.map(id => DB.equipment.find(e => e.id === id)).filter(Boolean);
+    const curEqs = committedLab.equipIds.map(id => DB.equipment.find(e => e.id === id)).filter(Boolean);
     const leftPool = DB.equipment.filter(e => {
-      if(lab.equipIds.includes(e.id)) return false;
+      if(committedLab.equipIds.includes(e.id)) return false;
       const ownerLab = labOfEquip(e.id);
       return S.showOtherLabEq ? true : !ownerLab;
     });
@@ -771,9 +903,9 @@ function renderLabEdit(){
               return `<div class="tr-row">
                 <div style="min-width:0">
                   <div><strong>${esc(e.name)}</strong> <span class="mono" style="color:var(--muted)">${esc(e.model)}</span></div>
-                  <div style="font-size:11.5px;color:var(--muted)">${esc(e.asset_no)} · ${ol ? `<span style="color:var(--warn)">属于 ${esc(ol.name)}</span>` : '<span style="color:var(--ok)">未分配</span>'}</div>
+                  <div style="font-size:11.5px;color:var(--muted)">${esc(e.asset_no)} · ${ol ? `<span style="color:var(--txt-busy);font-weight:600">属于 ${esc(ol.name)} (v${ol.manifest_version})</span>` : '<span style="color:var(--txt-idle)">未分配</span>'}</div>
                 </div>
-                ${!ro ? `<button class="btn sm pri" onclick="window.__addEqToLab('${e.id}')">添加 ▶</button>` : ''}
+                ${!ro ? `<button type="button" class="btn sm pri" onclick="window.__addEqToLab('${e.id}')">添加 ▶</button>` : ''}
               </div>`;
             }).join('') || `<div style="margin:auto;color:var(--muted);font-size:12.5px">暂无可添加的未分配设备（可勾选上方复选框跨室调拨）</div>`}
           </div>
@@ -789,16 +921,16 @@ function renderLabEdit(){
             ${curEqs.map((e, idx) => `<div class="tr-row">
               <div style="display:flex;align-items:center;gap:8px;min-width:0">
                 <span class="mono" style="color:var(--muted)">≡ ${String(idx+1).padStart(2,'0')}</span>
-                <div>
-                  <div><strong>${esc(e.name)}</strong> <span class="mono" style="color:var(--muted)">${esc(e.model)}</span></div>
-                  <div class="mono" style="font-size:11.5px;color:var(--muted)">${esc(e.asset_no)}</div>
+                <div style="min-width:0">
+                  <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><strong>${esc(e.name)}</strong></div>
+                  <div class="mono" style="font-size:11.5px;color:var(--muted)">${esc(e.asset_no)} · ${esc(e.model)}</div>
                 </div>
               </div>
               <div style="display:flex;align-items:center;gap:5px;flex:none">
                 ${statusPill(e.status)}
-                ${!ro ? `<button class="btn sm" onclick="window.__reorderLabEq(${idx},-1)">↑</button>
-                <button class="btn sm" onclick="window.__reorderLabEq(${idx},1)">↓</button>
-                <button class="btn sm danger" onclick="window.__removeEqFromLab('${e.id}')">移除</button>` : ''}
+                ${!ro ? `<button type="button" class="btn sm" onclick="window.__reorderLabEq(${idx},-1)">↑</button>
+                <button type="button" class="btn sm" onclick="window.__reorderLabEq(${idx},1)">↓</button>
+                <button type="button" class="btn sm danger" onclick="window.__removeEqFromLab('${e.id}')">移除</button>` : ''}
               </div>
             </div>`).join('') || `<div style="margin:auto;color:var(--muted)">当前实验室尚未配置设备</div>`}
           </div>
@@ -808,150 +940,165 @@ function renderLabEdit(){
   }
 
   else if(S.editLabTab === 'media'){
-    tabBody = renderMediaManagerWidget('lab', lab);
+    tabBody = renderMediaManagerWidget();
   }
 
   else if(S.editLabTab === 'publish'){
-    const p = panelOfLab(lab.id);
-    const missGlyphs = findMissingGlyphs(lab.name + lab.owner + lab.intro);
+    const p = panelOfLab(committedLab.id);
+    const snap = ensurePublishSnapshot(committedLab, false);
+    const staleInfo = isSnapshotStale(committedLab, snap);
+    const pubSt = S.pubStateByLab[committedLab.id] || {status:'idle', running:false, text:'', progress:0, jobId:''};
+    const missGlyphs = findMissingGlyphs(snap.labCopy.name + snap.labCopy.owner + snap.labCopy.intro);
     const c = S.pubCase;
-    const isBlocked = !p || c === 'offline' || c === 'nospace' || c === 'rejected' || (!p.online && c === 'ready');
+    const isBlocked = !p || staleInfo.stale || c === 'offline' || c === 'nospace' || c === 'rejected' || (!p.online && c === 'ready');
     const blockReason = !p ? '当前实验室尚未绑定门口平板'
-      : (c === 'offline' || !p.online) ? `目标平板「${p.name} (${p.ip})」当前离线，无法连接`
+      : staleInfo.stale ? `发布快照已失效：${staleInfo.reason}`
+      : (c === 'offline' || !p.online) ? `目标平板「${p.name} (${p.ip})」当前离线`
       : c === 'nospace' ? '平板 NAND 剩余空间不足（需 41.2 MB，仅剩 18.0 MB，HTTP 507）'
-      : c === 'rejected' ? '存在 1 个状态为「拒绝」的视频素材，请先在媒体页移除或替换' : '';
+      : c === 'rejected' ? '存在 1 个状态为「拒绝」的视频素材，请先在媒体页移除' : '';
 
-    tabBody = `<div style="display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px;align-items:start">
+    tabBody = `<div style="display:grid;grid-template-columns:366px minmax(0,1fr);gap:16px;align-items:start">
       <div class="card">
-        <div class="card-title"><span>发布前检查 (Publish Plan)</span></div>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
-          <div style="display:flex;justify-content:space-between"><span>目标平板</span><strong>${p ? `${esc(p.name)} <span style="color:${(p.online && c!=='offline')?'var(--ok)':'var(--bad)'}">● ${(p.online && c!=='offline')?'在线':'离线'}</span>` : '未绑定 ❌'}</strong></div>
-          <div style="display:flex;justify-content:space-between"><span>清单版本</span><span class="mono">平板 v${p?p.committedVer:'—'} → 后台 v${lab.manifest_version}</span></div>
-          <div style="display:flex;justify-content:space-between"><span>文件变更</span><span>新增 2 个 (38.4 MB)，清理 1 个旧文件</span></div>
-          <div style="display:flex;justify-content:space-between"><span>平板空间</span><span>${c==='nospace' ? '<strong style="color:var(--bad)">剩余 18 MB ❌ 空间不足</strong>' : '剩余 812 MB ✅'}</span></div>
-          <div style="display:flex;justify-content:space-between"><span>媒体流水线</span><span>${c==='transcoding' ? '<strong style="color:var(--pri)">1 个视频转码中 (64%) ⏳</strong>' : c==='rejected' ? '<strong style="color:var(--bad)">1 个视频被拒绝 ❌</strong>' : '全部就绪 ✅'}</span></div>
-          <div style="display:flex;justify-content:space-between"><span>字库检查</span><span>${missGlyphs.length ? `<strong style="color:var(--warn)">${missGlyphs.length} 个生僻字显示方框 ⚠️</strong>` : '全部在 wqyMicroHei 字库内 ✅'}</span></div>
+        <div class="card-title">
+          <span>发布前检查（不可变快照）</span>
+          <button type="button" class="btn sm" onclick="window.__refreshSnapshot('${committedLab.id}')">↻ 刷新快照</button>
+        </div>
+        <div style="padding:7px 10px;border-radius:6px;background:var(--sunken);border:1px solid var(--line);font-size:12px;margin-bottom:10px">
+          <div>快照 ID：<code class="mono">${esc(snap.snapId)}</code></div>
+          <div style="color:var(--muted);margin-top:2px">SHA-256: <code class="mono">${snap.sha}</code> · binding_rev: <code class="mono">${snap.bindingRev}</code></div>
         </div>
 
-        ${isBlocked ? `<div style="margin-top:14px;padding:9px 11px;border-radius:6px;background:var(--bad-soft);color:var(--bad);font-size:12.5px">⛔ 无法发布：${esc(blockReason)}</div>` : ''}
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span>目标平板</span><strong>${p ? `${esc(p.name)} <span style="color:${(p.online && c!=='offline')?'var(--txt-idle)':'var(--txt-maint)'}">● ${(p.online && c!=='offline')?'在线':'离线'}</span>` : '未绑定 ❌'}</strong></div>
+          <div style="display:flex;justify-content:space-between"><span>清单对比</span><span class="mono">${p ? `${p.committedLabId||'无'} v${p.committedVer||0} → ${committedLab.id} v${snap.version}` : '—'}</span></div>
+          ${snap.rebindFromLabId ? `<div class="f-glyph">🔁 检测到平板原绑定实验室 <code>${snap.rebindFromLabId}</code>（v${p?p.committedVer:0}），本次首次发布将自动携带 <code>force=1&expected_lab_id=${snap.rebindFromLabId}</code> 执行显式替换。</div>` : ''}
+          <div style="display:flex;justify-content:space-between"><span>平板空间</span><span>${c==='nospace' ? '<strong style="color:var(--txt-maint)">剩余 18 MB ❌ 不足</strong>' : '剩余 812 MB ✅'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>媒体流水线</span><span>${c==='transcoding' ? '<strong style="color:var(--txt-proc)">1 个视频转码中 (64%) ⏳</strong>' : c==='rejected' ? '<strong style="color:var(--txt-maint)">1 个视频被拒绝 ❌</strong>' : '全部就绪 (MP4 H.264) ✅'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span>字库检查</span><span>${missGlyphs.length ? `<strong style="color:var(--txt-busy)">${missGlyphs.length} 个缺字显示方框 ⚠️</strong>` : '全部在字库内 ✅'}</span></div>
+        </div>
 
-        ${canEdit() ? `<div style="margin-top:16px">
-          <button class="btn pri" style="width:100%;height:38px" ${isBlocked||S.pubRunning?'disabled':''} onclick="window.__runPublish('${lab.id}')">
-            ${c === 'transcoding' ? '⏳ 等待转码完成后自动发布' : '发布到门口平板'}
+        ${isBlocked ? `<div style="margin-top:12px;padding:9px 11px;border-radius:6px;background:var(--bg-maint);color:var(--txt-maint);font-size:12.5px">⛔ 无法发布：${esc(blockReason)}</div>` : ''}
+
+        ${canEdit() ? `<div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+          <button type="button" class="btn pri" style="width:100%;height:38px" ${isBlocked||pubSt.running?'disabled':''} onclick="window.__runPublish('${committedLab.id}')">
+            ${c === 'transcoding' ? '⏳ 锁定当前快照等待转码完成后发布' : snap.rebindFromLabId ? '显式替换并发布到平板 (force=1)' : '发布当前快照到门口平板'}
           </button>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn sm" style="flex:1" onclick="window.__simConcurrentSave('${committedLab.id}')">演练：他人并发保存 v+1</button>
+            <button type="button" class="btn sm" style="flex:1" onclick="window.__simConcurrentRebind('${committedLab.id}')">演练：并发换绑</button>
+          </div>
         </div>` : ''}
 
-        ${(S.pubStepText || S.pubFailedOnce) ? `<div style="margin-top:14px;padding:12px;border-radius:8px;background:var(--sunken);border:1px solid var(--line)">
-          <div style="font-size:12.5px;font-weight:600;margin-bottom:6px;color:${S.pubFailedOnce?'var(--bad)':'var(--fg)'}">${esc(S.pubStepText)}</div>
-          <div class="prog-track"><div class="prog-bar" style="width:${S.pubProgress}%;background:${S.pubFailedOnce?'var(--bad)':'var(--pri)'}"></div></div>
-          ${S.pubFailedOnce ? `<div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:12px;color:var(--muted)">已传完 2/3 个文件 (sha256 已缓存)</span>
-            <button class="btn sm pri" onclick="window.__retryPublish('${lab.id}')">重试（跳过已传文件）</button>
+        ${pubSt.text ? `<div style="margin-top:14px;padding:12px;border-radius:8px;background:var(--sunken);border:1px solid var(--line)">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px" class="mono">任务 ${esc(pubSt.jobId)} · 目标快照 ${esc(pubSt.snapId)}</div>
+          <div style="font-size:12.5px;font-weight:600;margin-bottom:6px;color:${pubSt.status==='failed'?'var(--txt-maint)':pubSt.status==='unverified'?'var(--txt-proc)':'var(--fg)'}">${esc(pubSt.text)}</div>
+          <div class="prog-track"><div class="prog-bar" style="width:${pubSt.progress}%;background:${pubSt.status==='failed'?'var(--dot-maint)':'var(--pri)'}"></div></div>
+          ${(canEdit() && pubSt.status === 'failed') ? `<div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--muted)">已传完 2/3 个文件</span>
+            <button type="button" class="btn sm pri" onclick="window.__retryPublish('${committedLab.id}','${pubSt.jobId}')">按任务重试（跳过已传）</button>
+          </div>` : ''}
+          ${(canEdit() && pubSt.status === 'unverified') ? `<div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--muted)">平板可能已落盘，不武断判旧版</span>
+            <button type="button" class="btn sm pri" onclick="window.__verifyUnverifiedPublish('${committedLab.id}','${pubSt.jobId}')">回读 info 核验</button>
           </div>` : ''}
         </div>` : ''}
       </div>
 
       <div class="card">
         <div class="card-title">
-          <span>平板实时画面预览（<code>lab_preview.wasm</code> 同源 C 代码渲染）</span>
+          <span>待发布快照预览（与左侧共用 <code>${esc(snap.snapId)}</code>）</span>
           <div style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:12.5px">
             <label style="cursor:pointer"><input type="checkbox" ${S.previewFwDiff?'checked':''} onchange="window.__toggleFwDiff(this.checked)"> 模拟固件版本差异</label>
-            <span>预览布局：</span>
-            <select class="sel" onchange="window.__setPreviewLayout(this.value)">
-              ${LAYOUT_DEFS.map(d => `<option value="${d.id}" ${S.previewLayout===d.id?'selected':''}>${d.name} (${d.w}×${d.h})</option>`).join('')}
+            <select class="sel" aria-label="预览布局" onchange="window.__setPreviewLayout(this.value)">
+              ${LAYOUT_DEFS.map(d => `<option value="${d.id}" ${S.previewLayout===d.id?'selected':''}>${d.name}</option>`).join('')}
             </select>
           </div>
         </div>
-        ${(S.previewFwDiff || (p && !p.fw.includes('ae79616f'))) ? `<div class="f-glyph" style="margin-bottom:10px">⚠️ 预览基于固件 <code>1.0.0+ae79616f</code>，目标平板当前固件为 <code>1.0.0+3e6e51ed</code>，画面可能有细微差异。切换上方布局仅用于预览检查，不会改动平板实际设置。</div>` : ''}
-        ${renderEmbeddedPanelPreview(lab, S.previewLayout)}
+        ${(S.previewFwDiff || (p && !p.fw.includes('ae79616f'))) ? `<div class="f-glyph" style="margin-bottom:10px">⚠️ 预览基于固件 <code>1.0.0+ae79616f</code>，目标平板固件为 <code>1.0.0+3e6e51ed</code>，画面可能有细微差异。</div>` : ''}
+        ${renderEmbeddedPanelPreview(snap.labCopy, S.previewLayout, `待发布快照 ${snap.snapId}`, true)}
       </div>
     </div>`;
   }
 
   return `
     <div class="crumb">
-      <span><a onclick="window.__nav('labs')">实验室管理</a> / ${esc(lab.name)} (${esc(lab.code)})</span>
-      ${S.isDirty ? '<span class="pill busy"><i></i>有未保存的修改</span>' : `<span class="mono" style="color:var(--muted)">当前清单版本 v${lab.manifest_version}</span>`}
+      <span><button type="button" class="link-btn" onclick="window.__nav('labs')">实验室管理</button> / <span id="crumb-lab-name">${esc(lab.name)}</span> (${esc(lab.code)})</span>
+      <span id="dirty-indicator">${S.isDirty ? '<span class="pill busy"><i></i>有未保存的修改</span>' : `<span class="mono" style="color:var(--muted)">已保存清单版本 v${committedLab.manifest_version}</span>`}</span>
     </div>
     <div class="page-hd">
-      <h1>${esc(lab.name)} <span style="font-size:14px;font-weight:400;color:var(--muted)">${esc(lab.code)}</span></h1>
-      <button class="btn" onclick="window.__nav('labs')">← 返回列表</button>
+      <h1><span id="hd-lab-name">${esc(lab.name)}</span> <span style="font-size:14px;font-weight:400;color:var(--muted)">${esc(lab.code)}</span></h1>
+      <button type="button" class="btn" onclick="window.__nav('labs')">← 返回列表</button>
     </div>
-    <div class="tabs">
-      ${[['basic','1. 基本信息'],['equip',`2. 设备组合 (${lab.equipIds.length}/60)`],['media','3. 媒体素材'],['publish','4. 预览与发布']].map(([k,t]) =>
-        `<div class="tab ${S.editLabTab===k?'active':''}" onclick="window.__setLabTab('${k}')">${t}</div>`).join('')}
+    <div class="tabs" role="tablist">
+      ${[['basic','1. 基本信息'],['equip',`2. 设备组合 (${committedLab.equipIds.length}/60)`],['media','3. 媒体素材'],['publish','4. 预览与发布']].map(([k,t]) =>
+        `<button type="button" role="tab" aria-selected="${S.editLabTab===k}" class="tab ${S.editLabTab===k?'active':''}" onclick="window.__setLabTab('${k}')">${t}</button>`).join('')}
     </div>
     ${tabBody}`;
 }
 
-/* Shared MediaManager Widget (Spec §4.4) */
-function renderMediaManagerWidget(ownerType, ownerObj){
+function renderMediaManagerWidget(){
   const ro = !canEdit();
   return `<div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-      <span style="font-size:12.5px;color:var(--muted)">图片自动裁剪转为 Baseline JPEG（封面 800×450 / 卡片 360×240 / 画廊 ≤800×800）；不兼容视频后台自动 ffmpeg 转码为 H.264 无 B 帧 16:9。</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px;flex-wrap:wrap">
+      <span style="font-size:12.5px;color:var(--muted)">图片自动裁剪为 Baseline JPEG；视频兼容要求严格含 <strong>MP4 封装 + H.264 无 B 帧</strong>（MOV/MKV/AVI 均自动重封或转码）。</span>
       ${!ro ? `<div style="display:flex;gap:8px">
-        <button class="btn sm" onclick="window.__simDedupUpload()">模拟上传重复文件（sha256 秒传引用）</button>
-        <button class="btn sm pri" onclick="window.__simNewVideoUpload()">+ 上传视频素材</button>
+        <button type="button" class="btn sm" onclick="window.__simDedupUpload()">模拟上传重复文件（sha256 去重）</button>
+        <button type="button" class="btn sm pri" onclick="window.__simNewVideoUpload()">+ 上传视频素材</button>
       </div>` : ''}
     </div>
-
     <div class="media-grid" style="margin-bottom:16px">
       <div style="border:1px solid var(--line);border-radius:8px;padding:12px">
         <div style="font-weight:600;font-size:13px;margin-bottom:8px">封面图（限 1 张 · 800×450）</div>
         <div style="display:flex;align-items:center;gap:12px">
           <div class="thumb-card" style="background:#1D3B58"><span>封面 Baseline JPG<br>800×450</span></div>
           ${!ro ? `<div style="display:flex;flex-direction:column;gap:6px">
-            <button class="btn sm" onclick="window.__notify('已更新封面并自动裁剪为 800×450 Baseline JPEG')">更换封面</button>
-            <button class="btn sm danger" onclick="window.__notify('已解除封面与当前对象的关联')">删除关联</button>
+            <button type="button" class="btn sm" onclick="window.__notify('已更新封面并自动裁剪为 800×450 Baseline JPEG')">更换封面</button>
+            <button type="button" class="btn sm danger" onclick="window.__notify('已解除封面与当前对象的关联')">删除关联</button>
           </div>` : ''}
         </div>
       </div>
-
       <div style="border:1px solid var(--line);border-radius:8px;padding:12px">
         <div style="font-weight:600;font-size:13px;margin-bottom:8px;display:flex;justify-content:space-between">
           <span>画廊图片（3 / 12 · 可拖动调整顺序）</span>
-          ${!ro ? `<a onclick="window.__notify('已添加画廊图片（自动缩放至 ≤800×800）')">+ 上传图片</a>` : ''}
+          ${!ro ? `<button type="button" class="link-btn" onclick="window.__notify('已添加画廊图片（自动缩放至 ≤800×800）')">+ 上传图片</button>` : ''}
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           ${['主机全景 01','液压夹具 02','测控柜 03'].map((t,i)=>`<div class="thumb-card" style="background:${['#223D54','#2B433B','#3B324B'][i]}"><span>${t}</span></div>`).join('')}
         </div>
       </div>
     </div>
-
     <div style="border:1px solid var(--line);border-radius:8px;padding:12px">
-      <div style="font-weight:600;font-size:13px;margin-bottom:10px">3D 演示视频 & 介绍视频（展示全部 5 种媒体流水线状态标签）</div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:10px">3D 演示视频 & 介绍视频（5 种流水线状态）</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         <div class="tr-row">
-          <div><strong>waw1000d_3d_section.mp4</strong> <span class="mono" style="color:var(--muted);margin-left:8px">role: model3d · 1280×720 · 00:38 · 19.2 MB</span></div>
-          <div class="ops"><span class="pill idle"><i></i>兼容</span><a onclick="window.__previewVideoModal('waw1000d_3d_section.mp4')">播放</a>${!ro?`<a class="del" onclick="window.__notify('已解除视频关联（实体由媒体库统一清理）')">删除</a>`:''}</div>
+          <div><strong>waw1000d_3d_section.mp4</strong> <span class="mono" style="color:var(--muted);margin-left:8px">MP4 · 1280×720 · 00:38 · 19.2 MB</span></div>
+          <div class="ops"><span class="pill idle"><i></i>兼容</span><button type="button" class="link-btn" onclick="window.__previewVideoModal('waw1000d_3d_section.mp4')">播放</button>${!ro?`<button type="button" class="link-btn del" onclick="window.__notify('已解除视频关联')">删除</button>`:''}</div>
         </div>
         <div class="tr-row">
-          <div><strong>lab201_safety_tour.mp4</strong> <span class="mono" style="color:var(--muted);margin-left:8px">role: intro · 1920×1080 → 1280×720 · 00:50 · 28.4 MB</span></div>
-          <div class="ops"><span class="pill idle"><i></i>已转码</span><a onclick="window.__previewVideoModal('lab201_safety_tour.mp4')">播放</a>${!ro?`<a class="del" onclick="window.__notify('已解除视频关联')">删除</a>`:''}</div>
+          <div><strong>lab201_safety_tour.mp4</strong> <span class="mono" style="color:var(--muted);margin-left:8px">1920×1080 → MP4 1280×720 · 28.4 MB</span></div>
+          <div class="ops"><span class="pill idle"><i></i>已转码</span><button type="button" class="link-btn" onclick="window.__previewVideoModal('lab201_safety_tour.mp4')">播放</button>${!ro?`<button type="button" class="link-btn del" onclick="window.__notify('已解除视频关联')">删除</button>`:''}</div>
         </div>
         <div class="tr-row">
-          <div><strong>plg200c_render_raw.mov</strong> <span class="mono" style="color:var(--muted);margin-left:8px">role: model3d · 3840×2160 → 1280×720 (ffmpeg -bf 0 -refs 1 weightp=0)</span></div>
-          <div class="ops"><span class="pill proc"><i></i>转码中 64%</span>${!ro?`<a class="del" onclick="window.__notify('已解除关联')">删除</a>`:''}</div>
+          <div><strong>plg200c_render_raw.mov</strong> <span class="mono" style="color:var(--muted);margin-left:8px">MOV 封装自动重封/转码为 MP4 H.264 无B帧</span></div>
+          <div class="ops"><span class="pill proc"><i></i>转码中 64%</span>${!ro?`<button type="button" class="link-btn del" onclick="window.__notify('已解除关联')">删除</button>`:''}</div>
         </div>
         <div class="tr-row">
-          <div><strong>new_upload_probe.mp4</strong> <span class="mono" style="color:var(--muted);margin-left:8px">正在运行 ffprobe 检查编码参数…</span></div>
+          <div><strong>new_upload_probe.mp4</strong> <span class="mono" style="color:var(--muted);margin-left:8px">正在运行 ffprobe 检查封装与编码…</span></div>
           <div class="ops"><span class="pill neutral"><i></i>检查中</span></div>
         </div>
-        <div class="tr-row" title="无法解析的视频流：文件头损坏或时长超过 10 分钟上限">
-          <div><strong>corrupted_export.avi</strong> <span style="color:var(--bad);font-size:12px;margin-left:8px">原因：无法解析的视频（鼠标悬停查看详情）</span></div>
-          <div class="ops"><span class="pill maint" title="无法解析的视频流"><i></i>拒绝</span>${!ro?`<a class="del" onclick="window.__notify('已移除被拒绝媒体')">删除</a>`:''}</div>
+        <div class="tr-row" title="无法解析的视频流：文件头损坏">
+          <div><strong>corrupted_export.avi</strong> <span style="color:var(--txt-maint);font-size:12px;margin-left:8px">原因：无法解析的视频</span></div>
+          <div class="ops"><span class="pill maint"><i></i>拒绝</span>${!ro?`<button type="button" class="link-btn del" onclick="window.__notify('已移除被拒绝媒体')">删除</button>`:''}</div>
         </div>
       </div>
     </div>
   </div>`;
 }
 
-/* 4.3 Equipment List & Editor */
+/* 4.3 Equipment List (100% fits 1366x768) & Isolated Draft Editor */
 function renderEquipment(){
   const list = DB.equipment.filter(e => {
     const ol = labOfEquip(e.id);
-    if(S.eqFilter.cat && e.cat !== S.eqFilter.cat) return false;
     if(S.eqFilter.status && e.status !== S.eqFilter.status) return false;
     if(S.eqFilter.lab === '_unassigned' && ol) return false;
     if(S.eqFilter.lab && S.eqFilter.lab !== '_unassigned' && (!ol || ol.id !== S.eqFilter.lab)) return false;
@@ -963,18 +1110,18 @@ function renderEquipment(){
     <div class="page-hd">
       <h1>试验设备管理</h1>
       ${canEdit() ? `<div style="display:flex;gap:8px">
-        <button class="btn" onclick="window.__openExcelImport()">Excel 批量导入</button>
-        <button class="btn pri" onclick="window.__nav('equip-edit',{editEqId:'E01'})">+ 新建试验设备</button>
+        <button type="button" class="btn" onclick="window.__openExcelImport()">Excel 批量导入</button>
+        <button type="button" class="btn pri" onclick="window.__nav('equip-edit',{eqIsNew:true})">+ 新建试验设备</button>
       </div>` : ''}
     </div>
     <div class="filter-bar">
       <div class="filter-left">
-        <select class="sel" onchange="window.__setEqFilter('lab',this.value)">
+        <select class="sel" aria-label="归属实验室筛选" onchange="window.__setEqFilter('lab',this.value)">
           <option value="">全部归属实验室</option>
           <option value="_unassigned" ${S.eqFilter.lab==='_unassigned'?'selected':''}>★ 仅看未分配设备</option>
           ${DB.labs.map(l=>`<option value="${l.id}" ${S.eqFilter.lab===l.id?'selected':''}>${esc(l.name)}</option>`).join('')}
         </select>
-        <select class="sel" onchange="window.__setEqFilter('status',this.value)">
+        <select class="sel" aria-label="设备状态筛选" onchange="window.__setEqFilter('status',this.value)">
           <option value="">全部状态</option>
           ${['可用','使用中','维护','停用'].map(s=>`<option value="${s}" ${S.eqFilter.status===s?'selected':''}>${s}</option>`).join('')}
         </select>
@@ -984,26 +1131,30 @@ function renderEquipment(){
     <div class="tbl-box">
       <table>
         <thead><tr>
-          <th style="width:130px">资产编号</th><th style="width:190px">设备名称</th><th style="width:116px">型号</th>
-          <th style="width:116px">厂家</th><th style="width:90px">类别</th><th style="width:88px">状态</th>
-          <th style="width:165px">所属实验室</th><th style="width:68px">媒体</th><th style="width:128px">更新时间</th><th style="width:110px">操作</th>
+          <th style="width:24%">设备名称 / 资产编号</th>
+          <th style="width:15%">型号 / 厂家</th>
+          <th style="width:10%">类别</th>
+          <th style="width:9%">状态</th>
+          <th style="width:21%">所属实验室</th>
+          <th style="width:10%">媒体 / 更新</th>
+          <th style="width:11%">操作</th>
         </tr></thead>
         <tbody>
           ${list.map(e => {
             const ol = labOfEquip(e.id);
             return `<tr>
-              <td class="mono">${esc(e.asset_no)}</td>
-              <td><a onclick="window.__nav('equip-edit',{editEqId:'${e.id}'})"><strong>${esc(e.name)}</strong></a></td>
-              <td class="mono">${esc(e.model)}</td>
-              <td>${esc(e.vendor)}</td>
+              <td>
+                <button type="button" class="link-btn" onclick="window.__nav('equip-edit',{editEqId:'${e.id}',eqIsNew:false})"><strong>${esc(e.name)}</strong></button>
+                <div class="sub-line mono">${esc(e.asset_no)}</div>
+              </td>
+              <td><div class="mono">${esc(e.model)}</div><div class="sub-line">${esc(e.vendor)}</div></td>
               <td>${esc(e.cat)}</td>
               <td>${statusPill(e.status)}</td>
-              <td>${ol ? `<a onclick="window.__nav('lab-edit',{editLabId:'${ol.id}',editLabTab:'equip'})">${esc(ol.name)}</a>` : '<span style="color:var(--muted)">未分配</span>'}</td>
-              <td class="mono">${e.mediaCnt}</td>
-              <td class="mono">${e.updated}</td>
+              <td>${ol ? `<button type="button" class="link-btn" onclick="window.__nav('lab-edit',{editLabId:'${ol.id}',editLabTab:'equip'})">${esc(ol.name)}</button>` : '<span style="color:var(--muted)">未分配</span>'}</td>
+              <td><span class="mono">${e.mediaCnt} 个</span><div class="sub-line mono">${e.updated.slice(5,10)}</div></td>
               <td><div class="ops">
-                <a onclick="window.__nav('equip-edit',{editEqId:'${e.id}'})">${canEdit()?'编辑':'查看'}</a>
-                ${canEdit() ? `<a class="del" onclick="window.__deleteEquip('${e.id}')">删除</a>` : ''}
+                <button type="button" class="link-btn" onclick="window.__nav('equip-edit',{editEqId:'${e.id}',eqIsNew:false})">${canEdit()?'编辑':'查看'}</button>
+                ${canEdit() ? `<button type="button" class="link-btn del" onclick="window.__deleteEquip('${e.id}')">删除</button>` : ''}
               </div></td>
             </tr>`;
           }).join('')}
@@ -1014,45 +1165,52 @@ function renderEquipment(){
 }
 
 function renderEquipEdit(){
-  const eq = DB.equipment.find(x => x.id === S.editEqId) || DB.equipment[0];
-  const ol = labOfEquip(eq.id);
+  if(!S.eqDraft) openEquipEditor(S.editEqId, S.eqIsNew);
+  const eq = S.eqDraft;
+  const ol = S.eqIsNew ? null : labOfEquip(eq.id);
   const ro = !canEdit();
   return `
-    <div class="crumb"><span><a onclick="window.__nav('equipment')">试验设备</a> / ${esc(eq.name)}</span></div>
-    <div class="page-hd"><h1>${esc(eq.name)}</h1><button class="btn" onclick="window.__nav('equipment')">← 返回设备列表</button></div>
+    <div class="crumb">
+      <span><button type="button" class="link-btn" onclick="window.__nav('equipment')">试验设备</button> / ${S.eqIsNew ? '新建试验设备（空白草稿）' : esc(eq.name)}</span>
+      <span id="dirty-indicator">${S.isDirty ? '<span class="pill busy"><i></i>有未保存的修改</span>' : ''}</span>
+    </div>
+    <div class="page-hd"><h1>${S.eqIsNew ? '新建试验设备' : esc(eq.name)}</h1><button type="button" class="btn" onclick="window.__nav('equipment')">← 返回设备列表</button></div>
     <div class="card" style="margin-bottom:14px">
-      <div class="card-title"><span>设备基础档案与技术参数表</span></div>
+      <div class="card-title"><span>设备基础档案与技术参数表（编辑独立草稿，连续输入不丢焦）</span></div>
       <div class="form-grid">
-        <div class="f-item"><label class="f-lbl"><span class="f-req">资产编号（唯一）</span><span class="f-cnt">${eq.asset_no.length}/24</span></label><input class="inp mono" maxlength="24" value="${esc(eq.asset_no)}" ${ro?'readonly':''} oninput="window.__updEqField('asset_no',this.value)"></div>
-        <div class="f-item"><label class="f-lbl"><span class="f-req">设备名称</span><span class="f-cnt">${eq.name.length}/30</span></label><input class="inp" maxlength="30" value="${esc(eq.name)}" ${ro?'readonly':''} oninput="window.__updEqField('name',this.value)">${glyphHintHTML(eq.name)}</div>
-        <div class="f-item"><label class="f-lbl"><span>规格型号</span><span class="f-cnt">${eq.model.length}/30</span></label><input class="inp mono" maxlength="30" value="${esc(eq.model)}" ${ro?'readonly':''} oninput="window.__updEqField('model',this.value)"></div>
-        <div class="f-item"><label class="f-lbl"><span>生产厂家</span><span class="f-cnt">${eq.vendor.length}/30</span></label><input class="inp" maxlength="30" value="${esc(eq.vendor)}" ${ro?'readonly':''} oninput="window.__updEqField('vendor',this.value)"></div>
-        <div class="f-item"><label class="f-lbl"><span>设备状态（≤6字）</span></label><input class="inp" maxlength="6" value="${esc(eq.status)}" ${ro?'readonly':''} oninput="window.__updEqField('status',this.value)"></div>
-        <div class="f-item"><label class="f-lbl"><span>所属实验室（只读 · 修改请前往对应实验室「设备组合」）</span></label>
+        <div class="f-item"><label class="f-lbl"><span class="f-req">资产编号（唯一）</span><span class="f-cnt" id="cnt-eq-asset_no">${eq.asset_no.length}/24</span></label><input class="inp mono" maxlength="24" placeholder="例如 ZC-2026-0201" value="${esc(eq.asset_no)}" ${ro?'readonly':''} oninput="window.__updEqField('asset_no',this.value,24)"></div>
+        <div class="f-item"><label class="f-lbl"><span class="f-req">设备名称</span><span class="f-cnt" id="cnt-eq-name">${eq.name.length}/30</span></label><input class="inp" maxlength="30" placeholder="输入设备名称" value="${esc(eq.name)}" ${ro?'readonly':''} oninput="window.__updEqField('name',this.value,30,true)"><div id="glyph-eq-name">${glyphHintInner(eq.name)}</div></div>
+        <div class="f-item"><label class="f-lbl"><span>规格型号</span><span class="f-cnt" id="cnt-eq-model">${eq.model.length}/30</span></label><input class="inp mono" maxlength="30" value="${esc(eq.model)}" ${ro?'readonly':''} oninput="window.__updEqField('model',this.value,30)"></div>
+        <div class="f-item"><label class="f-lbl"><span>生产厂家</span><span class="f-cnt" id="cnt-eq-vendor">${eq.vendor.length}/30</span></label><input class="inp" maxlength="30" value="${esc(eq.vendor)}" ${ro?'readonly':''} oninput="window.__updEqField('vendor',this.value,30)"></div>
+        <div class="f-item"><label class="f-lbl"><span>设备状态（≤6字）</span></label><input class="inp" maxlength="6" value="${esc(eq.status)}" ${ro?'readonly':''} oninput="window.__updEqField('status',this.value,6)"></div>
+        <div class="f-item"><label class="f-lbl"><span>所属实验室（只读 · 在实验室「设备组合」中调整）</span></label>
           <div class="inp" style="background:var(--sunken);display:flex;align-items:center;justify-content:space-between">
             <span>${ol ? esc(ol.name + ' (' + ol.code + ')') : '未分配任何实验室'}</span>
-            ${ol ? `<a onclick="window.__nav('lab-edit',{editLabId:'${ol.id}',editLabTab:'equip'})">去调整组合 →</a>` : ''}
+            ${ol ? `<button type="button" class="link-btn" onclick="window.__nav('lab-edit',{editLabId:'${ol.id}',editLabTab:'equip'})">去调整组合 →</button>` : ''}
           </div>
         </div>
         <div class="f-item full">
-          <label class="f-lbl"><span>技术参数键值表（最多 40 行 · 参数名 ≤12 字，参数值 ≤40 字，可拖动排序）</span><span class="f-cnt">${eq.specs.length}/40 行</span></label>
+          <label class="f-lbl"><span>技术参数键值表（最多 40 行 · 参数名 ≤12 字，参数值 ≤40 字）</span><span class="f-cnt">${eq.specs.length}/40 行</span></label>
           <div style="display:flex;flex-direction:column;gap:6px">
             ${eq.specs.map(([k,v], idx) => `<div style="display:grid;grid-template-columns:220px 1fr auto;gap:8px;align-items:center">
               <input class="inp" maxlength="12" placeholder="参数名 (≤12字)" value="${esc(k)}" ${ro?'readonly':''} oninput="window.__updSpec(${idx},0,this.value)">
               <input class="inp" maxlength="40" placeholder="参数值 (≤40字)" value="${esc(v)}" ${ro?'readonly':''} oninput="window.__updSpec(${idx},1,this.value)">
-              ${!ro ? `<button class="btn sm danger" onclick="window.__delSpec(${idx})">删除</button>` : '<span></span>'}
+              ${!ro ? `<button type="button" class="btn sm danger" onclick="window.__delSpec(${idx})">删除</button>` : '<span></span>'}
             </div>`).join('')}
-            ${(!ro && eq.specs.length < 40) ? `<div><button class="btn sm" onclick="window.__addSpec()">+ 添加参数行</button></div>` : ''}
+            ${(!ro && eq.specs.length < 40) ? `<div><button type="button" class="btn sm" onclick="window.__addSpec()">+ 添加参数行</button></div>` : ''}
           </div>
         </div>
-        <div class="f-item full"><label class="f-lbl"><span>设备简介</span><span class="f-cnt">${eq.intro.length}/2000</span></label><textarea class="ta" rows="3" ${ro?'readonly':''} oninput="window.__updEqField('intro',this.value)">${esc(eq.intro)}</textarea></div>
+        <div class="f-item full"><label class="f-lbl"><span>设备简介</span><span class="f-cnt" id="cnt-eq-intro">${eq.intro.length}/2000</span></label><textarea class="ta" rows="3" ${ro?'readonly':''} oninput="window.__updEqField('intro',this.value,2000)">${esc(eq.intro)}</textarea></div>
       </div>
-      ${!ro ? `<div style="margin-top:14px;display:flex;justify-content:flex-end"><button class="btn pri" onclick="window.__saveEquip()">保存设备信息</button></div>` : ''}
+      ${!ro ? `<div style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px">
+        <button type="button" class="btn" onclick="window.__nav('equipment')">取消</button>
+        <button type="button" class="btn pri" onclick="window.__saveEquip()">${S.eqIsNew ? '创建设备档案' : '保存设备信息'}</button>
+      </div>` : ''}
     </div>
-    ${renderMediaManagerWidget('equipment', eq)}`;
+    ${S.eqIsNew ? '' : renderMediaManagerWidget()}`;
 }
 
-/* 4.5 Panels Management, Bind Wizard & Layout Region Cards */
+/* 4.5 Panels Management (Fits 1366x768 cleanly; Screenshot strictly Admin-only per Spec 03 §4.5!) */
 function renderPanels(){
   const list = DB.panels.filter(p => {
     if(S.panelFilter.online === '1' && !p.online) return false;
@@ -1064,54 +1222,65 @@ function renderPanels(){
     <div class="page-hd">
       <h1>门口平板管理</h1>
       ${isAdmin() ? `<div style="display:flex;gap:8px">
-        <button class="btn" onclick="window.__openScanModal()">扫描局域网网段</button>
-        <button class="btn pri" onclick="window.__openBindWizard()">+ 手动输入 IP 添加平板</button>
+        <button type="button" class="btn" onclick="window.__openScanModal()">扫描局域网网段</button>
+        <button type="button" class="btn pri" onclick="window.__openBindWizard()">+ 手动输入 IP 添加平板</button>
       </div>` : ''}
     </div>
     <div class="filter-bar">
       <div class="filter-left">
-        <select class="sel" onchange="window.__setPanelOnline(this.value)">
+        <select class="sel" aria-label="在线状态筛选" onchange="window.__setPanelOnline(this.value)">
           <option value="">全部在线状态</option>
           <option value="1" ${S.panelFilter.online==='1'?'selected':''}>仅看在线</option>
           <option value="0" ${S.panelFilter.online==='0'?'selected':''}>仅看离线</option>
         </select>
-        ${S.panelFilter.online==='0' ? `<a onclick="window.__setPanelOnline('')" style="font-size:12.5px">清除“离线”筛选</a>` : ''}
+        ${S.panelFilter.online==='0' ? `<button type="button" class="link-btn" onclick="window.__setPanelOnline('')" style="font-size:12.5px">清除“离线”筛选</button>` : ''}
       </div>
-      <span style="font-size:12px;color:var(--muted)">布局属于平板自身设置（<code>set_layout</code>），切换布局实时重建画面，无需重新发布清单</span>
+      <span style="font-size:12px;color:var(--muted)">操作仅管理员可见（与规格 03 一致）；低频运维操作收纳于「更多 ▾」保证 1366px 零裁切</span>
     </div>
     <div class="tbl-box">
       <table>
         <thead><tr>
-          <th style="width:76px">状态</th><th style="width:154px">SN 序列号</th><th style="width:124px">备注名称</th>
-          <th style="width:118px">IP 地址</th><th style="width:150px">绑定实验室</th><th style="width:116px">当前布局</th>
-          <th style="width:126px">固件版本</th><th style="width:120px">剩余空间</th><th style="width:94px">清单(板/后)</th>
-          <th style="width:190px">操作</th>
+          <th style="width:7.5%">状态</th>
+          <th style="width:18.5%">备注名称 / SN</th>
+          <th style="width:14%">IP / 固件</th>
+          <th style="width:16%">绑定实验室</th>
+          <th style="width:11%">当前布局</th>
+          <th style="width:10.5%">剩余空间</th>
+          <th style="width:9.5%">清单(板/后)</th>
+          <th style="width:13%">操作</th>
         </tr></thead>
         <tbody>
           ${list.map(p => {
             const lab = DB.labs.find(l => l.id === p.labId);
             const lay = LAYOUT_DEFS.find(d => d.id === p.layout) || LAYOUT_DEFS[0];
-            const verDiff = lab && lab.manifest_version !== p.committedVer;
+            const isDiff = lab && (p.committedLabId !== lab.id || p.committedVer !== lab.manifest_version);
             const pct = Math.round(((p.totalMB - p.freeMB) / p.totalMB) * 100);
+            const menuOpen = S.openMorePanelId === p.id;
             return `<tr>
               <td><span class="pill ${p.online?'idle':'maint'}"><i></i>${p.online?'在线':'离线'}</span></td>
-              <td class="mono">${esc(p.sn)}</td>
-              <td><strong>${esc(p.name)}</strong></td>
-              <td class="mono">${esc(p.ip)}</td>
-              <td>${lab ? esc(lab.name) : '<span style="color:var(--muted)">未绑定</span>'}</td>
+              <td><strong>${esc(p.name)}</strong><div class="sub-line mono">${esc(p.sn)}</div></td>
+              <td><div class="mono">${esc(p.ip)}</div><div class="sub-line mono">${esc(p.fw)}</div></td>
+              <td>${lab ? esc(lab.name) : '<span style="color:var(--muted)">未绑定</span>'}${p.committedLabId && lab && p.committedLabId!==lab.id ? `<div class="sub-line" style="color:var(--txt-busy)">板端仍显 ${p.committedLabId} v${p.committedVer}</div>` : ''}</td>
               <td>${esc(lay.name)}</td>
-              <td class="mono">${esc(p.fw)}</td>
               <td>
-                <div style="font-size:11.5px" class="mono">${p.freeMB}/${p.totalMB} MB</div>
+                <div class="mono" style="font-size:11.5px">${p.freeMB}/${p.totalMB}M</div>
                 <div class="prog-track" style="height:5px;margin-top:2px"><div class="prog-bar" style="width:${pct}%"></div></div>
               </td>
-              <td class="mono" style="${verDiff?'background:#FEF3C7;color:#92400E;font-weight:700':''}">${p.committedVer} / ${lab?lab.manifest_version:'—'}</td>
-              <td><div class="ops">
-                ${canEdit() ? `<a onclick="window.__openScreenshotModal('${p.id}')">截图</a>` : ''}
-                ${isAdmin() ? `<a onclick="window.__openSetLayoutModal('${p.id}')">设置布局</a>
-                <a onclick="window.__rebootPanel('${p.id}')">重启</a>
-                <a onclick="window.__openOtaModal('${p.id}')">OTA</a>
-                <a class="del" onclick="window.__unbindPanel('${p.id}')">解绑</a>` : (S.role==='viewer'?'<span style="color:var(--muted)">只读</span>':'')}
+              <td class="mono" style="${isDiff?'background:#FEF3C7;color:#78350F;font-weight:700':''}">${p.committedVer||0} / ${lab?lab.manifest_version:'—'}</td>
+              <td class="cell-wrap"><div class="ops">
+                ${isAdmin() ? `
+                  <button type="button" class="link-btn" onclick="window.__openSetLayoutModal('${p.id}')">布局</button>
+                  <button type="button" class="link-btn" onclick="window.__openScreenshotModal('${p.id}')">截图</button>
+                  <div class="more-wrap">
+                    <button type="button" class="link-btn" aria-expanded="${menuOpen}" onclick="window.__toggleMorePanel('${p.id}',event)">更多▾</button>
+                    ${menuOpen ? `<div class="more-menu" role="menu">
+                      <button type="button" onclick="window.__rebootPanel('${p.id}')">重启平板</button>
+                      <button type="button" onclick="window.__openOtaModal('${p.id}')">固件升级 OTA</button>
+                      <button type="button" class="del" onclick="window.__unbindPanel('${p.id}')">解绑实验室</button>
+                      <button type="button" class="del" onclick="window.__deletePanel('${p.id}')">删除平板</button>
+                    </div>` : ''}
+                  </div>
+                ` : '<span style="color:var(--muted);font-size:12px">仅管理员</span>'}
               </div></td>
             </tr>`;
           }).join('')}
@@ -1120,18 +1289,17 @@ function renderPanels(){
     </div>`;
 }
 
-/* 4.4 Media Library, 4.7 Publish Jobs, 4.8 Admin System Pages */
 function renderMediaLib(){
   return `
     <div class="page-hd"><h1>全局媒体库（SHA-256 内容寻址自动去重）</h1>
-      ${canEdit() ? `<button class="btn danger" onclick="window.__cleanOrphanMedia()">清理未引用文件</button>` : ''}
+      ${canEdit() ? `<button type="button" class="btn danger" onclick="window.__cleanOrphanMedia()">清理未引用文件</button>` : ''}
     </div>
     <div class="tbl-box"><table>
-      <thead><tr><th style="width:140px">SHA-256 前缀</th><th style="width:190px">原始文件名</th><th style="width:70px">类型</th><th style="width:200px">原始规格</th><th style="width:210px">平板端产物 (variant=panel)</th><th style="width:110px">处理状态</th><th>引用归属</th></tr></thead>
+      <thead><tr><th style="width:14%">SHA-256 前缀</th><th style="width:19%">原始文件名</th><th style="width:6%">类型</th><th style="width:19%">原始规格</th><th style="width:20%">平板产物 (MP4/JPG)</th><th style="width:10%">状态</th><th style="width:12%">引用归属</th></tr></thead>
       <tbody>${DB.mediaLib.map(m => `<tr>
         <td class="mono">${m.sha}</td><td><strong>${esc(m.name)}</strong></td><td>${m.kind==='video'?'视频':'图片'}</td>
         <td class="mono">${esc(m.orig)}</td><td class="mono">${esc(m.panel)}</td>
-        <td>${m.status==='rejected'?`<span class="pill maint" title="${esc(m.reason)}"><i></i>拒绝</span>`:m.status==='transcoding'?`<span class="pill proc"><i></i>转码中 64%</span>`:`<span class="pill idle"><i></i>${m.status==='ok'?'兼容':'已转码'}</span>`}</td>
+        <td>${m.status==='rejected'?`<span class="pill maint" title="${esc(m.reason)}"><i></i>拒绝</span>`:m.status==='transcoding'?`<span class="pill proc"><i></i>转码64%</span>`:`<span class="pill idle"><i></i>${m.status==='ok'?'兼容':'已转码'}</span>`}</td>
         <td>${esc(m.refs)}</td>
       </tr>`).join('')}</tbody>
     </table></div>`;
@@ -1141,15 +1309,19 @@ function renderPublishJobs(){
   return `
     <div class="page-hd"><h1>发布记录</h1></div>
     <div class="tbl-box"><table>
-      <thead><tr><th style="width:136px">时间</th><th style="width:180px">实验室</th><th style="width:140px">目标平板</th><th style="width:80px">清单版本</th><th style="width:140px">传输统计</th><th style="width:80px">耗时</th><th style="width:90px">结果</th><th style="width:80px">操作人</th><th style="width:130px">操作</th></tr></thead>
+      <thead><tr><th style="width:14%">时间</th><th style="width:19%">实验室 / 快照</th><th style="width:13%">目标平板</th><th style="width:13%">传输统计</th><th style="width:8%">耗时</th><th style="width:10%">结果</th><th style="width:8%">操作人</th><th style="width:15%">操作</th></tr></thead>
       <tbody>${DB.publishJobs.map(j => `<tr>
-        <td class="mono">${j.time}</td><td><strong>${esc(j.lab)}</strong></td><td>${esc(j.panel)}</td><td class="mono">${j.ver}</td>
-        <td class="mono">${j.files}</td><td class="mono">${j.dur}</td>
-        <td><span class="pill ${j.status==='成功'?'idle':'maint'}"><i></i>${j.status}</span></td>
+        <td class="mono">${j.time}</td>
+        <td><strong>${esc(j.lab)}</strong><div class="sub-line mono">${esc(j.snapId||j.ver)}</div></td>
+        <td>${esc(j.panel)}</td>
+        <td class="mono">${j.files}</td>
+        <td class="mono">${j.dur}</td>
+        <td><span class="pill ${j.status==='成功'?'idle':j.status==='待核验'?'proc':'maint'}"><i></i>${j.status}</span></td>
         <td>${esc(j.user)}</td>
         <td><div class="ops">
-          <a onclick="window.__openJobLog('${j.id}')">执行日志</a>
-          ${(canEdit() && j.status==='失败') ? `<a onclick="window.__retryJob('${j.id}')">重试</a>` : ''}
+          <button type="button" class="link-btn" onclick="window.__openJobLog('${j.id}')">日志</button>
+          ${(canEdit() && j.status==='失败') ? `<button type="button" class="link-btn" onclick="window.__retryJob('${j.id}')">按任务重试</button>` : ''}
+          ${(canEdit() && j.status==='待核验') ? `<button type="button" class="link-btn" onclick="window.__verifyJob('${j.id}')">回读核验</button>` : ''}
         </div></td>
       </tr>`).join('')}</tbody>
     </table></div>`;
@@ -1158,55 +1330,54 @@ function renderPublishJobs(){
 function renderAdminSystemPage(){
   if(!isAdmin()) return `<div class="card">无权限访问此页面（403）</div>`;
   if(S.route === 'users'){
-    return `<div class="page-hd"><h1>账号与角色管理</h1><button class="btn pri" onclick="window.__notify('演示：已打开新建账号表单')">+ 新建账号</button></div>
-      <div class="card" style="margin-bottom:12px;font-size:12.5px;color:var(--muted)">系统保护规则：至少保留一个启用状态的「管理员」账号，最后一个启用管理员禁止停用或删除。</div>
+    return `<div class="page-hd"><h1>账号与角色管理</h1><button type="button" class="btn pri" onclick="window.__notify('演示：已打开新建账号表单')">+ 新建账号</button></div>
+      <div class="card" style="margin-bottom:12px;font-size:12.5px;color:var(--muted)">系统保护规则：至少保留一个启用状态的「管理员」账号。</div>
       <div class="tbl-box"><table>
-        <thead><tr><th>登录账号</th><th>姓名 / 备注</th><th>角色</th><th>状态</th><th>最近登录</th><th>操作</th></tr></thead>
+        <thead><tr><th style="width:15%">账号</th><th style="width:24%">姓名 / 备注</th><th style="width:12%">角色</th><th style="width:12%">状态</th><th style="width:17%">最近登录</th><th style="width:20%">操作</th></tr></thead>
         <tbody>${DB.users.map(u => `<tr>
           <td class="mono"><strong>${esc(u.username)}</strong></td><td>${esc(u.name)}</td>
           <td>${u.role==='admin'?'管理员':u.role==='editor'?'编辑':'只读'}</td>
           <td><span class="pill idle"><i></i>启用</span></td><td class="mono">${u.lastLogin}</td>
-          <td><div class="ops"><a onclick="window.__notify('已重置该账号密码')">重置密码</a>${u.username!=='admin'?`<a class="del" onclick="window.__notify('已停用该账号')">停用</a>`:'<span style="color:var(--muted)">受保护主管理员</span>'}</div></td>
+          <td><div class="ops"><button type="button" class="link-btn" onclick="window.__notify('已重置密码')">重置密码</button>${u.username!=='admin'?`<button type="button" class="link-btn del" onclick="window.__notify('已停用该账号')">停用</button>`:'<span style="color:var(--muted)">受保护主管理员</span>'}</div></td>
         </tr>`).join('')}</tbody>
       </table></div>`;
   }
   if(S.route === 'audit'){
-    return `<div class="page-hd"><h1>操作审计日志（只读不可删）</h1><button class="btn" onclick="window.__notify('已导出 audit_log_20261117.csv')">导出 CSV</button></div>
+    return `<div class="page-hd"><h1>操作审计日志（只读不可删）</h1><button type="button" class="btn" onclick="window.__notify('已导出 audit_log_20261118.csv')">导出 CSV</button></div>
       <div class="tbl-box"><table>
-        <thead><tr><th style="width:140px">时间</th><th style="width:90px">账号</th><th style="width:170px">接口动作</th><th>操作对象</th><th style="width:125px">来源 IP</th><th style="width:120px">前后对比</th></tr></thead>
+        <thead><tr><th style="width:15%">时间</th><th style="width:10%">账号</th><th style="width:20%">接口动作</th><th style="width:27%">操作对象</th><th style="width:13%">来源 IP</th><th style="width:15%">前后对比</th></tr></thead>
         <tbody>${DB.audits.map(a => `<tr>
           <td class="mono">${a.time}</td><td class="mono">${esc(a.user)}</td><td class="mono">${esc(a.action)}</td>
           <td>${esc(a.target)}</td><td class="mono">${a.ip}</td>
-          <td><a onclick="window.__openAuditDiff('${a.id}')">查看 JSON 差异</a></td>
+          <td><button type="button" class="link-btn" onclick="window.__openAuditDiff('${a.id}')">查看 JSON 差异</button></td>
         </tr>`).join('')}</tbody>
       </table></div>`;
   }
   if(S.route === 'backups'){
     return `<div class="page-hd"><h1>数据备份与恢复（SQLite + 媒体素材包）</h1>
-      <button class="btn pri" onclick="window.__runBackupNow()">立即备份</button></div>
+      <button type="button" class="btn pri" onclick="window.__runBackupNow()">立即备份</button></div>
       <div class="card" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-        <div><strong>定时备份策略</strong>：每天凌晨 <code>03:00</code> 自动打包数据库与素材，最多保留最近 <code>7</code> 份。</div>
-        <button class="btn sm" onclick="window.__notify('定时备份策略已保存')">保存策略</button>
+        <div><strong>定时备份策略</strong>：每天凌晨 <code>03:00</code> 自动打包，最多保留最近 <code>7</code> 份。</div>
+        <button type="button" class="btn sm" onclick="window.__notify('定时备份策略已保存')">保存策略</button>
       </div>
       <div class="tbl-box"><table>
-        <thead><tr><th>备份包文件名</th><th>生成时间</th><th>体积</th><th>来源</th><th>操作</th></tr></thead>
+        <thead><tr><th style="width:36%">备份包文件名</th><th style="width:18%">生成时间</th><th style="width:12%">体积</th><th style="width:18%">来源</th><th style="width:16%">操作</th></tr></thead>
         <tbody>${DB.backups.map(b => `<tr>
           <td class="mono"><strong>${esc(b.name)}</strong></td><td class="mono">${b.time}</td><td class="mono">${b.size}</td><td>${esc(b.kind)}</td>
-          <td><div class="ops"><a onclick="window.__notify('开始下载 ${esc(b.name)}')">下载</a>
-          <a class="del" onclick="window.__restoreBackup('${b.id}')">恢复</a></div></td>
+          <td><div class="ops"><button type="button" class="link-btn" onclick="window.__notify('开始下载 ${esc(b.name)}')">下载</button>
+          <button type="button" class="link-btn del" onclick="window.__restoreBackup('${b.id}')">恢复</button></div></td>
         </tr>`).join('')}</tbody>
       </table></div>`;
   }
-  /* settings */
   return `<div class="page-hd"><h1>系统设置</h1></div>
     <div class="card"><div class="form-grid">
-      <div class="f-item"><label class="f-lbl">监听网卡与端口（修改后需重启服务生效）</label><input class="inp mono" value="192.168.10.10:8686"></div>
+      <div class="f-item"><label class="f-lbl">监听网卡与端口（修改后需重启服务）</label><input class="inp mono" value="192.168.10.10:8686"></div>
       <div class="f-item"><label class="f-lbl">平板默认无操作返回待机时长 (idle_timeout_s)</label><input class="inp mono" value="60"></div>
       <div class="f-item"><label class="f-lbl">视频统一转码目标码率 (kbps)</label><input class="inp mono" value="2500"></div>
       <div class="f-item"><label class="f-lbl">平板 info 在线轮询间隔 (秒)</label><input class="inp mono" value="30"></div>
       <div class="f-item"><label class="f-lbl">批量发布最大同时推送平板数上限</label><input class="inp mono" value="4"></div>
     </div>
-    <div style="margin-top:16px;display:flex;justify-content:flex-end"><button class="btn pri" onclick="window.__notify('系统设置已保存')">保存设置</button></div></div>`;
+    <div style="margin-top:16px;display:flex;justify-content:flex-end"><button type="button" class="btn pri" onclick="window.__notify('系统设置已保存')">保存设置</button></div></div>`;
 }
 
 /* ==================== 5. Master Shell Render ==================== */
@@ -1217,15 +1388,14 @@ function render(){
   const onlineCnt = DB.panels.filter(p => p.online).length;
   const offlineCnt = DB.panels.length - onlineCnt;
 
-  /* Global Search Dropdown */
   let searchDrop = '';
   if(S.searchKw.trim()){
     const kw = S.searchKw.trim().toLowerCase();
     const hits = [];
     DB.labs.forEach(l => { if((l.name+l.code).toLowerCase().includes(kw)) hits.push({t:`[实验室] ${l.code} · ${l.name}`, fn:`window.__pickSearch('lab-edit',{editLabId:'${l.id}',editLabTab:'basic'})`}); });
-    DB.equipment.forEach(e => { if((e.name+e.asset_no+e.model).toLowerCase().includes(kw)) hits.push({t:`[试验设备] ${e.asset_no} · ${e.name}`, fn:`window.__pickSearch('equip-edit',{editEqId:'${e.id}'})`}); });
+    DB.equipment.forEach(e => { if((e.name+e.asset_no+e.model).toLowerCase().includes(kw)) hits.push({t:`[试验设备] ${e.asset_no} · ${e.name}`, fn:`window.__pickSearch('equip-edit',{editEqId:'${e.id}',eqIsNew:false})`}); });
     DB.panels.forEach(p => { if((p.name+p.sn+p.ip).toLowerCase().includes(kw)) hits.push({t:`[门口平板] ${p.name} (${p.ip})`, fn:`window.__pickSearch('panels',{panelFilter:{online:''}})`}); });
-    searchDrop = `<div class="g-drop">${hits.slice(0,10).map(h=>`<div class="g-item" onclick="${h.fn}"><span>${esc(h.t)}</span><span style="color:var(--pri)">跳转 →</span></div>`).join('') || `<div class="g-item" style="color:var(--muted)">无匹配结果</div>`}</div>`;
+    searchDrop = `<div class="g-drop">${hits.slice(0,10).map(h=>`<button type="button" class="g-item" onclick="${h.fn}"><span>${esc(h.t)}</span><span style="color:var(--pri)">跳转 →</span></button>`).join('') || `<div class="g-item" style="color:var(--muted)">无匹配结果</div>`}</div>`;
   }
 
   let mainBody = '';
@@ -1247,19 +1417,19 @@ function render(){
       <div class="brand"><div class="brand-mark">L</div><span>实验室管理后台</span></div>
       <div class="g-search">
         <span class="ico">🔍</span>
-        <input placeholder="全局搜索实验室 / 设备 / 平板（300ms 防抖，最多 10 条）" value="${esc(S.searchKw)}" oninput="window.__onGlobalSearch(this.value)">
+        <input aria-label="全局搜索" placeholder="全局搜索实验室 / 设备 / 平板（最多 10 条）" value="${esc(S.searchKw)}" oninput="window.__onGlobalSearch(this.value)">
         ${searchDrop}
       </div>
       <div class="hdr-right">
-        <div class="online-pill" onclick="window.__nav('panels',{panelFilter:{online:'0'}})" title="点击跳转平板列表并自动筛选离线平板">
+        <button type="button" class="online-pill" onclick="window.__nav('panels',{panelFilter:{online:'0'}})" title="点击跳转平板列表并自动筛选离线平板">
           <span style="color:${offlineCnt?'#F87171':'#4ADE80'}">●</span>
           <span>平板在线 <strong>${onlineCnt} / ${DB.panels.length}</strong></span>
-        </div>
-        <div class="user-chip"><span class="role-tag">${roleLabel}</span><span>${userLabel} ▾</span></div>
+        </button>
+        <div class="user-chip"><span class="role-tag">${roleLabel}</span><span>${userLabel}</span></div>
       </div>
     </header>
     <div class="app-body">
-      <aside class="app-sider">
+      <nav class="app-sider" aria-label="主导航">
         ${[
           ['overview','概览',''],
           ['labs','实验室',''],
@@ -1267,25 +1437,36 @@ function render(){
           ['media','媒体库',''],
           ['panels','平板', offlineCnt ? String(offlineCnt) : ''],
           ['publish-jobs','发布记录','']
-        ].map(([r,lbl,bdg]) => `<div class="nav-item ${(S.route===r||(r==='labs'&&S.route==='lab-edit')||(r==='equipment'&&S.route==='equip-edit'))?'active':''}" onclick="window.__nav('${r}')">
-          <span>${lbl}</span>${bdg?`<span class="nav-badge">${bdg}</span>`:''}
-        </div>`).join('')}
+        ].map(([r,lbl,bdg]) => {
+          const act = S.route===r || (r==='labs'&&S.route==='lab-edit') || (r==='equipment'&&S.route==='equip-edit');
+          return `<button type="button" class="nav-item ${act?'active':''}" ${act?'aria-current="page"':''} onclick="window.__nav('${r}')">
+            <span>${lbl}</span>${bdg?`<span class="nav-badge">${bdg}</span>`:''}
+          </button>`;
+        }).join('')}
 
         ${isAdmin() ? `
           <div class="nav-sep"></div>
-          ${[['users','账号'],['audit','审计日志'],['backups','备份'],['settings','系统设置']].map(([r,lbl]) =>
-            `<div class="nav-item ${S.route===r?'active':''}" onclick="window.__nav('${r}')"><span>${lbl}</span></div>`).join('')}
+          ${[['users','账号'],['audit','审计日志'],['backups','备份'],['settings','系统设置']].map(([r,lbl]) => {
+            const act = S.route===r;
+            return `<button type="button" class="nav-item ${act?'active':''}" ${act?'aria-current="page"':''} onclick="window.__nav('${r}')"><span>${lbl}</span></button>`;
+          }).join('')}
         ` : ''}
-      </aside>
+      </nav>
       <main class="app-main">${mainBody}</main>
     </div>`;
 }
 
-/* ==================== 6. Interactive Actions, Wizards & Modals ==================== */
+/* ==================== 6. Interactive Actions (No Focus Loss, Full Draft Isolation) ==================== */
+function markDirtyUI(){
+  S.isDirty = true;
+  const di = document.getElementById('dirty-indicator');
+  if(di) di.innerHTML = '<span class="pill busy"><i></i>有未保存的修改</span>';
+}
+
 let searchTimer = null;
 window.__onGlobalSearch = val => {
   clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => { S.searchKw = val; render(); }, 150);
+  searchTimer = setTimeout(() => { S.searchKw = val; render(); }, 180);
 };
 window.__pickSearch = (route, opts) => { S.searchKw = ''; navigate(route, opts); };
 window.__setMode = m => { S.mode = m; S.setupStep = 1; render(); };
@@ -1299,52 +1480,101 @@ window.__toggleLabSel = (id, on) => {
 };
 window.__toggleAllLabs = on => { S.selectedLabIds = on ? DB.labs.map(l => l.id) : []; render(); };
 window.__batchPublish = () => {
-  if(!S.selectedLabIds.length){ notify('请先在左侧勾选要批量发布的实验室', 'err'); return; }
-  notify(`已提交 ${S.selectedLabIds.length} 个实验室批量发布任务（最多同时推送 4 台，其余自动排队）`);
+  if(!S.selectedLabIds.length){ notify('请先勾选要批量发布的实验室', 'err'); return; }
+  notify(`已按各实验室当前快照提交 ${S.selectedLabIds.length} 个批量发布任务（最多同时推送 4 台，其余排队）`);
 };
 window.__createLab = () => {
   const id = 'L' + (DB.labs.length + 1);
-  DB.labs.unshift({id, code:`L5-10${DB.labs.length+1}`, name:'新建综合测试实验室', bld:'5号楼', flr:'1层', rm:'101', status:'空闲', owner:'', phone:'', open_hours:'周一至周五 08:30-17:30', intro:'', safety:['进入实验室须穿戴防护用品'], manifest_version:1, updated:'2026-11-17 21:08', equipIds:[], media:[]});
+  DB.labs.unshift({id, code:`L5-10${DB.labs.length+1}`, name:'新建综合测试实验室', bld:'5号楼', flr:'1层', rm:'101', status:'空闲', owner:'', phone:'', open_hours:'周一至周五 08:30-17:30', intro:'', safety:['进入实验室须穿戴防护用品'], manifest_version:1, updated:'2026-11-18 16:58', equipIds:[]});
   navigate('lab-edit', {editLabId:id, editLabTab:'basic'});
-  notify('已创建实验室草稿');
+  notify('已创建新实验室（未绑定平板）');
 };
 window.__deleteLab = id => {
   const l = DB.labs.find(x => x.id === id);
-  confirmBox('确认删除实验室', `删除实验室「${esc(l.name)}（${esc(l.code)}）」后，其下的 ${l.equipIds.length} 台试验设备将变为“未分配”状态（设备档案保留）。是否确认删除？`, '确认删除', () => {
+  const p = panelOfLab(id);
+  if(p){ notify(`请先解绑该实验室的门口平板「${p.name}」后再删除`, 'err'); return; }
+  confirmBox('确认删除实验室', `删除实验室「${esc(l.name)}（${esc(l.code)}）」后，其下的 ${l.equipIds.length} 台试验设备将变为“未分配”状态。是否确认删除？`, '确认删除', () => {
     DB.labs = DB.labs.filter(x => x.id !== id);
     notify(`已删除实验室「${l.name}」`);
     render();
   });
 };
 
-window.__setLabTab = t => { S.editLabTab = t; S.previewEquipDetailId = null; render(); };
-window.__updLab = (k, v) => {
-  const lab = DB.labs.find(x => x.id === S.editLabId);
-  lab[k] = v; S.isDirty = true; render();
+window.__setLabTab = t => {
+  const go = () => {
+    S.isDirty = false;
+    S.editLabTab = t;
+    S.previewEquipDetailId = null;
+    if(t === 'publish'){
+      const lab = DB.labs.find(x => x.id === S.editLabId);
+      ensurePublishSnapshot(lab, true);
+    }
+    render();
+  };
+  if(S.isDirty && S.editLabTab === 'basic' && t !== 'basic'){
+    confirmBox('离开基本信息草稿', '基本信息有未保存修改，切换标签将放弃草稿修改，是否继续？', '放弃修改并切换', () => {
+      const orig = DB.labs.find(x => x.id === S.editLabId);
+      S.labDraft = JSON.parse(JSON.stringify(orig));
+      go();
+    });
+  } else go();
+};
+
+/* P1-4 Fix: In-place draft updates WITHOUT full re-render -> zero IME focus loss! */
+window.__updLabField = (k, v, maxLen, checkGlyph=false) => {
+  S.labDraft[k] = v;
+  markDirtyUI();
+  const cnt = document.getElementById('cnt-lab-' + k);
+  if(cnt) cnt.textContent = `${v.length}/${maxLen}`;
+  if(k === 'name'){
+    const h = document.getElementById('hd-lab-name'); if(h) h.textContent = v || '未命名实验室';
+    const c = document.getElementById('crumb-lab-name'); if(c) c.textContent = v || '未命名实验室';
+  }
+  if(checkGlyph){
+    const g = document.getElementById('glyph-lab-' + k);
+    if(g) g.innerHTML = glyphHintInner(v);
+  }
+};
+window.__updLabLoc = (k, v) => {
+  S.labDraft[k] = v;
+  markDirtyUI();
+  const len = [S.labDraft.bld, S.labDraft.flr, S.labDraft.rm].filter(Boolean).join(' ').length;
+  const cnt = document.getElementById('cnt-lab-loc');
+  if(cnt) cnt.textContent = `${len}/30`;
+};
+window.__updLabStatusSelect = v => {
+  S.labDraft.status = v;
+  markDirtyUI();
+  const inp = document.getElementById('inp-lab-status'); if(inp) inp.value = v;
+  const cnt = document.getElementById('cnt-lab-status'); if(cnt) cnt.textContent = `${v.length}/6`;
 };
 window.__injectRareChar = () => {
-  const lab = DB.labs.find(x => x.id === S.editLabId);
-  if(!lab.name.includes('㵘')) lab.name = (lab.name.slice(0,22) + '·㵘流测试');
-  S.isDirty = true; render();
+  if(!S.labDraft.name.includes('㵘')) S.labDraft.name = S.labDraft.name.slice(0,22) + '·㵘流测试';
+  S.isDirty = true;
+  render();
 };
-window.__updSafety = (idx, v) => { DB.labs.find(x=>x.id===S.editLabId).safety[idx] = v; S.isDirty = true; };
+window.__updSafety = (idx, v) => { S.labDraft.safety[idx] = v; markDirtyUI(); };
 window.__moveSafety = (idx, dir) => {
-  const arr = DB.labs.find(x=>x.id===S.editLabId).safety;
+  const arr = S.labDraft.safety;
   const ni = idx + dir; if(ni < 0 || ni >= arr.length) return;
   [arr[idx], arr[ni]] = [arr[ni], arr[idx]]; S.isDirty = true; render();
 };
-window.__delSafety = idx => { DB.labs.find(x=>x.id===S.editLabId).safety.splice(idx,1); S.isDirty = true; render(); };
-window.__addSafety = () => { DB.labs.find(x=>x.id===S.editLabId).safety.push('实验期间严禁饮食与无关人员逗留'); S.isDirty = true; render(); };
+window.__delSafety = idx => { S.labDraft.safety.splice(idx,1); S.isDirty = true; render(); };
+window.__addSafety = () => { S.labDraft.safety.push('实验期间严禁饮食与无关人员逗留'); S.isDirty = true; render(); };
 window.__saveLab = () => {
-  const lab = DB.labs.find(x => x.id === S.editLabId);
-  if(!lab.code.trim() || !lab.name.trim()){ notify('实验室编号和名称为必填项', 'err'); return; }
-  lab.manifest_version++;
-  S.isDirty = false;
-  notify(`保存成功，清单版本已升至 v${lab.manifest_version}`);
-  render();
+  if(!S.labDraft.code.trim() || !S.labDraft.name.trim()){ notify('实验室编号和名称为必填项', 'err'); return; }
+  const idx = DB.labs.findIndex(x => x.id === S.labDraft.id);
+  if(idx >= 0){
+    S.labDraft.manifest_version = DB.labs[idx].manifest_version + 1;
+    S.labDraft.updated = '2026-11-18 17:05';
+    DB.labs[idx] = JSON.parse(JSON.stringify(S.labDraft));
+    S.isDirty = false;
+    notify(`保存成功，清单版本已升至 v${DB.labs[idx].manifest_version}`);
+    render();
+  }
 };
 
-/* Equipment Transfer & Cross-Lab Move Confirmation (Spec §4.2 Tab 2) */
+/* Cross-lab move with source lab & revision concurrency confirmation */
 window.__toggleOtherEq = on => { S.showOtherLabEq = on; render(); };
 window.__addEqToLab = eqId => {
   const targetLab = DB.labs.find(x => x.id === S.editLabId);
@@ -1352,20 +1582,22 @@ window.__addEqToLab = eqId => {
   const eq = DB.equipment.find(e => e.id === eqId);
   const srcLab = labOfEquip(eqId);
   if(srcLab && srcLab.id !== targetLab.id){
+    const expectedFromVer = srcLab.manifest_version;
     confirmBox('确认跨实验室调拨设备',
-      `将把「<strong>${esc(eq.name)}（${esc(eq.asset_no)}）</strong>」从「<strong>${esc(srcLab.name)}</strong>」移到本实验室「<strong>${esc(targetLab.name)}</strong>」，两个实验室的清单版本都会加一，且<strong>两个实验室都需要重新发布</strong>。`,
+      `将把「<strong>${esc(eq.name)}（${esc(eq.asset_no)}）</strong>」从「<strong>${esc(srcLab.name)}（当前 v${expectedFromVer}）</strong>」移到本实验室「<strong>${esc(targetLab.name)}</strong>」。请求将携带 <code>expected_from_lab_id=${srcLab.id}</code> 与 <code>expected_from_manifest_version=${expectedFromVer}</code>，两个实验室清单版本都会 +1 且都需要重新发布。`,
       '确认移动', () => {
         srcLab.equipIds = srcLab.equipIds.filter(id => id !== eqId);
         srcLab.manifest_version++;
         targetLab.equipIds.push(eqId);
         targetLab.manifest_version++;
-        DB.history.unshift({time:'2026-11-17 21:09', user:'admin', action:`从 ${srcLab.code} 移入 ${targetLab.code}`, equip:eq.name});
-        notify(`已完成调拨，「${srcLab.name}」与「${targetLab.name}」均已标记为待发布`);
+        S.labDraft = JSON.parse(JSON.stringify(targetLab));
+        notify(`已完成调拨，「${srcLab.name}」(v${srcLab.manifest_version}) 与「${targetLab.name}」(v${targetLab.manifest_version}) 均已标为待发布`);
         render();
       });
   } else {
     targetLab.equipIds.push(eqId);
     targetLab.manifest_version++;
+    S.labDraft = JSON.parse(JSON.stringify(targetLab));
     notify(`已将「${eq.name}」加入本实验室`);
     render();
   }
@@ -1374,94 +1606,183 @@ window.__removeEqFromLab = eqId => {
   const lab = DB.labs.find(x => x.id === S.editLabId);
   lab.equipIds = lab.equipIds.filter(id => id !== eqId);
   lab.manifest_version++;
-  notify('已从本实验室移除该设备（设备本身未删除，现为未分配状态）');
+  S.labDraft = JSON.parse(JSON.stringify(lab));
+  notify('已移除该设备（现为未分配状态）');
   render();
 };
 window.__reorderLabEq = (idx, dir) => {
-  const arr = DB.labs.find(x => x.id === S.editLabId).equipIds;
-  const ni = idx + dir; if(ni < 0 || ni >= arr.length) return;
-  [arr[idx], arr[ni]] = [arr[ni], arr[idx]];
-  DB.labs.find(x => x.id === S.editLabId).manifest_version++;
+  const lab = DB.labs.find(x => x.id === S.editLabId);
+  const ni = idx + dir; if(ni < 0 || ni >= lab.equipIds.length) return;
+  [lab.equipIds[idx], lab.equipIds[ni]] = [lab.equipIds[ni], lab.equipIds[idx]];
+  lab.manifest_version++;
+  S.labDraft = JSON.parse(JSON.stringify(lab));
   render();
 };
 
-/* Media & Publish Simulator */
 window.__simDedupUpload = () => notify('检测到相同 SHA-256 文件，已存在相同文件，已直接引用！');
-window.__simNewVideoUpload = () => notify('已加入上传与 ffprobe 检查队列，离开本页任务不会中断');
+window.__simNewVideoUpload = () => notify('已加入上传与 ffprobe 检查队列（MP4 封装检查），离开本页任务不中断');
 window.__previewVideoModal = name => {
   openModal(`预览平板端转码产物 · ${esc(name)}`, `
-    <div style="height:320px;border-radius:8px;background:#091524;color:#E2E8F0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
+    <div style="height:280px;border-radius:8px;background:#091524;color:#E2E8F0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">
       <div style="font-size:36px">▶</div>
       <div style="font-size:15px">${esc(name)}（variant=panel）</div>
-      <div class="mono" style="font-size:12px;color:#93C5FD">H.264 · 1280×720 16:9 · bf=0 refs=1 weightp=0 · yuv420p</div>
-    </div>`, `<button class="btn pri" onclick="window.__closeModal()">关闭</button>`);
+      <div class="mono" style="font-size:12px;color:#93C5FD">MP4 封装 · H.264 1280×720 16:9 · bf=0 refs=1 weightp=0 · yuv420p</div>
+    </div>`, `<button type="button" class="btn pri" onclick="window.__closeModal()">关闭</button>`);
 };
 
+/* P1-1 / P1-2 / P1-3: Immutable snapshot publish, per-lab isolated state, rebind force=1, unverified recovery */
+window.__refreshSnapshot = labId => {
+  const lab = DB.labs.find(x => x.id === labId);
+  ensurePublishSnapshot(lab, true);
+  notify('已重新冻结最新待发布快照');
+  render();
+};
+window.__simConcurrentSave = labId => {
+  const lab = DB.labs.find(x => x.id === labId);
+  lab.manifest_version++;
+  notify(`模拟其他编辑保存了「${lab.name}」→ v${lab.manifest_version}，当前预览快照已失效并阻断发布`, 'err');
+  render();
+};
+window.__simConcurrentRebind = labId => {
+  const p = panelOfLab(labId);
+  if(p){ p.bindingRev++; notify(`模拟平板「${p.name}」发生换绑 (binding_rev→${p.bindingRev})，旧快照已被阻断`, 'err'); render(); }
+};
 window.__setPreviewLayout = id => { S.previewLayout = id; S.previewEquipDetailId = null; render(); };
 window.__toggleFwDiff = on => { S.previewFwDiff = on; render(); };
 
+function finalizePanelCommit(panel, snap, jobId, extraLog){
+  panel.committedLabId = snap.labId;
+  panel.committedVer = snap.version;
+  panel.committedSha = snap.sha;
+  panel.committedSnapshot = JSON.parse(JSON.stringify(snap.labCopy));
+  const j = DB.publishJobs.find(x => x.id === jobId);
+  if(j){ j.status = '成功'; j.logs.push(extraLog); }
+}
+
 window.__runPublish = labId => {
+  if(!canEdit()) return;
   const lab = DB.labs.find(x => x.id === labId);
   const panel = panelOfLab(labId);
+  const snap = ensurePublishSnapshot(lab, false);
+  if(isSnapshotStale(lab, snap).stale){ notify('快照已过期，请先刷新快照', 'err'); render(); return; }
+
+  const jobId = 'PJ-' + (110 + DB.publishJobs.length);
+  const forceParam = snap.rebindFromLabId ? `?action=commit&force=1&expected_lab_id=${snap.rebindFromLabId}` : '?action=commit';
+
   if(S.pubCase === 'transcoding'){
-    S.pubStepText = '任务已进入等待队列：待 1 个视频转码完成后自动推送至平板…';
-    S.pubProgress = 25; render();
-    notify('已创建排队发布任务，您可以随时离开此页面');
-    return;
+    S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:false, status:'idle', progress:25, text:'已锁定快照进入排队：待转码完成后自动推送（若期间换绑将自动阻断）'};
+    DB.publishJobs.unshift({id:jobId, time:'2026-11-18 17:06', labId, lab:lab.name, panelId:panel.id, panel:panel.name, ver:'v'+snap.version, snapId:snap.snapId, files:'等待转码', dur:'—', status:'排队', user:S.role, logs:[`[17:06:00] 锁定快照 ${snap.snapId} (binding_rev=${snap.bindingRev}) 排队等待转码`]});
+    notify('已锁定快照并加入等待队列'); render(); return;
   }
-  S.pubRunning = true; S.pubFailedOnce = false;
-  S.pubStepText = '步骤 1/3：上传新增素材 2/3（已传 24.1 / 38.4 MB）…'; S.pubProgress = 55; render();
+
+  DB.publishJobs.unshift({id:jobId, time:'2026-11-18 17:06', labId, lab:lab.name, panelId:panel.id, panel:panel.name, ver:'v'+snap.version, snapId:snap.snapId, files:'3 个 / 38.4 MB', dur:'进行中', status:'传输中', user:S.role, logs:[`[17:06:01] 冻结快照 ${snap.snapId}，目标平板 ${panel.name}`]});
+  S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:true, status:'running', progress:52, text:'步骤 1/3：上传新增素材 2/3（24.1 / 38.4 MB）…'};
+  render();
+
   setTimeout(() => {
+    const job = DB.publishJobs.find(x => x.id === jobId);
     if(S.pubCase === 'netdrop'){
-      S.pubRunning = false; S.pubFailedOnce = true;
-      S.pubStepText = '发布中断：上传第 3/3 个文件时平板网络连接超时 (i/o timeout)';
-      notify('发布失败：平板网络中断，平板仍安全保持旧清单 v' + panel.committedVer, 'err');
+      S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:false, status:'failed', progress:65, text:'上传第 3/3 个文件时网络超时（尚未发 commit，平板保持旧清单）'};
+      if(job){ job.status = '失败'; job.dur = '9.2 s'; job.err = '上传第 3/3 文件超时'; job.logs.push('[17:06:09] upload 3/3 timeout -> 平板未提交，保留旧清单'); }
+      notify(`发布失败（任务 ${jobId}）：上传阶段网络中断`, 'err');
       render(); return;
     }
-    S.pubStepText = '步骤 2/3：原子提交 commit v' + lab.manifest_version + ' 并清理无用素材…'; S.pubProgress = 88; render();
-    setTimeout(() => {
-      S.pubRunning = false; S.pubProgress = 100;
-      panel.committedVer = lab.manifest_version;
-      S.pubStepText = `✅ 发布完成！平板已核验生效清单 v${lab.manifest_version}`;
-      notify(`已成功发布至「${panel.name}」`);
-      render();
-    }, 550);
-  }, 650);
-};
-window.__retryPublish = labId => {
-  const lab = DB.labs.find(x => x.id === labId);
-  const panel = panelOfLab(labId);
-  S.pubFailedOnce = false; S.pubRunning = true;
-  S.pubStepText = '断点续传：GET files 校验通过，已自动跳过前 2 个文件，续传第 3/3 个文件…'; S.pubProgress = 82; render();
-  setTimeout(() => {
-    S.pubRunning = false; S.pubProgress = 100;
-    panel.committedVer = lab.manifest_version;
-    S.pubStepText = `✅ 重试成功！已跳过重复文件并完成 commit v${lab.manifest_version}`;
-    notify('断点续传发布成功');
+
+    S.pubStateByLab[labId].progress = 85;
+    S.pubStateByLab[labId].text = `步骤 2/3：发送 POST ${forceParam} → 等待 UI 切换后清理旧素材…`;
     render();
-  }, 650);
+
+    setTimeout(() => {
+      if(S.pubCase === 'commit_lost'){
+        /* Panel actually persisted manifest, but HTTP response was lost! */
+        panel.committedLabId = snap.labId;
+        panel.committedVer = snap.version;
+        panel.committedSha = snap.sha;
+        panel.committedSnapshot = JSON.parse(JSON.stringify(snap.labCopy));
+        S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:false, status:'unverified', progress:92, text:'commit 回包丢失：平板可能已落盘新清单，状态标为「待核验」，请回读 info 确认'};
+        if(job){ job.status = '待核验'; job.dur = '15.0 s'; job.err = 'commit 回包超时，待 GET info 回读确认'; job.logs.push(`[17:06:15] POST ${forceParam} 回包超时 → 进入待核验态`); }
+        notify(`任务 ${jobId} 进入「待核验」状态：请点击回读核验确认屏幕实际版本`, 'err');
+        render(); return;
+      }
+
+      finalizePanelCommit(panel, snap, jobId, `[17:06:08] POST ${forceParam} → 200 ok (UI 切换完成后清理旧素材) → GET info 三元组核验通过`);
+      if(job) job.dur = '7.1 s';
+      S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:false, status:'done', progress:100, text:`✅ 发布完成！GET info 已确认 (${snap.labId}, v${snap.version}, ${snap.sha.slice(0,8)})`};
+      notify(`已成功发布快照 ${snap.snapId} 至「${panel.name}」`);
+      render();
+    }, 520);
+  }, 600);
 };
 
-/* Equipment Editor & Excel Import */
-window.__setEqFilter = (k, v) => { S.eqFilter[k] = v; render(); };
-window.__setPanelOnline = v => { S.panelFilter.online = v; syncHash(); render(); };
-window.__cleanOrphanMedia = () => { DB.mediaLib = DB.mediaLib.filter(m => !m.refs.includes('未关联')); notify('已清理 1 个未被引用的孤儿媒体文件'); render(); };
-window.__runBackupNow = () => { DB.backups.unshift({id:'B'+Date.now(),name:'labComputer-backup-manual.zip',time:'2026-11-17 21:08',size:'185.1 MB',kind:'手动备份 (admin)'}); notify('后台备份任务已完成'); render(); };
-window.__restoreBackup = id => {
-  const b = DB.backups.find(x => x.id === id);
-  confirmBox('确认从备份恢复', `从「${esc(b.name)}」恢复将覆盖当前数据库并自动重启 Windows 服务。是否继续？`, '确认恢复并重启', () => notify('服务正在恢复并重启…'));
-};
-window.__updEqField = (k, v) => { DB.equipment.find(x=>x.id===S.editEqId)[k] = v; S.isDirty = true; if(k==='name') render(); };
-window.__saveEquip = () => {
-  const ol = labOfEquip(S.editEqId);
-  S.isDirty = false;
-  if(ol) ol.manifest_version++;
-  notify('设备档案已保存' + (ol ? '，所属实验室清单版本已 +1' : ''));
+window.__retryPublish = (labId, jobId) => {
+  if(!canEdit()) return;
+  const lab = DB.labs.find(x => x.id === labId);
+  const panel = panelOfLab(labId);
+  const snap = S.pubSnapshots[labId] || ensurePublishSnapshot(lab, false);
+  S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:true, status:'running', progress:84, text:`按任务 ${jobId} 重试：GET files 跳过已传 2 个文件，续传第 3/3 个并提交…`};
   render();
+  setTimeout(() => {
+    finalizePanelCommit(panel, snap, jobId, `[17:07:02] 按任务 ${jobId} 断点续传重试成功，commit 与 info 核验通过`);
+    S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:false, status:'done', progress:100, text:`✅ 重试成功！已跳过已传文件并核验生效 v${snap.version}`};
+    notify(`任务 ${jobId} 断点续传发布成功`);
+    render();
+  }, 580);
 };
-window.__updSpec = (i, col, v) => { DB.equipment.find(x=>x.id===S.editEqId).specs[i][col] = v; S.isDirty = true; };
-window.__delSpec = i => { DB.equipment.find(x=>x.id===S.editEqId).specs.splice(i,1); S.isDirty = true; render(); };
-window.__addSpec = () => { DB.equipment.find(x=>x.id===S.editEqId).specs.push(['','']); S.isDirty = true; render(); };
+
+window.__verifyUnverifiedPublish = (labId, jobId) => {
+  if(!canEdit()) return;
+  const panel = panelOfLab(labId);
+  const snap = S.pubSnapshots[labId];
+  const job = DB.publishJobs.find(x => x.id === jobId);
+  if(panel && snap && panel.committedLabId === snap.labId && panel.committedVer === snap.version && panel.committedSha === snap.sha){
+    if(job){ job.status = '成功'; job.err = ''; job.logs.push(`[17:07:20] GET info 回读命中 (${snap.labId}, v${snap.version}, ${snap.sha}) → 直接收敛为成功，无需重传`); }
+    S.pubStateByLab[labId] = {jobId, snapId:snap.snapId, targetPanelId:panel.id, running:false, status:'done', progress:100, text:`✅ 回读 info 确认平板已生效 ${snap.snapId}（幂等收敛成功）`};
+    notify('回读 info 核验通过：平板已生效目标清单，任务已收敛为成功');
+    render();
+  }
+};
+
+/* Equipment Isolated Draft Actions */
+window.__setEqFilter = (k, v) => { S.eqFilter[k] = v; render(); };
+window.__updEqField = (k, v, maxLen, checkGlyph=false) => {
+  S.eqDraft[k] = v;
+  markDirtyUI();
+  const cnt = document.getElementById('cnt-eq-' + k);
+  if(cnt) cnt.textContent = `${v.length}/${maxLen}`;
+  if(checkGlyph){
+    const g = document.getElementById('glyph-eq-' + k);
+    if(g) g.innerHTML = glyphHintInner(v);
+  }
+};
+window.__updSpec = (i, col, v) => { S.eqDraft.specs[i][col] = v; markDirtyUI(); };
+window.__delSpec = i => { S.eqDraft.specs.splice(i,1); S.isDirty = true; render(); };
+window.__addSpec = () => { S.eqDraft.specs.push(['','']); S.isDirty = true; render(); };
+window.__saveEquip = () => {
+  if(!S.eqDraft.asset_no.trim() || !S.eqDraft.name.trim()){ notify('资产编号与设备名称为必填项', 'err'); return; }
+  if(S.eqIsNew){
+    if(DB.equipment.some(e => e.asset_no === S.eqDraft.asset_no.trim())){ notify('资产编号已存在，不能重复创建', 'err'); return; }
+    const newId = 'E' + String(DB.equipment.length + 1).padStart(2, '0');
+    S.eqDraft.id = newId;
+    S.eqDraft.updated = '2026-11-18 17:08';
+    S.eqDraft.specs = S.eqDraft.specs.filter(([k,v]) => k.trim() || v.trim());
+    DB.equipment.unshift(JSON.parse(JSON.stringify(S.eqDraft)));
+    S.isDirty = false;
+    S.eqIsNew = false;
+    notify(`已创建新试验设备「${S.eqDraft.name}」`);
+    navigate('equipment');
+  } else {
+    const idx = DB.equipment.findIndex(x => x.id === S.eqDraft.id);
+    if(idx >= 0){
+      S.eqDraft.updated = '2026-11-18 17:08';
+      DB.equipment[idx] = JSON.parse(JSON.stringify(S.eqDraft));
+      const ol = labOfEquip(S.eqDraft.id);
+      if(ol) ol.manifest_version++;
+      S.isDirty = false;
+      notify('设备档案已保存' + (ol ? `，所属实验室「${ol.name}」清单版本已升至 v${ol.manifest_version}` : ''));
+      render();
+    }
+  }
+};
 window.__deleteEquip = id => {
   const e = DB.equipment.find(x => x.id === id);
   const ol = labOfEquip(id);
@@ -1477,125 +1798,178 @@ window.__deleteEquip = id => {
 window.__openExcelImport = () => {
   openModal('Excel 批量导入试验设备（dry_run=1 逐行预检）', `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <span style="font-size:13px">已解析 <code>2026秋季新增设备台账.xlsx</code>（共 3 行，通过 2 行，错误 1 行）：</span>
-      <button class="btn sm" onclick="window.__notify('已下载标准导入模板 equipment_template.xlsx')">下载 Excel 模板</button>
+      <span style="font-size:13px">已解析 <code>2026秋季新增设备台账.xlsx</code>（通过 2 行，冲突 1 行）：</span>
+      <button type="button" class="btn sm" onclick="window.__notify('已下载 equipment_template.xlsx')">下载 Excel 模板</button>
     </div>
     <div class="tbl-box"><table>
-      <thead><tr><th style="width:52px">行号</th><th style="width:130px">资产编号</th><th>设备名称</th><th style="width:110px">型号</th><th style="width:210px">预检结果</th></tr></thead>
+      <thead><tr><th style="width:10%">行号</th><th style="width:22%">资产编号</th><th style="width:26%">设备名称</th><th style="width:16%">型号</th><th style="width:26%">预检结果</th></tr></thead>
       <tbody>
         <tr><td class="mono">#2</td><td class="mono">ZC-2026-0301</td><td>落锤冲击试验机</td><td class="mono">DIT-302</td><td><span class="pill idle"><i></i>校验通过</span></td></tr>
         <tr><td class="mono">#3</td><td class="mono">ZC-2024-0108</td><td>万能试验机（重复）</td><td class="mono">WAW-600</td><td><span class="pill maint"><i></i>资产编号已存在</span></td></tr>
         <tr><td class="mono">#4</td><td class="mono">ZC-2026-0305</td><td>旋转弯曲疲劳机</td><td class="mono">PQ-6</td><td><span class="pill idle"><i></i>校验通过</span></td></tr>
       </tbody>
     </table></div>`,
-    `<button class="btn" onclick="window.__closeModal()">取消</button>
-     <button class="btn pri" onclick="window.__closeModal();window.__notify('成功导入 2 台通过校验的试验设备')">确认导入通过的 2 行</button>`);
+    `<button type="button" class="btn" onclick="window.__closeModal()">取消</button>
+     <button type="button" class="btn pri" onclick="window.__closeModal();window.__notify('成功导入 2 台通过校验的试验设备')">确认导入通过的 2 行</button>`);
 };
 
-/* Panel Scan, 4-Step Bind Wizard, Set Layout Modal, Screenshot, OTA */
+/* Panel More Menu, Scan, Full-Cycle 4-Step Bind Wizard, Set Layout Modal (using committedSnapshot) */
+window.__setPanelOnline = v => { S.panelFilter.online = v; syncHash(); render(); };
+window.__toggleMorePanel = (id, ev) => {
+  ev.stopPropagation();
+  S.openMorePanelId = (S.openMorePanelId === id) ? null : id;
+  render();
+};
+document.addEventListener('click', () => { if(S.openMorePanelId){ S.openMorePanelId = null; render(); } });
+
 window.__openScanModal = () => {
   openModal('扫描局域网网段查找平板 (/api/v1/panels/scan)', `
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <input class="inp mono" value="192.168.10.0/24" style="flex:1">
-      <button class="btn" onclick="window.__notify('已停止网段扫描')">停止扫描</button>
+      <button type="button" class="btn" onclick="window.__notify('已停止网段扫描')">停止扫描</button>
     </div>
-    <div style="margin-bottom:10px;font-size:12.5px;color:var(--muted)">扫描进度：254 / 254 地址已完成 · 发现 2 台尚未登记的新平板：</div>
+    <div style="margin-bottom:10px;font-size:12.5px;color:var(--muted)">扫描完成 · 发现 2 台尚未登记的新平板：</div>
     <div class="tbl-box"><table>
-      <thead><tr><th style="width:38px"><input type="checkbox" checked></th><th>IP 地址</th><th>SN 序列号</th><th>固件版本</th><th>状态</th></tr></thead>
+      <thead><tr><th style="width:7%"><input type="checkbox" checked></th><th style="width:22%">IP 地址</th><th style="width:28%">SN 序列号</th><th style="width:21%">固件版本</th><th style="width:22%">密码状态</th></tr></thead>
       <tbody>
         <tr><td><input type="checkbox" checked></td><td class="mono">192.168.10.212</td><td class="mono">HL-LP9868-26110212</td><td class="mono">1.0.0+ae79616f</td><td><span class="pill busy"><i></i>出厂默认密码</span></td></tr>
-        <tr><td><input type="checkbox" checked></td><td class="mono">192.168.10.215</td><td class="mono">HL-LP9868-26110215</td><td class="mono">1.0.0+ae79616f</td><td><span class="pill busy"><i></i>出厂默认密码</span></td></tr>
+        <tr><td><input type="checkbox" checked></td><td class="mono">192.168.10.215</td><td class="mono">HL-LP9868-26110215</td><td class="mono">1.0.0+ae79616f</td><td><span class="pill neutral"><i></i>已有自定义密码</span></td></tr>
       </tbody>
     </table></div>`,
-    `<button class="btn" onclick="window.__closeModal()">关闭</button>
-     <button class="btn pri" onclick="window.__closeModal();window.__openBindWizard('192.168.10.212')">勾选添加并进入绑定向导 →</button>`);
+    `<button type="button" class="btn" onclick="window.__closeModal()">关闭</button>
+     <button type="button" class="btn pri" onclick="window.__closeModal();window.__openBindWizard('192.168.10.212',true)">勾选添加并进入绑定向导 →</button>`);
 };
 
-let wiz = {step:1, ip:'192.168.10.212', pwdMode:'auto', labId:'L4', layout:'landscape_std'};
+let wiz = {step:1, ip:'192.168.10.212', sn:'HL-LP9868-26110212', name:'门牌-5号楼106', isDefaultPwd:true, pwdMode:'auto', manualPwd:'', existingPwd:'', labId:'', layout:'landscape_std'};
 window.__wizSet = (k, v) => { wiz[k] = v; renderBindWizardModal(); };
+window.__wizInput = (k, v) => { wiz[k] = v; };
 window.__wizStep = d => { wiz.step += d; renderBindWizardModal(); };
-window.__openBindWizard = (ip='192.168.10.212') => {
-  wiz = {step:1, ip, pwdMode:'auto', labId:'', layout:'landscape_std'};
+window.__openBindWizard = (ip='192.168.10.212', isDefaultPwd=true) => {
+  const num = 212 + DB.panels.length;
+  wiz = {step:1, ip:`192.168.10.${num}`, sn:`HL-LP9868-26110${num}`, name:`门牌-新登记${num}`, isDefaultPwd, pwdMode:'auto', manualPwd:'', existingPwd:'', labId:'', layout:'landscape_std'};
   renderBindWizardModal();
 };
+window.__completeBindWizard = () => {
+  const lab = DB.labs.find(l => l.id === wiz.labId);
+  if(!lab || panelOfLab(lab.id)){ notify('请选择未绑定平板的实验室', 'err'); return; }
+  const newPanelId = 'P' + (DB.panels.length + 1);
+  const newPanel = {
+    id:newPanelId, sn:wiz.sn, name:wiz.name || ('门牌-' + lab.code), mac:'00:E0:4C:98:68:99', ip:wiz.ip,
+    labId:lab.id, bindingRev:1, layout:wiz.layout, fw:'1.0.0+ae79616f', freeMB:920, totalMB:1024,
+    online:true, lastSeen:'2026-11-18 17:09',
+    committedLabId:lab.id, committedVer:lab.manifest_version, committedSha:computeSha(lab),
+    committedSnapshot:makeSnapCopy(lab), lastErr:''
+  };
+  DB.panels.unshift(newPanel);
+  const jobId = 'PJ-' + (110 + DB.publishJobs.length);
+  DB.publishJobs.unshift({
+    id:jobId, time:'2026-11-18 17:09', labId:lab.id, lab:lab.name, panelId:newPanelId, panel:newPanel.name,
+    ver:'v'+lab.manifest_version, snapId:`SNAP-${lab.id}-v${lab.manifest_version}`, files:'2 个 / 18.5 MB', dur:'4.8 s', status:'成功', user:S.role,
+    logs:[`[17:09:01] 绑定向导完成密码鉴权/改密与 set_layout(${wiz.layout})`,`[17:09:05] 首次发布 ${lab.code} v${lab.manifest_version} 成功，GET info 核验一致`]
+  });
+  window.__closeModal();
+  notify(`平板「${newPanel.name}」已登记、绑定「${lab.name}」并完成首次发布（任务 ${jobId}）！`);
+  render();
+};
+
 function renderBindWizardModal(){
-  const steps = ['1. 确认平板信息','2. 修改默认密码','3. 绑定实验室','4. 选择布局并首次发布'];
+  const steps = ['1. 确认平板信息','2. 鉴权 / 修改密码','3. 绑定实验室','4. 选择布局并首次发布'];
   const headBar = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px">
     ${steps.map((s,i)=>`<div style="padding:7px 10px;border-radius:6px;font-size:12px;font-weight:600;background:${wiz.step===i+1?'var(--pri-soft)':'var(--sunken)'};color:${wiz.step===i+1?'var(--pri)':'var(--muted)'}">${s}</div>`).join('')}
   </div>`;
 
   let body = '';
+  let nextBlocked = false;
   if(wiz.step === 1){
     body = `<div class="form-grid">
-      <div class="f-item"><label class="f-lbl">平板 IP 地址（点击读取 info）</label><input class="inp mono" value="${esc(wiz.ip)}"></div>
-      <div class="f-item"><label class="f-lbl">序列号 SN</label><input class="inp mono" value="HL-LP9868-26110212" readonly></div>
-      <div class="f-item"><label class="f-lbl">MAC 地址</label><input class="inp mono" value="00:E0:4C:98:68:89" readonly></div>
-      <div class="f-item"><label class="f-lbl">固件与屏幕规格</label><input class="inp mono" value="1.0.0+ae79616f · 1280×800 触摸屏" readonly></div>
+      <div class="f-item"><label class="f-lbl">平板 IP 地址（已探测 info）</label><input class="inp mono" value="${esc(wiz.ip)}" oninput="window.__wizInput('ip',this.value)"></div>
+      <div class="f-item"><label class="f-lbl">平板备注名</label><input class="inp" value="${esc(wiz.name)}" oninput="window.__wizInput('name',this.value)"></div>
+      <div class="f-item"><label class="f-lbl">序列号 SN</label><input class="inp mono" value="${esc(wiz.sn)}" readonly></div>
+      <div class="f-item"><label class="f-lbl">演示设备密码状态 (info.default_password)</label>
+        <select class="sel" onchange="window.__wizSet('isDefaultPwd',this.value==='true')">
+          <option value="true" ${wiz.isDefaultPwd?'selected':''}>出厂默认密码 (true → 必须改密)</option>
+          <option value="false" ${!wiz.isDefaultPwd?'selected':''}>已改密平板 (false → 需输入现有设备密码)</option>
+        </select>
+      </div>
     </div>`;
   } else if(wiz.step === 2){
-    body = `<div class="f-glyph" style="margin-bottom:12px">🔒 安全强制要求：检测到该平板仍使用出厂默认密码（<code>default_password: true</code>），绑定前必须修改设备独立密码。</div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <label style="cursor:pointer"><input type="radio" name="pm" ${wiz.pwdMode==='auto'?'checked':''} onchange="window.__wizSet('pwdMode','auto')"> <strong>由后台随机生成 16 位强密码并 AES-GCM 加密托管（推荐）</strong></label>
-        <label style="cursor:pointer"><input type="radio" name="pm" ${wiz.pwdMode==='manual'?'checked':''} onchange="window.__wizSet('pwdMode','manual')"> 手动输入设备密码</label>
-        ${wiz.pwdMode==='manual' ? `<input class="inp" type="password" placeholder="输入 8-32 位新设备密码（保存后界面不再显示明文）">` : ''}
-      </div>`;
+    if(wiz.isDefaultPwd){
+      if(wiz.pwdMode === 'manual' && wiz.manualPwd.trim().length < 8) nextBlocked = true;
+      body = `<div class="f-glyph" style="margin-bottom:12px">🔒 检测到出厂默认密码，绑定前必须改密；改密前后台先持久化加密 <code>pending_password</code>，若回包超时重试可自动用新旧密码探测恢复。</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="cursor:pointer"><input type="radio" name="pm" ${wiz.pwdMode==='auto'?'checked':''} onchange="window.__wizSet('pwdMode','auto')"> <strong>后台随机生成 16 位强密码并 AES-GCM 加密托管（推荐）</strong></label>
+          <label style="cursor:pointer"><input type="radio" name="pm" ${wiz.pwdMode==='manual'?'checked':''} onchange="window.__wizSet('pwdMode','manual')"> 手动输入新设备密码（至少 8 位）</label>
+          ${wiz.pwdMode==='manual' ? `<input class="inp" type="password" placeholder="至少 8 位新设备密码" value="${esc(wiz.manualPwd)}" oninput="window.__wizSet('manualPwd',this.value)">` : ''}
+        </div>`;
+    } else {
+      if(!wiz.existingPwd.trim()) nextBlocked = true;
+      body = `<div class="f-glyph" style="margin-bottom:12px">🔑 该平板已修改过出厂密码（<code>default_password: false</code>），请输入现有设备密码通过 <code>X-Device-Auth</code> 鉴权后方可登记。</div>
+        <div class="f-item">
+          <label class="f-lbl f-req">现有设备密码（必填，未填写禁止进入下一步）</label>
+          <input class="inp" type="password" placeholder="输入该平板当前设备密码（演示任意非空字符）" value="${esc(wiz.existingPwd)}" oninput="window.__wizSet('existingPwd',this.value)">
+        </div>`;
+    }
   } else if(wiz.step === 3){
     const chosenPanel = wiz.labId ? panelOfLab(wiz.labId) : null;
+    if(!wiz.labId || chosenPanel) nextBlocked = true;
     body = `<div class="f-item">
-      <label class="f-lbl f-req">选择要绑定的实验室（一间实验室同一时间只绑定一台平板）</label>
+      <label class="f-lbl f-req">选择要绑定的实验室（一间实验室仅绑定一台平板；已绑定实验室严禁继续）</label>
       <select class="sel" onchange="window.__wizSet('labId',this.value)">
-        <option value="">-- 请选择实验室 --</option>
+        <option value="">-- 请选择未绑定的实验室 --</option>
         ${DB.labs.map(l => {
           const p = panelOfLab(l.id);
-          return `<option value="${l.id}" ${wiz.labId===l.id?'selected':''}>${esc(l.code)} · ${esc(l.name)} ${p?`（已绑定 ${p.name}）`:'（未绑定 · 可直接选）'}</option>`;
+          return `<option value="${l.id}" ${wiz.labId===l.id?'selected':''}>${esc(l.code)} · ${esc(l.name)} ${p?`【已绑定 ${p.name} - 不可选】`:'（未绑定 · 可选）'}</option>`;
         }).join('')}
       </select>
-      ${chosenPanel ? `<div class="f-glyph" style="margin-top:8px">⚠️ 该实验室已绑定平板「${esc(chosenPanel.name)}」，请先在平板列表中解绑原平板后再绑定，或新建其他实验室。</div>` : ''}
+      ${chosenPanel ? `<div style="margin-top:8px;padding:8px 10px;border-radius:6px;background:var(--bg-maint);color:var(--txt-maint);font-size:12.5px">⛔ 冲突阻断：该实验室已绑定「${esc(chosenPanel.name)}」，请先解绑原平板，或改选「L5-106 · 新能源电池安全实验室」等未绑定实验室。</div>` : ''}
     </div>`;
   } else {
-    body = `<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">以下布局列表由平板 <code>layouts</code> 接口实时返回，区块示意图按 <code>regions</code> 逻辑坐标等比例绘制：</div>
+    body = `<div style="font-size:12.5px;color:var(--muted);margin-bottom:10px">以下布局来自平板 <code>layouts</code> 接口，示意图按 <code>regions</code> 坐标等比例绘制：</div>
       <div class="layout-cards">
-        ${LAYOUT_DEFS.map(d => `<div class="l-card ${wiz.layout===d.id?'sel':''}" onclick="window.__wizSet('layout','${d.id}')">
-          ${renderLayoutSchematicSVG(d, 260, 120)}
+        ${LAYOUT_DEFS.slice(0,3).map(d => `<button type="button" class="l-card ${wiz.layout===d.id?'sel':''}" onclick="window.__wizSet('layout','${d.id}')">
+          ${renderLayoutSchematicSVG(d, 260, 118)}
           <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between">
             <strong>${esc(d.name)}</strong>
-            <span class="pill neutral">${d.orientation==='portrait'?'竖屏 800×1280':'横屏 1280×800'}</span>
+            <span class="pill neutral">${d.orientation==='portrait'?'竖屏':'横屏'}</span>
           </div>
           <div style="font-size:12px;color:var(--muted);margin-top:4px">${esc(d.desc)}</div>
-        </div>`).join('')}
+        </button>`).join('')}
       </div>`;
   }
 
-  openModal('平板绑定向导（4 步完成改密、选布局与首次发布）', headBar + body, `
-    ${wiz.step > 1 ? `<button class="btn" onclick="window.__wizStep(-1)">上一步</button>` : `<button class="btn" onclick="window.__closeModal()">取消</button>`}
-    ${wiz.step < 4 ? `<button class="btn pri" onclick="window.__wizStep(1)">下一步</button>`
-      : `<button class="btn pri" onclick="window.__closeModal();window.__notify('已完成设备改密、布局设置，并自动启动首次清单发布任务！')">完成并首次发布</button>`}`, true);
+  openModal('平板绑定向导（4 步完成鉴权/改密、冲突校验与首次发布）', headBar + body, `
+    ${wiz.step > 1 ? `<button type="button" class="btn" onclick="window.__wizStep(-1)">上一步</button>` : `<button type="button" class="btn" onclick="window.__closeModal()">取消</button>`}
+    ${wiz.step < 4 ? `<button type="button" class="btn pri" ${nextBlocked?'disabled':''} onclick="window.__wizStep(1)">下一步</button>`
+      : `<button type="button" class="btn pri" onclick="window.__completeBindWizard()">完成并首次发布</button>`}`, true);
 }
 
+/* Set Layout Modal: Uses panel's COMMITTED snapshot (or Unbound if !panel.labId), supports firmware-new layout fallback */
 window.__openSetLayoutModal = panelId => {
   const p = DB.panels.find(x => x.id === panelId);
-  const lab = DB.labs.find(l => l.id === p.labId) || DB.labs[0];
   let picked = p.layout;
+  const committedSnap = p.labId ? p.committedSnapshot : null;
+  const srcLabel = !p.labId ? '未绑定平板（显示未绑定页）'
+    : `平板当前实际生效清单 (${p.committedLabId} v${p.committedVer}，非后台未发布草稿)`;
+
   const draw = () => {
     openModal(`设置平板布局 · ${esc(p.name)} (${p.ip})`, `
       <div style="display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px;align-items:start">
-        <div style="display:flex;flex-direction:column;gap:10px">
-          ${LAYOUT_DEFS.map(d => `<div class="l-card ${picked===d.id?'sel':''}" onclick="window.__pickModalLayout('${d.id}')" style="display:flex;gap:10px;align-items:center">
-            ${renderLayoutSchematicSVG(d, 118, 82)}
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${LAYOUT_DEFS.map(d => `<button type="button" class="l-card ${picked===d.id?'sel':''}" onclick="window.__pickModalLayout('${d.id}')" style="display:flex;gap:10px;align-items:center">
+            ${renderLayoutSchematicSVG(d, 108, 76)}
             <div style="min-width:0">
-              <div style="font-weight:600">${esc(d.name)} ${p.layout===d.id?'<span style="color:var(--pri);font-size:11.5px">(当前)</span>':''}</div>
+              <div style="font-weight:600;font-size:13px">${esc(d.name)} ${p.layout===d.id?'<span style="color:var(--pri);font-size:11px">(当前)</span>':''}</div>
               <div style="font-size:11.5px;color:var(--muted);margin:2px 0">${d.orientation==='portrait'?'竖屏 800×1280':'横屏 1280×800'}</div>
               <div style="font-size:11.5px;color:var(--fg2)">${esc(d.desc)}</div>
             </div>
-          </div>`).join('')}
+          </button>`).join('')}
         </div>
         <div style="border:1px solid var(--line);border-radius:8px;padding:12px;background:var(--sunken)">
-          <div style="font-size:12.5px;font-weight:600;margin-bottom:8px">WASM 实时效果预览（当前生效清单 + 所选布局）</div>
-          ${renderEmbeddedPanelPreview(lab, picked)}
+          ${renderEmbeddedPanelPreview(committedSnap, picked, srcLabel, false)}
         </div>
       </div>`,
-      `<button class="btn" onclick="window.__closeModal()">取消</button>
-       <button class="btn pri" onclick="window.__applyPanelLayout('${p.id}','${picked}')">应用布局 (set_layout)</button>`, true);
+      `<button type="button" class="btn" onclick="window.__closeModal()">取消</button>
+       <button type="button" class="btn pri" onclick="window.__applyPanelLayout('${p.id}','${picked}')">应用布局 (set_layout)</button>`, true);
   };
   window.__pickModalLayout = id => { picked = id; draw(); };
   draw();
@@ -1610,15 +1984,15 @@ window.__applyPanelLayout = (panelId, layId) => {
 };
 
 window.__openScreenshotModal = panelId => {
+  if(!isAdmin()) return;
   const p = DB.panels.find(x => x.id === panelId);
-  const lab = DB.labs.find(l => l.id === p.labId) || DB.labs[0];
-  openModal(`平板实时屏幕截图 · ${esc(p.name)} (${p.ip})`, `
+  openModal(`平板实时屏幕截图（仅管理员）· ${esc(p.name)}`, `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12.5px;color:var(--muted)">
-      <span>GET /lab/lab.cgi?action=screenshot&quality=80 · 截取时间：2026-11-17 21:09:12</span>
-      <button class="btn sm" onclick="window.__notify('已重新请求平板实时 JPEG 截图')">↻ 刷新截图</button>
+      <span>GET /lab/lab.cgi?action=screenshot&quality=80 · 截取时间：2026-11-18 17:09:12</span>
+      <button type="button" class="btn sm" onclick="window.__notify('已重新请求平板实时 JPEG 截图')">↻ 刷新截图</button>
     </div>
-    ${renderEmbeddedPanelPreview(lab, p.layout)}`,
-    `<button class="btn pri" onclick="window.__closeModal()">关闭</button>`, true);
+    ${renderEmbeddedPanelPreview(p.labId ? p.committedSnapshot : null, p.layout, '平板实时截屏画面模拟', false)}`,
+    `<button type="button" class="btn pri" onclick="window.__closeModal()">关闭</button>`, true);
 };
 
 window.__openOtaModal = panelId => {
@@ -1627,9 +2001,8 @@ window.__openOtaModal = panelId => {
     <div class="form-grid">
       <div class="f-item"><label class="f-lbl">当前固件版本</label><input class="inp mono" value="${esc(p.fw)}" readonly></div>
       <div class="f-item"><label class="f-lbl">选择固件升级包 (ITEPKG03.PKG)</label><input class="inp" type="file"></div>
-    </div>
-    <p style="font-size:12.5px;color:var(--muted);margin-top:12px">流程：先调用 <code>upload_pkg</code> 上传校验，再调用 <code>pkg_upgrade</code> 重启烧录，恢复后自动核对同 SN 与新版本号。</p>`,
-    `<button class="btn" onclick="window.__closeModal()">取消</button><button class="btn pri" onclick="window.__closeModal();window.__notify('OTA 升级包已加入推送任务')">开始升级</button>`);
+    </div>`,
+    `<button type="button" class="btn" onclick="window.__closeModal()">取消</button><button type="button" class="btn pri" onclick="window.__closeModal();window.__notify('OTA 升级包已加入推送任务')">开始升级</button>`);
 };
 
 window.__rebootPanel = id => {
@@ -1638,32 +2011,57 @@ window.__rebootPanel = id => {
 };
 window.__unbindPanel = id => {
   const p = DB.panels.find(x => x.id === id);
-  confirmBox('确认解绑平板', `解绑平板「${esc(p.name)}」后，它与实验室的关联将解除，后续后台修改不再推送到该平板。是否确认解绑？`, '确认解绑', () => { p.labId = ''; notify('已解绑平板'); render(); });
+  confirmBox('确认解绑平板', `解绑平板「${esc(p.name)}」后，平板当前已下发的画面会保留（<code>committedLabId=${p.committedLabId||'无'} v${p.committedVer||0}</code>），后续换绑新实验室时首次发布将走显式替换流程。是否确认解绑？`, '确认解绑', () => {
+    p.labId = ''; p.bindingRev++; notify('已解绑平板（旧画面保留在屏上，后续换绑将显式替换）'); render();
+  });
+};
+window.__deletePanel = id => {
+  const p = DB.panels.find(x => x.id === id);
+  confirmBox('确认删除平板记录', `将从后台移除平板「${esc(p.name)}（${p.sn}）」，是否确认？`, '确认删除', () => {
+    DB.panels = DB.panels.filter(x => x.id !== id); notify('已删除平板记录'); render();
+  });
+};
+
+window.__cleanOrphanMedia = () => { DB.mediaLib = DB.mediaLib.filter(m => !m.refs.includes('未关联')); notify('已清理未引用的孤儿媒体文件'); render(); };
+window.__runBackupNow = () => { DB.backups.unshift({id:'B'+Date.now(),name:'labComputer-backup-manual.zip',time:'2026-11-18 17:09',size:'185.1 MB',kind:'手动备份 (admin)'}); notify('后台备份任务已完成'); render(); };
+window.__restoreBackup = id => {
+  const b = DB.backups.find(x => x.id === id);
+  confirmBox('确认从备份恢复', `从「${esc(b.name)}」恢复将覆盖当前数据库并自动重启 Windows 服务。是否继续？`, '确认恢复并重启', () => notify('服务正在恢复并重启…'));
 };
 
 window.__openJobLog = id => {
   const j = DB.publishJobs.find(x => x.id === id);
   openModal(`发布任务分步日志 · ${j.id} (${esc(j.lab)})`, `
     <div style="background:#0F172A;color:#E2E8F0;border-radius:8px;padding:14px;font:12.5px/1.7 var(--f-mono)">
-      ${j.logs.map(l => `<div style="color:${l.includes('失败')?'#FCA5A5':'#CBD5E1'}">${esc(l)}</div>`).join('')}
-    </div>`, `<button class="btn pri" onclick="window.__closeModal()">关闭</button>`);
+      ${j.logs.map(l => `<div style="color:${l.includes('失败')||l.includes('超时')?'#FCA5A5':'#CBD5E1'}">${esc(l)}</div>`).join('')}
+    </div>`, `<button type="button" class="btn pri" onclick="window.__closeModal()">关闭</button>`);
 };
 window.__retryJob = id => {
+  if(!canEdit()) return;
   const j = DB.publishJobs.find(x => x.id === id);
-  j.status = '成功'; j.logs.push('[21:09:30] 手动重试：已跳过 1 个已上传文件，续传完成并 commit 成功');
-  notify('重试成功：已自动跳过已上传文件并完成提交'); render();
+  j.status = '成功'; j.err = ''; j.logs.push('[17:10:00] 按任务 ID 断点续传重试成功，已跳过已传文件并完成回读核验');
+  const p = DB.panels.find(x => x.id === j.panelId);
+  const l = DB.labs.find(x => x.id === j.labId);
+  if(p && l){ p.committedLabId = l.id; p.committedVer = l.manifest_version; p.committedSha = computeSha(l); p.committedSnapshot = makeSnapCopy(l); }
+  notify(`任务 ${id} 重试成功`); render();
+};
+window.__verifyJob = id => {
+  if(!canEdit()) return;
+  const j = DB.publishJobs.find(x => x.id === id);
+  j.status = '成功'; j.err = ''; j.logs.push('[17:10:15] GET info 回读三元组匹配目标快照 → 幂等收敛为成功');
+  notify(`任务 ${id} 回读核验确认成功`); render();
 };
 
 window.__openAuditDiff = id => {
   const a = DB.audits.find(x => x.id === id);
   openModal(`审计日志修改前后对比 · ${esc(a.target)}`, `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div><div style="font-weight:600;margin-bottom:6px;color:var(--bad)">修改前 (Before)</div><pre style="margin:0;padding:12px;border-radius:6px;background:#FEF2F2;font:12px/1.5 var(--f-mono);white-space:pre-wrap">${esc(a.before)}</pre></div>
-      <div><div style="font-weight:600;margin-bottom:6px;color:var(--ok)">修改后 (After)</div><pre style="margin:0;padding:12px;border-radius:6px;background:#F0FDF4;font:12px/1.5 var(--f-mono);white-space:pre-wrap">${esc(a.after)}</pre></div>
-    </div>`, `<button class="btn pri" onclick="window.__closeModal()">关闭</button>`);
+      <div><div style="font-weight:600;margin-bottom:6px;color:var(--txt-maint)">修改前 (Before)</div><pre style="margin:0;padding:12px;border-radius:6px;background:#FEF2F2;font:12px/1.5 var(--f-mono);white-space:pre-wrap">${esc(a.before)}</pre></div>
+      <div><div style="font-weight:600;margin-bottom:6px;color:var(--txt-idle)">修改后 (After)</div><pre style="margin:0;padding:12px;border-radius:6px;background:#F0FDF4;font:12px/1.5 var(--f-mono);white-space:pre-wrap">${esc(a.after)}</pre></div>
+    </div>`, `<button type="button" class="btn pri" onclick="window.__closeModal()">关闭</button>`);
 };
 
-/* Top Review Bar Event Listeners */
+/* Top Review Bar Listeners */
 document.getElementById('revRole').addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
   S.role = b.dataset.v;
@@ -1679,9 +2077,9 @@ document.getElementById('revMode').addEventListener('click', e => {
   render();
 });
 document.getElementById('revPubCase').addEventListener('change', e => {
-  S.pubCase = e.target.value; S.pubStepText = ''; S.pubFailedOnce = false;
-  S.mode = 'app'; S.route = 'lab-edit'; S.editLabTab = 'publish';
-  render();
+  S.pubCase = e.target.value;
+  S.mode = 'app';
+  navigate('lab-edit', {editLabId: S.editLabId || 'L1', editLabTab:'publish'});
 });
 
 render();

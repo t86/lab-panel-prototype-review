@@ -143,10 +143,11 @@ tr:last-child td{border-bottom:none}
         <h2>3. 清单数据集与边界工况</h2>
         <select id="selDataset" aria-label="测试清单">
           <option value="normal">标准工况：材料力学实验室（6 台设备 + 视频）</option>
-          <option value="stress62">压力工况：62 台设备（截断至 60 台 + 懒加载 ≤8 图）</option>
+          <option value="stress62">压力工况：62 台设备（截断至 60 台 + 视口懒加载 ≤8 图）</option>
           <option value="empty0">空设备工况：0 台设备（新建空实验室）</option>
           <option value="novideo">无视频工况：0 段视频（降级显示实验室封面图）</option>
-          <option value="edge">极端文本：超长名 / 40 行参数 / 缺字“㵘”→□ / 缺文件</option>
+          <option value="shortsafety">短须知工况：1 条短须知（静止不滚动验证）</option>
+          <option value="edge">极端文本：超长名 / 40 行参数 / 10×40 字满长须知 / 缺字“㵘”</option>
           <option value="unbound">出厂未绑定：lab_model_get() == NULL</option>
         </select>
       </div>
@@ -167,7 +168,7 @@ tr:last-child td{border-bottom:none}
           <button class="btn" id="btnCommitKeep">推送新清单（保留当前设备）</button>
           <button class="btn" id="btnCommitDrop">推送新清单（移除当前设备）</button>
           <button class="btn warn" id="btnVidErr">模拟视频解码错误 (+1)</button>
-          <button class="btn" id="btnVidNext">切下一条待机视频</button>
+          <button class="btn" id="btnVidNext">待机视频播完 / 切下一段</button>
           <button class="btn" id="btnVidEos">模拟详情视频播完 EOS</button>
           <button class="btn" id="btnIdleNear">快进空闲计时至 4s</button>
         </div>
@@ -262,9 +263,13 @@ const TOK_DESC = {
   st_idle:'空闲 / 可用', st_busy:'使用中', st_maint:'维护 / 停用', st_unknown:'其他状态'
 };
 
+/* Exact LVGL 8.3.7 LV_COLOR_MAKE16 (sdk/share/lvgl/src/misc/lv_color.h:150) bit-shift formula */
 function hexToRgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));}
-function q565(h){const [r,g,b]=hexToRgb(h);return {r:Math.round(r*31/255),g:Math.round(g*63/255),b:Math.round(b*31/255)};}
-function snap565(h){const v=q565(h),p=x=>x.toString(16).padStart(2,'0');return '#'+p(Math.round(v.r*255/31))+p(Math.round(v.g*255/63))+p(Math.round(v.b*255/31));}
+function q565(h){const [r,g,b]=hexToRgb(h);return {r:(r>>3)&0x1F,g:(g>>2)&0x3F,b:(b>>3)&0x1F};}
+function snap565(h){
+  const v=q565(h), p=x=>x.toString(16).padStart(2,'0');
+  return '#'+p((v.r<<3)|(v.r>>2))+p((v.g<<2)|(v.g>>4))+p((v.b<<3)|(v.b>>2));
+}
 function hex565(h){const v=q565(h);return '0x'+((v.r<<11)|(v.g<<5)|v.b).toString(16).toUpperCase().padStart(4,'0');}
 function rgba(h,a){const [r,g,b]=hexToRgb(snap565(h));return `rgba(${r},${g},${b},${a})`;}
 
@@ -375,8 +380,10 @@ function buildModel(kind, statusOverride, versionNum, dropEquipId){
     {file:'lab_cover.jpg', role:'cover', label:'材料力学实验室全景图'},
     {file:'lab_intro.mp4', role:'intro', label:'材料力学实验室安全导览与漫游视频', dur:'00:50'}
   ];
-  let labName = '材料力学与结构强度实验室';
-  let location = '3号实验楼 · 2层 201室';
+  let labName = '材料力学实验室';
+  let location = '3号楼 2层 201';
+  let owner = '张建国';
+  let openHours = '周一至周五 08:30–17:30';
   let safety = [
     '进入实验室必须穿戴实验服与防砸护目镜，长发须盘入帽内',
     '液压与高频加载运行期间严禁跨越黄色安全警戒线',
@@ -400,9 +407,15 @@ function buildModel(kind, statusOverride, versionNum, dropEquipId){
   } else if(kind === 'novideo'){
     labMedia = [{file:'lab_cover.jpg', role:'cover', label:'材料力学实验室全景图'}];
     eqs.forEach(e => { e.media = e.media.filter(m => m.role === 'cover' || m.role === 'gallery'); });
+  } else if(kind === 'shortsafety'){
+    safety = ['进入实验室须穿戴防护用品'];
   } else if(kind === 'edge'){
     labName = '先进航空航天高温合金与超材料极端环境多轴耦合微纳米力学性能综合测试中心实验室（超长名称截断验证五十字符）';
-    location = '新科研综合大楼北翼连廊负二层超净恒温实验室 B2-209A 房间';
+    location = '新科研综合大楼北翼连廊负二层 B2-209A';
+    safety = [];
+    for(let s=1;s<=10;s++){
+      safety.push(`第${String(s).padStart(2,'0')}条满长安全须知：严禁未经培训操作高压伺服与高速旋转设备并做好实验台账登记`);
+    }
     const manySpecs = [];
     for(let i=1;i<=40;i++){
       manySpecs.push([`通道参数项 #${String(i).padStart(2,'0')}`, i===2 ? '含字库缺失生僻字“㵘”测试 → 平板端自动显示方框不崩溃且最多两行超出部分自动省略号截断验证文本' : `${(i*12.5).toFixed(1)} kN · 闭环采样率 10 kHz`]);
@@ -423,9 +436,9 @@ function buildModel(kind, statusOverride, versionNum, dropEquipId){
     name: labName,
     status: statusOverride,
     location: location,
-    owner: '张建国 教授',
+    owner: owner,
     phone: '021-6598-2201',
-    open_hours: '周一至周五 08:30–17:30（节假日需提前报备）',
+    open_hours: openHours,
     intro: '本实验室面向机械工程、土木工程与材料科学与工程专业，承担本科材料力学基础实验（低碳钢与铸铁拉伸、压缩、扭转、冲击、纯弯曲正应力电测）及研究生构件疲劳断裂科研测试任务。实验室内配备 1000kN 电液伺服万能机、200kN 高频疲劳机、三维 DIC 全场应变测量系统等大型精密仪器。',
     safety: safety,
     media: labMedia,
@@ -485,7 +498,11 @@ const S = {
   showZones: false,
   showHits: false,
   visibleImgCount: 0,
+  staticImgCount: 0,
+  stageScale: 1,
   cardsScrollLeft: 0,
+  drawerScrollLeft: 0,
+  idleVidSec: 0,
 
   logs: [
     '[20:42:10] [INFO] boot ok, fw=1.0.0+ae79616f, FreeType wqyMicroHei (7705 glyphs)',
@@ -627,7 +644,7 @@ function renderIdle(model, lay){
   const pl = buildPlaylist(model);
   const videoBroken = S.videoErrStreak >= 3 || pl.length === 0;
   const curVid = (!videoBroken && pl.length) ? pl[S.playlistIdx % pl.length] : null;
-  let imgBudget = 0;
+  let staticImgs = 0;
 
   lay.regions.forEach(r => {
     addZone(r.x, r.y, r.w, r.h, `${r.id} (${r.x},${r.y}) ${r.w}×${r.h}`);
@@ -637,11 +654,9 @@ function renderIdle(model, lay){
       let vInner = '';
       if(curVid){
         vInner = render3dViewportSVG(r.w, r.h, curVid.label, `${curVid.file} (${curVid.dur})`, curVid.hue || '#16324F', S.drawerOpen);
-        /* C4: Equipment video subtitle bar <= 64px (56px high), solid rgba, no gradient, no shadow */
+        /* C4 (<=64px) & C10 (>=64px): exact 64px solid rgba subtitle bar, no gradient, no shadow */
         if(curVid.kind === 'equip'){
-          const barH = 56;
-          addHit(r.x, r.y + r.h - 64, r.w, 64);
-          vInner += `<div class="pressable-opa" onclick="window.__openEquipById('${curVid.equipId}')" style="position:absolute;left:0;bottom:0;width:${r.w}px;height:${barH}px;background:rgba(11,15,20,0.82);display:flex;align-items:center;justify-content:space-between;padding:0 24px">
+          vInner += `<div class="pressable-opa" onclick="window.__openEquipById('${curVid.equipId}')" style="position:absolute;left:0;bottom:0;width:${r.w}px;height:64px;background:rgba(11,15,20,0.82);display:flex;align-items:center;justify-content:space-between;padding:0 24px">
             <span class="ell1" style="font-size:22px;line-height:30px;color:#F2F5F8;max-width:${r.w-180}px">▶ ${renderPanelGlyphs(curVid.equipName)} · 3D 演示</span>
             <span style="font-size:22px;line-height:30px;color:${C('accent')};flex:none">查看详情 ›</span>
           </div>`;
@@ -649,7 +664,7 @@ function renderIdle(model, lay){
       } else {
         const labCover = (model.media || []).find(m => m.role === 'cover');
         if(labCover){
-          imgBudget += 1;
+          staticImgs += 1;
           vInner = renderPhotoSVG(r.w, r.h, labCover.label, '#1A344D', false, 'cover');
         } else {
           vInner = `<div style="position:absolute;inset:0;background:${C('surface')};display:flex;align-items:center;justify-content:center;padding:32px;text-align:center">
@@ -663,38 +678,40 @@ function renderIdle(model, lay){
     /* --- TITLE REGION --- */
     else if(r.id === 'title'){
       if(lay.id === 'landscape_std'){
-        addHit(r.x + 24, r.y + 362, 432, 64);
+        /* Prioritize lab.code & room number visibility without truncating normal sample */
+        const locParts = (model.location || '').split(/\s+/);
+        const roomTail = locParts.length > 1 ? locParts[locParts.length - 1] : '';
+        const locPrefix = locParts.length > 1 ? locParts.slice(0, -1).join(' ') : (model.location || '');
         html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-left:1px solid ${C('line')};padding:24px;display:flex;flex-direction:column;justify-content:space-between`, `
-          <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+          <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
             <div class="ell2" style="font-size:56px;line-height:68px;color:${C('text')}">${renderPanelGlyphs(model.name)}</div>
-            ${(model.code||model.location)?`<div class="ell1" style="font-size:30px;line-height:40px;color:${C('text_2')}">${renderPanelGlyphs([model.code,model.location].filter(Boolean).join(' · '))}</div>`:''}
+            ${(model.code||model.location)?`<div style="display:flex;align-items:center;gap:8px;font-size:30px;line-height:40px;color:${C('text_2')};min-width:0">
+              ${model.code?`<span style="flex:none;color:${C('text')}">${renderPanelGlyphs(model.code)}</span><span>·</span>`:''}
+              <span class="ell1" style="flex:1;min-width:0">${renderPanelGlyphs(locPrefix)}</span>
+              ${roomTail?`<span style="flex:none">${renderPanelGlyphs(roomTail)}</span>`:''}
+            </div>`:''}
             <div style="margin-top:4px">${statusPillHTML(model.status)}</div>
-            ${(model.owner||model.phone)?`<div class="ell1" style="margin-top:8px;font-size:26px;line-height:36px;color:${C('text')}">负责人：${renderPanelGlyphs(model.owner||'')}　${renderPanelGlyphs(model.phone||'')}</div>`:''}
-            ${model.open_hours?`<div class="ell1" style="font-size:26px;line-height:36px;color:${C('text_2')}">开放：${renderPanelGlyphs(model.open_hours)}</div>`:''}
+            ${(model.owner||model.phone)?`<div class="ell1" style="margin-top:6px;font-size:26px;line-height:36px;color:${C('text')}">${renderPanelGlyphs([model.owner,model.phone].filter(Boolean).join(' · '))}</div>`:''}
+            ${model.open_hours?`<div class="ell1" style="font-size:26px;line-height:36px;color:${C('text_2')}">${renderPanelGlyphs(model.open_hours)}</div>`:''}
           </div>
           <div class="pressable" onclick="window.__pushPage('intro')" style="height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;line-height:40px;color:${C('text')}">
             实验室介绍 ›
           </div>
         `);
       } else if(lay.id === 'landscape_video'){
-        /* 1280 x 80 compact bottom bar: Name + Status + Intro btn + Marquee + [设备 N ▴] */
-        addHit(r.x + 412, r.y + 8, 132, 64);
-        addHit(r.x + 1076, r.y + 8, 180, 64);
         const safetyStr = (model.safety || []).join('　·　');
         html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-top:1px solid ${C('line')};padding:0 24px;display:flex;align-items:center;gap:16px`, `
           <div class="ell1" style="max-width:240px;font-size:30px;line-height:40px;color:${C('text')};flex:none">${renderPanelGlyphs(model.name)}</div>
           ${statusPillHTML(model.status)}
           <div class="pressable" onclick="window.__pushPage('intro')" style="width:132px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:26px;color:${C('text')};flex:none">介绍 ›</div>
-          <div style="position:relative;flex:1;height:36px;overflow:hidden;min-width:160px">
-            ${safetyStr ? `<span class="mq-run" style="font-size:22px;line-height:36px;color:${C('text_2')};--mq-from:420px;--mq-to:-1400px;animation-duration:28s">${renderPanelGlyphs(safetyStr)}</span>` : ''}
+          <div class="mq-box" style="position:relative;flex:1;height:36px;overflow:hidden;min-width:160px">
+            ${safetyStr ? `<span class="mq-run" style="font-size:22px;line-height:36px;color:${C('text_2')}">${renderPanelGlyphs(safetyStr)}</span>` : ''}
           </div>
           <div class="pressable" onclick="window.__toggleDrawer(true)" style="width:180px;height:64px;border-radius:12px;background:${rgba(THEMES[S.theme].accent,0.18)};border:1px solid ${C('accent')};display:flex;align-items:center;justify-content:center;font-size:30px;line-height:40px;color:${C('text')};flex:none">
             设备 ${eqShown.length} ▴
           </div>
         `);
       } else if(lay.id === 'portrait_std'){
-        /* 800 x 200: 1-line Name, code·location, status left + [实验室介绍 ›] right */
-        addHit(r.x + 576, r.y + 124, 200, 64);
         html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-bottom:1px solid ${C('line')};padding:14px 24px;display:flex;flex-direction:column;justify-content:space-between`, `
           <div class="ell1" style="font-size:56px;line-height:68px;color:${C('text')}">${renderPanelGlyphs(model.name)}</div>
           <div class="ell1" style="font-size:30px;line-height:40px;color:${C('text_2')}">${renderPanelGlyphs([model.code,model.location].filter(Boolean).join(' · '))}</div>
@@ -708,34 +725,20 @@ function renderIdle(model, lay){
       }
     }
 
-    /* --- CARDS REGION --- */
+    /* --- CARDS REGION (Viewport-bound dynamic LRU covers) --- */
     else if(r.id === 'cards'){
       const isPortrait = lay.orientation === 'portrait';
       if(eqShown.length === 0){
         html += bx(r.x, r.y, r.w, r.h, `background:${C('bg')};border-top:1px solid ${C('line')};display:flex;align-items:center;justify-content:center`,
           `<span style="font-size:26px;line-height:36px;color:${C('text_2')}">暂无设备</span>`);
       } else if(!isPortrait){
-        /* Single horizontal row: 280x250, gap 16px, max 5 visible <= 8 */
-        const maxImgs = Math.max(0, 8 - imgBudget);
-        const startCol = Math.max(0, Math.floor(S.cardsScrollLeft / 296));
-        let cardsHTML = '';
-        eqShown.forEach((eq, idx) => {
-          const inWindow = idx >= startCol && idx < startCol + Math.min(5, maxImgs);
-          if(inWindow) imgBudget++;
-          const cov = (eq.media || []).find(m => m.role === 'cover');
-          if(idx < 4) addHit(r.x + 24 + idx*296, r.y + 20, 280, 250);
-          cardsHTML += equipCardHTML(eq, idx, 280, 250, 160, inWindow ? cov : null, !inWindow);
-        });
+        let cardsHTML = eqShown.map((eq, idx) => equipCardHTML(eq, idx, 280, 250, 160)).join('');
         html += bx(r.x, r.y, r.w, r.h, `background:${C('bg')};border-top:1px solid ${C('line')}`, `
           <div id="cardsScroller" class="no-scrollbar" style="width:100%;height:100%;overflow-x:auto;overflow-y:hidden;display:flex;align-items:center;gap:16px;padding:20px 24px;scroll-snap-type:x mandatory">
             ${cardsHTML}
           </div>
         `);
       } else {
-        /* Portrait 2-row horizontal grid: card 240x250, col gap 20px, row gap 16px -> 3 cols = 6 cards resting, max 8! */
-        const maxImgs = Math.max(0, 8 - imgBudget);
-        const startCol = Math.max(0, Math.floor(S.cardsScrollLeft / 260));
-        let loadedHere = 0;
         const cols = Math.ceil(eqShown.length / 2);
         let colHTML = '';
         for(let c=0; c<cols; c++){
@@ -743,12 +746,7 @@ function renderIdle(model, lay){
           for(let rIdx=0; rIdx<2; rIdx++){
             const idx = c*2 + rIdx;
             if(idx >= eqShown.length) break;
-            const eq = eqShown[idx];
-            const inWindow = c >= startCol && c <= startCol + 3 && loadedHere < maxImgs;
-            if(inWindow){ loadedHere++; imgBudget++; }
-            const cov = (eq.media || []).find(m => m.role === 'cover');
-            if(c < 3) addHit(r.x + 24 + c*260, r.y + 16 + rIdx*266, 240, 250);
-            pair += equipCardHTML(eq, idx, 240, 250, 152, inWindow ? cov : null, !inWindow);
+            pair += equipCardHTML(eqShown[idx], idx, 240, 250, 152);
           }
           colHTML += `<div style="display:flex;flex-direction:column;gap:16px;flex:none;scroll-snap-align:start">${pair}</div>`;
         }
@@ -760,57 +758,50 @@ function renderIdle(model, lay){
       }
     }
 
-    /* --- NOTICE REGION --- */
+    /* --- NOTICE REGION (Measured text width: static if fits, 60px/s scroll if overflows) --- */
     else if(r.id === 'notice'){
       const safety = model.safety || [];
       const joined = safety.join('　·　');
       const inner = safety.length ? `
         <span style="flex:none;padding:3px 14px;border-radius:6px;background:${rgba(THEMES[S.theme].st_busy,0.20)};color:${C('st_busy')};font-size:22px;line-height:30px">安全须知</span>
-        <div style="position:relative;flex:1;height:32px;overflow:hidden">
-          <span class="mq-run" style="font-size:22px;line-height:32px;color:${C('text_2')};--mq-from:${r.w-180}px;--mq-to:-1600px;animation-duration:30s">${renderPanelGlyphs(joined)}</span>
+        <div class="mq-box" style="position:relative;flex:1;height:32px;overflow:hidden">
+          <span class="mq-run" style="font-size:22px;line-height:32px;color:${C('text_2')}">${renderPanelGlyphs(joined)}</span>
         </div>
       ` : '';
       html += bx(r.x, r.y, r.w, r.h, `background:${C('surface')};border-top:1px solid ${C('line')};padding:0 24px;display:flex;align-items:center;gap:16px`, inner);
     }
   });
 
-  /* Drawer for landscape_video (1280 x 320, auto-closes in 15s or tap outside) */
+  /* Drawer for landscape_video (1280 x 320, header 72px with real 64px close btn, scroll preserved) */
   if(lay.id === 'landscape_video' && S.drawerOpen){
     addZone(0, 480, 1280, 320, 'drawer (0,480) 1280×320');
-    addHit(1136, 488, 120, 64);
-    let dCards = '';
-    eqShown.forEach((eq, idx) => {
-      const inWin = idx < 5 && imgBudget < 8;
-      if(inWin) imgBudget++;
-      const cov = (eq.media || []).find(m => m.role === 'cover');
-      dCards += equipCardHTML(eq, idx, 280, 236, 146, inWin ? cov : null, !inWin);
-    });
+    const dCards = eqShown.map((eq, idx) => equipCardHTML(eq, idx, 280, 228, 138)).join('');
     html += bx(0, 0, 1280, 480, 'background:rgba(0,0,0,0.35);z-index:20', '', 'onclick="window.__toggleDrawer(false)"');
     html += bx(0, 480, 1280, 320, `background:${C('surface')};border-top:2px solid ${C('line')};z-index:21`, `
       <div class="drawer-up" style="width:100%;height:100%;display:flex;flex-direction:column">
-        <div style="height:64px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid ${C('line')}">
-          <span style="font-size:26px;line-height:36px;color:${C('text')}">本实验室试验设备（${eqShown.length} 台）· ${S.drawerLeftS}s 无操作自动收起</span>
-          <div class="pressable" onclick="window.__toggleDrawer(false)" style="width:120px;height:56px;border-radius:10px;background:${C('bg')};display:flex;align-items:center;justify-content:center;font-size:26px;color:${C('text_2')}">收起 ▾</div>
+        <div style="height:72px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid ${C('line')};flex:none">
+          <span style="font-size:26px;line-height:36px;color:${C('text')}">本实验室试验设备（${eqShown.length} 台）· <span id="drawerCountdown">${S.drawerLeftS}</span>s 无操作自动收起</span>
+          <div class="pressable" onclick="window.__toggleDrawer(false)" style="width:128px;height:64px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:26px;color:${C('text_2')}">收起 ▾</div>
         </div>
-        <div class="no-scrollbar" style="flex:1;overflow-x:auto;display:flex;align-items:center;gap:16px;padding:10px 24px">
+        <div id="drawerScroller" class="no-scrollbar" style="flex:1;overflow-x:auto;display:flex;align-items:center;gap:16px;padding:10px 24px;scroll-snap-type:x mandatory">
           ${eqShown.length ? dCards : `<span style="font-size:26px;color:${C('text_2')}">暂无设备</span>`}
         </div>
       </div>
     `);
   }
 
-  S.visibleImgCount = imgBudget;
+  S.staticImgCount = staticImgs;
+  S.visibleImgCount = staticImgs;
   return html;
 }
 
-function equipCardHTML(eq, idx, w, h, imgH, cov, unloadedByLru){
+function equipCardHTML(eq, idx, w, h, imgH){
   const stDot = C(statusColorKey(eq.status));
-  const topImg = unloadedByLru
-    ? `<div style="position:absolute;inset:0;background:${C('surface_hi')};display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')}">[LRU 已释放]</div>`
-    : renderPhotoSVG(w, imgH, cov ? cov.label : null, eq.hue, cov && cov.missing, 'cover');
-  return `<div class="pressable" onclick="window.__openEquipIdx(${idx})" style="width:${w}px;height:${h}px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};overflow:hidden;flex:none;display:flex;flex-direction:column;scroll-snap-align:start">
-    <div style="position:relative;width:${w}px;height:${imgH}px;overflow:hidden;flex:none">${topImg}</div>
-    <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0">
+  return `<div class="pressable" data-card-idx="${idx}" onclick="window.__openEquipIdx(${idx})" style="width:${w}px;height:${h}px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};overflow:hidden;flex:none;display:flex;flex-direction:column;scroll-snap-align:start">
+    <div class="card-cover-slot" data-idx="${idx}" data-w="${w}" data-h="${imgH}" style="position:relative;width:${w}px;height:${imgH}px;overflow:hidden;flex:none">
+      <div style="position:absolute;inset:0;background:${C('surface_hi')};display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')}">[LRU 已释放]</div>
+    </div>
+    <div style="flex:1;padding:10px 14px;display:flex;flex-direction:column;justify-content:space-between;min-width:0">
       <div class="ell1" style="font-size:30px;line-height:38px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
         <span class="ell1" style="font-size:22px;line-height:28px;color:${C('text_2')}">${renderPanelGlyphs(eq.model||'—')}</span>
@@ -944,24 +935,26 @@ function renderDetail(model, lay){
       ` : `<span style="font-size:22px;color:${C('text_2')};margin:0 auto">共 1 台设备</span>`)}
     `;
   } else {
-    /* Portrait 800 x 1280: 120 + 450 + 64 + 120 + 446 + 80 = 1280 */
+    /* Portrait 800 x 1280: Gallery 120+450+64+120+446+80=1280; Video 120+450+64+48+518+80=1280 */
+    const isGallery = S.detailTab === 'gallery';
+    const stripH = isGallery ? 120 : 48;
+    const infoY = 634 + stripH;
+    const infoH = 1200 - infoY;
     addZone(0,0,800,120,'顶栏 800×120'); addZone(0,120,800,450,'媒体区 800×450');
-    addZone(0,570,800,64,'标签栏 800×64'); addZone(0,634,800,120,'缩略图条 800×120');
-    addZone(0,754,800,446,'信息滚动区 800×446'); addZone(0,1200,800,80,'切换栏 800×80');
-    addHit(108, 24, 72, 72);
-    if(eqs.length > 1){ addHit(24, 1208, 368, 64); addHit(408, 1208, 368, 64); }
+    addZone(0,570,800,64,'标签栏 800×64'); addZone(0,634,800,stripH,(isGallery?'缩略图条':'播放状态条')+` 800×${stripH}`);
+    addZone(0,infoY,800,infoH,`信息滚动区 800×${infoH}`); addZone(0,1200,800,80,'切换栏 800×80');
 
     return `
       ${bx(0, 0, 800, 120, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center;padding:0 24px 0 0`, `
         <div style="width:100px;height:120px;display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')};flex:none">${S.detailEquipIdx+1}/${eqs.length}</div>
         <div class="pressable" onclick="window.__popPage()" style="margin-left:8px;width:72px;height:72px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:36px;color:${C('text')};flex:none">‹</div>
-        <div class="ell2" style="flex:1;margin:0 16px;font-size:40px;line-height:50px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
+        <div class="ell2" style="flex:1;margin:0 16px;max-height:104px;font-size:40px;line-height:52px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
         ${statusPillHTML(eq.status)}
       `)}
       ${bx(0, 120, 800, 450, 'background:#000', mediaInner)}
       ${bx(0, 570, 800, 64, `background:${C('surface')};border-bottom:1px solid ${C('line')};display:flex;align-items:center;gap:16px;padding:0 24px`, tabsInner)}
-      ${bx(0, 634, 800, 120, `background:${C('bg')};border-bottom:1px solid ${C('line')}`, thumbInner)}
-      ${bx(0, 754, 800, 446, `background:${C('surface')}`, `
+      ${bx(0, 634, 800, stripH, `background:${C('bg')};border-bottom:1px solid ${C('line')}`, thumbInner)}
+      ${bx(0, infoY, 800, infoH, `background:${C('surface')}`, `
         <div id="detailInfoSwipe" class="no-scrollbar ${S.slideAnim}" style="width:100%;height:100%;overflow-y:auto;padding:20px 24px">
           <div style="font-size:22px;line-height:30px;color:${C('text_2')}">${renderPanelGlyphs([eq.asset_no, eq.model, eq.vendor].filter(Boolean).join(' · '))}</div>
           ${specsHTML}
@@ -1002,11 +995,10 @@ function renderIntro(model, lay){
   `;
 
   const rowsHTML = eqs.map((eq, idx) => {
-    const cov = (eq.media || []).find(m => m.role === 'cover');
     const dot = C(statusColorKey(eq.status));
     return `<div class="pressable" onclick="window.__openEquipIdx(${idx})" style="height:88px;border-radius:12px;background:${C('bg')};border:1px solid ${C('line')};padding:4px 16px 4px 4px;display:flex;align-items:center;gap:16px;flex:none">
-      <div style="position:relative;width:120px;height:80px;border-radius:8px;overflow:hidden;flex:none">
-        ${idx < 7 ? renderPhotoSVG(120, 80, cov?cov.label:null, eq.hue, cov&&cov.missing, 'cover') : `<div style="position:absolute;inset:0;background:${C('surface_hi')}"></div>`}
+      <div class="card-cover-slot" data-idx="${idx}" data-w="120" data-h="80" style="position:relative;width:120px;height:80px;border-radius:8px;overflow:hidden;flex:none">
+        <div style="position:absolute;inset:0;background:${C('surface_hi')}"></div>
       </div>
       <div style="flex:1;min-width:0">
         <div class="ell1" style="font-size:30px;line-height:38px;color:${C('text')}">${renderPanelGlyphs(eq.name)}</div>
@@ -1019,8 +1011,6 @@ function renderIntro(model, lay){
 
   if(!P){
     addZone(0,0,760,800,'左栏介绍 760×800'); addZone(760,0,520,800,'右栏设备清单 520×800');
-    addHit(112, 12, 152, 72);
-    eqs.slice(0,5).forEach((_,i) => addHit(784, 112 + i*104, 472, 88));
     return `
       ${bx(0, 0, 760, 96, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center`, `
         <div style="width:100px;height:96px"></div>
@@ -1030,14 +1020,13 @@ function renderIntro(model, lay){
       ${bx(0, 96, 760, 704, `background:${C('bg')}`, `<div class="no-scrollbar" style="width:100%;height:100%;overflow-y:auto;padding:24px">${infoBlock}</div>`)}
       ${bx(760, 0, 520, 800, `background:${C('surface')};border-left:1px solid ${C('line')};display:flex;flex-direction:column`, `
         <div style="height:96px;padding:0 24px;border-bottom:1px solid ${C('line')};display:flex;align-items:center;font-size:40px;line-height:52px;color:${C('text')};flex:none">设备清单（${eqs.length}）</div>
-        <div class="no-scrollbar" style="flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:16px">
+        <div id="introEquipScroller" class="no-scrollbar" style="flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:16px">
           ${eqs.length ? rowsHTML : `<span style="font-size:26px;color:${C('text_2')}">暂无设备</span>`}
         </div>
       `)}
     `;
   } else {
     addZone(0,0,800,104,'顶栏 800×104'); addZone(0,104,800,1176,'单栏滚动 800×1176');
-    addHit(108, 16, 152, 72);
     return `
       ${bx(0, 0, 800, 104, `background:${C('bg')};border-bottom:1px solid ${C('line')};display:flex;align-items:center`, `
         <div style="width:100px;height:104px"></div>
@@ -1045,7 +1034,7 @@ function renderIntro(model, lay){
         <span style="margin-left:20px;font-size:40px;line-height:52px;color:${C('text')}">实验室介绍</span>
       `)}
       ${bx(0, 104, 800, 1176, `background:${C('bg')}`, `
-        <div class="no-scrollbar" style="width:100%;height:100%;overflow-y:auto;padding:24px">
+        <div id="introEquipScroller" class="no-scrollbar" style="width:100%;height:100%;overflow-y:auto;padding:24px">
           ${infoBlock}
           <div style="margin-top:28px;font-size:40px;line-height:52px;color:${C('text')};margin-bottom:14px">设备清单（${eqs.length}）</div>
           <div style="display:flex;flex-direction:column;gap:16px">${rowsHTML}</div>
@@ -1057,15 +1046,14 @@ function renderIntro(model, lay){
 
 /* ---- 5.4 Maintenance Page (Read-only, f_cap 22px, Exit button) & Unbound Page ---- */
 function renderMaint(model, lay){
-  S.visibleImgCount = 0;
+  S.staticImgCount = 0; S.visibleImgCount = 0;
   const W = lay.w, H = lay.h;
-  addHit(W - 164, 16, 140, 64);
   const items = [
     ['序列号 SN', 'HL-LP9868-26110201'],
     ['MAC 地址', '00:E0:4C:98:68:21'],
     ['IPv4 地址', '192.168.10.201'],
     ['固件版本', '1.0.0+ae79616f'],
-    ['通信协议', 'v0.3 (/lab/lab.cgi)'],
+    ['通信协议', 'v0.4 (/lab/lab.cgi)'],
     ['清单版本', model ? `v${model.version} (${model.code})` : '无清单 (未绑定)'],
     ['当前布局', `${lay.id} (${lay.w}×${lay.h})`],
     ['NAND 剩余空间', '812 MB / 1024 MB'],
@@ -1076,7 +1064,7 @@ function renderMaint(model, lay){
     <div style="height:96px;border-bottom:1px solid ${C('line')};display:flex;align-items:center;justify-content:space-between;padding-left:96px;flex:none">
       <div>
         <span style="font-size:40px;line-height:52px;color:${C('text')}">工程维护页</span>
-        <span style="margin-left:16px;font-size:22px;line-height:30px;color:${C('text_2')}">只读诊断 · ${S.idleLeftS}s 无操作自动退出</span>
+        <span style="margin-left:16px;font-size:22px;line-height:30px;color:${C('text_2')}">只读诊断 · <span id="maintCountdown">${S.idleLeftS}</span>s 无操作自动退出</span>
       </div>
       <div class="pressable" onclick="window.__popPage()" style="width:140px;height:64px;border-radius:12px;background:${C('surface')};border:1px solid ${C('line')};display:flex;align-items:center;justify-content:center;font-size:30px;color:${C('text')}">退出</div>
     </div>
@@ -1140,45 +1128,162 @@ function renderScreen(){
     body += `<div class="fade-in" style="position:absolute;left:50%;bottom:32px;transform:translateX(-50%);height:64px;padding:0 32px;border-radius:12px;background:${C('surface_hi')};border:1px solid ${C('accent')};display:flex;align-items:center;justify-content:center;font-size:26px;line-height:36px;color:${C('text')};z-index:35;white-space:nowrap">${S.toastText}</div>`;
   }
 
-  /* Optional engineering review overlays */
+  /* Optional engineering review overlays (zones here; hitboxes measured from real DOM after fitStage) */
   if(S.showZones){
     body += ZONES.map(z => `<div class="ov-zone" style="left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px"><b>${z.label}</b></div>`).join('');
   }
   if(S.showHits){
-    body += HITS.map(h => `<div class="ov-hit" style="left:${h.x}px;top:${h.y}px;width:${h.w}px;height:${h.h}px"><i>${h.w}×${h.h}</i></div>`).join('');
+    body += `<div id="hitOverlayLayer" style="position:absolute;inset:0;pointer-events:none;z-index:41"></div>`;
     body += `<div class="ov-maint"><span>5连点维护区</span></div>`;
   }
 
   scr.innerHTML = body;
   S.slideAnim = '';
 
-  bindScrollAndSwipe();
   fitStage();
+  bindScrollAndSwipe();
+  initMeasuredMarquees();
+  if(S.showHits) drawMeasuredHitboxes();
   updateInspector();
   syncControls();
+}
+
+/* Measure actual DOM scrollWidth vs container width: static if fits, 60px/s full-range scroll if overflows */
+function initMeasuredMarquees(){
+  document.querySelectorAll('#screen .mq-box').forEach(box => {
+    const span = box.querySelector('.mq-run');
+    if(!span) return;
+    const bw = box.clientWidth;
+    const tw = span.scrollWidth;
+    if(tw <= bw){
+      span.style.animation = 'none';
+      span.style.position = 'static';
+      span.style.display = 'block';
+      span.style.textAlign = 'center';
+    } else {
+      span.style.setProperty('--mq-from', bw + 'px');
+      span.style.setProperty('--mq-to', (-tw) + 'px');
+      span.style.animationDuration = ((bw + tw) / 60).toFixed(1) + 's';
+    }
+  });
+}
+
+/* Measure actual clickable controls in device logical pixels (guarantees overlay == true clickable rect) */
+function drawMeasuredHitboxes(){
+  const layer = document.getElementById('hitOverlayLayer');
+  const scr = document.getElementById('screen');
+  if(!layer || !scr) return;
+  const sRect = scr.getBoundingClientRect();
+  const sc = S.stageScale || 1;
+  const nodes = scr.querySelectorAll('.pressable, .pressable-opa');
+  let html = '';
+  nodes.forEach(el => {
+    const r = el.getBoundingClientRect();
+    if(r.width <= 0 || r.height <= 0) return;
+    const x = Math.round((r.left - sRect.left) / sc);
+    const y = Math.round((r.top - sRect.top) / sc);
+    const w = Math.round(r.width / sc);
+    const h = Math.round(r.height / sc);
+    /* Skip off-screen cards outside device screen clip */
+    if(x + w <= 0 || x >= curLayout().w || y + h <= 0 || y >= curLayout().h) return;
+    const bad = w < 64 || h < 64;
+    html += `<div class="ov-hit ${bad?'bad':''}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"><i>${w}×${h}${bad?' !':''}</i></div>`;
+  });
+  layer.innerHTML = html;
+}
+
+/* Dynamically bind/release card covers intersecting current viewport (strictly <= 8 images) */
+function syncViewportCovers(scroller){
+  if(!scroller) return;
+  const model = curModel();
+  if(!model) return;
+  const eqs = (model.equipment || []).slice(0, 60);
+  const vRect = scroller.getBoundingClientRect();
+  const slots = scroller.querySelectorAll('.card-cover-slot');
+  const budget = Math.max(0, 8 - (S.staticImgCount || 0));
+  let loaded = 0;
+
+  slots.forEach(slot => {
+    const r = slot.getBoundingClientRect();
+    const visible = r.right > vRect.left + 2 && r.left < vRect.right - 2 && r.bottom > vRect.top + 2 && r.top < vRect.bottom - 2;
+    const shouldMount = visible && loaded < budget;
+    if(shouldMount){
+      loaded++;
+      if(slot.dataset.mounted !== '1'){
+        const eq = eqs[Number(slot.dataset.idx)];
+        const cov = eq ? (eq.media || []).find(m => m.role === 'cover') : null;
+        slot.innerHTML = renderPhotoSVG(Number(slot.dataset.w), Number(slot.dataset.h), cov ? cov.label : null, eq ? eq.hue : '#1E3A5F', cov && cov.missing, 'cover');
+        slot.dataset.mounted = '1';
+      }
+    } else if(slot.dataset.mounted !== '0'){
+      slot.innerHTML = `<div style="position:absolute;inset:0;background:${C('surface_hi')};display:flex;align-items:center;justify-content:center;font-size:22px;color:${C('text_2')}">[LRU 已释放]</div>`;
+      slot.dataset.mounted = '0';
+    }
+  });
+  S.visibleImgCount = (S.staticImgCount || 0) + loaded;
+  updateLazyCardsBadge();
 }
 
 function bindScrollAndSwipe(){
   const cs = document.getElementById('cardsScroller');
   if(cs){
     cs.scrollLeft = S.cardsScrollLeft;
+    syncViewportCovers(cs);
     let raf = null;
     cs.addEventListener('scroll', () => {
       touchResetIdle();
       S.cardsScrollLeft = cs.scrollLeft;
       if(!raf){
-        raf = requestAnimationFrame(() => { raf = null; updateLazyCardsBadge(); });
+        raf = requestAnimationFrame(() => {
+          raf = null;
+          syncViewportCovers(cs);
+          if(S.showHits) drawMeasuredHitboxes();
+        });
       }
     });
   }
-  /* Swipe gestures on Detail page per Spec §5.3 */
+  const ds = document.getElementById('drawerScroller');
+  if(ds){
+    ds.scrollLeft = S.drawerScrollLeft;
+    syncViewportCovers(ds);
+    let dRaf = null;
+    const onDrawerInteract = () => {
+      S.drawerLeftS = 15;
+      const cd = document.getElementById('drawerCountdown');
+      if(cd) cd.textContent = String(S.drawerLeftS);
+    };
+    ds.addEventListener('pointerdown', onDrawerInteract);
+    ds.addEventListener('scroll', () => {
+      onDrawerInteract();
+      S.drawerScrollLeft = ds.scrollLeft;
+      if(!dRaf){
+        dRaf = requestAnimationFrame(() => {
+          dRaf = null;
+          syncViewportCovers(ds);
+          if(S.showHits) drawMeasuredHitboxes();
+        });
+      }
+    });
+  }
+  const isc = document.getElementById('introEquipScroller');
+  if(isc){
+    syncViewportCovers(isc);
+    let iRaf = null;
+    isc.addEventListener('scroll', () => {
+      touchResetIdle();
+      if(!iRaf){
+        iRaf = requestAnimationFrame(() => { iRaf = null; syncViewportCovers(isc); });
+      }
+    });
+  }
+  /* Swipe gestures on Detail page converted to true device logical px */
   attachHorizontalSwipe(document.getElementById('detailMediaSwipe'), dx => {
     if(dx < -40) window.__stepDetailImg(1);
     else if(dx > 40) window.__stepDetailImg(-1);
   });
   attachHorizontalSwipe(document.getElementById('detailInfoSwipe'), dx => {
-    if(dx < -45) window.__stepEquip(1);
-    else if(dx > 45) window.__stepEquip(-1);
+    if(dx < -40) window.__stepEquip(1);
+    else if(dx > 40) window.__stepEquip(-1);
   });
 }
 
@@ -1193,7 +1298,9 @@ function attachHorizontalSwipe(el, onSwipe){
   el.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; touchResetIdle(); });
   el.addEventListener('pointerup', e => {
     if(sx === null) return;
-    const dx = e.clientX - sx, dy = e.clientY - sy;
+    const sc = S.stageScale || 1;
+    const dx = (e.clientX - sx) / sc;
+    const dy = (e.clientY - sy) / sc;
     sx = null; sy = null;
     if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4) onSwipe(dx);
   });
@@ -1205,13 +1312,14 @@ function fitStage(){
   const availW = Math.max(260, col.clientWidth - 32);
   const maxH = Math.max(400, window.innerHeight * (lay.orientation === 'portrait' ? 0.80 : 0.72));
   const scale = Math.min(availW / lay.w, maxH / lay.h, 1);
+  S.stageScale = scale;
   const scr = document.getElementById('screen');
   const clip = document.getElementById('screenClip');
   scr.style.transform = `scale(${scale})`;
   clip.style.width = Math.round(lay.w * scale) + 'px';
   clip.style.height = Math.round(lay.h * scale) + 'px';
   document.getElementById('stageCap').textContent =
-    `逻辑分辨率 ${lay.w}×${lay.h} (${lay.orientation}) · 缩放 ${(scale*100).toFixed(1)}% · RGB565 量化开启 · 物理面板 1280×800`;
+    `逻辑分辨率 ${lay.w}×${lay.h} (${lay.orientation}) · 缩放 ${(scale*100).toFixed(1)}% · LVGL RGB565 移位量化 · 物理面板 1280×800`;
 }
 
 /* ==================== 7. Global Navigation & Interaction Handlers ==================== */
@@ -1463,11 +1571,14 @@ document.getElementById('segTheme').addEventListener('click', e => {
 document.getElementById('chkZones').addEventListener('change', e => { S.showZones = e.target.checked; renderScreen(); });
 document.getElementById('chkHits').addEventListener('change', e => { S.showHits = e.target.checked; renderScreen(); });
 
-/* Async Event Injectors (Spec §7) */
+/* Async Event Injectors (Spec §7 & Protocol v0.4: reset playlistIdx & error streak on commit) */
 document.getElementById('btnCommitKeep').addEventListener('click', () => {
   if(S.dataset === 'unbound') S.dataset = 'normal';
   S.manifestVer++;
-  addLog('INFO', `commit v${S.manifestVer} applied (in-place refresh)`);
+  S.playlistIdx = 0;
+  S.videoErrStreak = 0;
+  S.idleVidSec = 0;
+  addLog('INFO', `commit v${S.manifestVer} applied -> UI switched & playlist/err reset -> old files GC`);
   if(curPage() !== 'idle') showToast('内容已更新');
   renderScreen();
 });
@@ -1478,7 +1589,10 @@ document.getElementById('btnCommitDrop').addEventListener('click', () => {
   const curEq = m.equipment[S.detailEquipIdx] || m.equipment[0];
   S.dropEquipId = curEq.id;
   S.manifestVer++;
-  addLog('INFO', `commit v${S.manifestVer} applied, equipment ${curEq.id} removed -> fallback Idle`);
+  S.playlistIdx = 0;
+  S.videoErrStreak = 0;
+  S.idleVidSec = 0;
+  addLog('INFO', `commit v${S.manifestVer} applied, equipment ${curEq.id} removed -> fallback Idle & GC`);
   if(curPage() === 'detail'){
     S.stack = ['idle'];
     showToast('内容已更新');
@@ -1491,6 +1605,7 @@ document.getElementById('btnCommitDrop').addEventListener('click', () => {
 document.getElementById('btnVidErr').addEventListener('click', () => {
   S.videoErrStreak++;
   S.playlistIdx++;
+  S.idleVidSec = 0;
   if(S.videoErrStreak >= 3){
     addLog('ERR', `3 consecutive video errors (${S.videoErrStreak}/3) -> stopped playback, showing cover`);
     showToast('连续 3 段视频解码失败，已降级静态封面');
@@ -1503,6 +1618,8 @@ document.getElementById('btnVidErr').addEventListener('click', () => {
 document.getElementById('btnVidNext').addEventListener('click', () => {
   S.videoErrStreak = 0;
   S.playlistIdx++;
+  S.idleVidSec = 0;
+  addLog('INFO', `idle video EOS -> advanced to playlist item #${S.playlistIdx}`);
   renderScreen();
 });
 
@@ -1525,15 +1642,35 @@ document.getElementById('btnIdleNear').addEventListener('click', () => {
   renderScreen();
 });
 
-/* 1-second hardware tick loop (60s idle timer, 15s drawer timer, 5s gallery auto-carousel) */
+/* 1-second hardware tick loop (in-place countdown update preserves drawer & maint scroll!) */
 setInterval(() => {
   const page = curPage();
   let dirty = false;
 
   if(S.drawerOpen){
     S.drawerLeftS--;
-    if(S.drawerLeftS <= 0){ S.drawerOpen = false; dirty = true; }
-    else dirty = true;
+    if(S.drawerLeftS <= 0){
+      S.drawerOpen = false;
+      S.drawerScrollLeft = 0;
+      dirty = true;
+    } else {
+      const cd = document.getElementById('drawerCountdown');
+      if(cd) cd.textContent = String(S.drawerLeftS);
+      updateInspector();
+    }
+  }
+
+  /* Simulate idle playlist automatic EOS loop every 12s when playing */
+  if(page === 'idle' && !S.drawerOpen && S.videoErrStreak < 3){
+    const pl = buildPlaylist(curModel());
+    if(pl.length > 1){
+      S.idleVidSec++;
+      if(S.idleVidSec >= 12){
+        S.idleVidSec = 0;
+        S.playlistIdx = (S.playlistIdx + 1) % pl.length;
+        dirty = true;
+      }
+    }
   }
 
   if(page === 'detail' && S.detailTab === 'gallery'){
@@ -1555,14 +1692,15 @@ setInterval(() => {
       dirty = true;
     } else {
       updateInspector();
-      if(page === 'maint') dirty = true;
+      const mc = document.getElementById('maintCountdown');
+      if(mc) mc.textContent = String(S.idleLeftS);
     }
   }
 
   if(dirty) renderScreen();
 }, 1000);
 
-window.addEventListener('resize', fitStage);
+window.addEventListener('resize', () => { fitStage(); if(S.showHits) drawMeasuredHitboxes(); });
 buildTokenTable();
 renderScreen();
 })();

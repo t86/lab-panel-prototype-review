@@ -41,9 +41,9 @@ tr:last-child td{border-bottom:none}
 </head>
 <body>
 <header class="hero">
-  <div class="tag">M0 交付基线 · 协议 v0.3 · FreeType wqyMicroHei 定案</div>
+  <div class="tag">M0 评审收口版 v1.1 · 协议 v0.4 · FreeType wqyMicroHei 定案</div>
   <h1>实验室门牌平板系统 · 交互设计与最终 UI 定稿</h1>
-  <p>涵盖<strong>管理后台（Go + Vue3 + Element Plus）</strong>与<strong>门口平板（IT9868 + LVGL 8.3.7）</strong>全套可交互高保真原型与像素级设计规格。所有演示均使用本地模拟数据，不连接真实设备。</p>
+  <p>涵盖<strong>管理后台（Go + Vue3 + Element Plus）</strong>与<strong>门口平板（IT9868 + LVGL 8.3.7）</strong>全套可交互高保真原型与像素级设计规格。原型页面使用本地模拟数据与 HTML 模拟平板预览（生产环境替换为真实 <code>lab_preview.wasm</code>），不连接真实硬件。</p>
   <div class="hero-btns">
     <a class="hbtn pri" href="admin_prototype.html">打开管理后台交互与 UI 原型 →</a>
     <a class="hbtn sec" href="panel_prototype.html">打开门口平板 1:1 像素工程评审台 →</a>
@@ -91,10 +91,10 @@ tr:last-child td{border-bottom:none}
       <thead><tr><th>端</th><th>在线链接</th><th>内容说明</th></tr></thead>
       <tbody>
         <tr><td>管理后台</td><td><a href="admin_prototype.html"><strong>admin_prototype.html</strong>（可交互 UI 原型）</a></td><td>全页面高保真 Web 交互原型（含角色切换、缺字检测、跨室移动确认、绑定向导与发布模拟）</td></tr>
-        <tr><td>门口平板</td><td><a href="panel_prototype.html"><strong>panel_prototype.html</strong>（1:1 像素工程评审台）</a></td><td>1280×800 / 800×1280 真实像素比例缩放、RGB565 量化、5 连点维护入口与热更新故障注入</td></tr>
-        <tr><td>门口平板</td><td><a href="spec.html#panel-ui-final">02_交互设计与UI定稿</a> · <a href="spec.html#panel-spec">01_平板UI与交互规格</a></td><td>1:1 像素坐标账本、RGB565 色值表、11 条硬件实测硬约束、状态机与 LVGL 8.3.7 控件映射</td></tr>
-        <tr><td>管理后台</td><td><a href="spec.html#admin-ui-final">04_后台交互设计与UI定稿</a> · <a href="spec.html#admin-spec">03_后台界面与交互规格</a></td><td>Element Plus 视觉变量、1366×768 栅格账本、三级角色权限表、HTTP API 清单与预检规则</td></tr>
-        <tr><td>双端协议</td><td><a href="spec.html#protocol">01_平板通信协议 v0.3</a></td><td><code>info</code> / <code>files</code> / <code>upload</code> / <code>commit</code> / <code>layouts</code> / <code>set_layout</code> 接口契约</td></tr>
+        <tr><td>门口平板</td><td><a href="panel_prototype.html"><strong>panel_prototype.html</strong>（1:1 像素工程评审台）</a></td><td>权威源 <code>feat/lab-panel/docs/lab_panel/ui_prototype.html</code> 的同步镜像；精确 LVGL RGB565 移位量化、视口懒加载与实测热区校验</td></tr>
+        <tr><td>门口平板</td><td><a href="spec.html#panel-ui-final">02_交互设计与UI定稿 (v1.1)</a> · <a href="spec.html#panel-spec">01_平板UI与交互规格 (v1.1)</a></td><td>1:1 像素坐标账本、LVGL 8.3.7 RGB565 色值表、11 条硬件硬约束与状态机</td></tr>
+        <tr><td>管理后台</td><td><a href="spec.html#admin-ui-final">04_后台交互设计与UI定稿 (v1.1)</a> · <a href="spec.html#admin-spec">03_后台界面与交互规格</a></td><td>WCAG 4.5:1 对比度色板、1366×768 零裁切表格、不可变快照、换绑替换与待核验回读</td></tr>
+        <tr><td>双端协议</td><td><a href="spec.html#protocol">01_平板通信协议 v0.4</a></td><td><code>info</code>/<code>commit</code> 携带 <code>lab_id</code>+<code>manifest_sha256</code>、幂等确认、换绑 <code>force=1</code> 与 UI 切换后清理旧素材</td></tr>
       </tbody>
     </table>
   </section>
