@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>门口平板（视频机）· 1:1 高保真 UI 视觉稿画廊</title>
+<style>
+:root{
+  --bg:#0B0F14; --card:#151B23; --line:#2A3441; --fg:#F2F5F8; --muted:#A7B1BD; --pri:#2F80ED;
+  --f-sans:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14.5px/1.6 var(--f-sans)}
+header{background:#111720;border-bottom:1px solid var(--line);padding:16px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:20}
+header h1{margin:0;font-size:19px}
+.navs{display:flex;flex-wrap:wrap;gap:10px}
+.navs a{color:#93C5FD;text-decoration:none;font-size:13px;padding:6px 12px;border:1px solid var(--line);border-radius:7px}
+.navs a:hover{border-color:var(--pri);color:#fff}
+.wrap{max-width:1380px;margin:0 auto;padding:24px 20px 64px;display:flex;flex-direction:column;gap:28px}
+.intro{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;color:var(--muted)}
+.intro strong{color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+.shot{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.shot.portrait .img-box{max-height:520px;background:#070A0E;display:flex;justify-content:center}
+.shot.portrait img{width:auto;max-width:100%;max-height:520px;object-fit:contain}
+.img-box{cursor:zoom-in;background:#05080D;border-bottom:1px solid var(--line);overflow:hidden}
+.img-box img{width:100%;display:block;transition:transform .2s}
+.img-box:hover img{transform:scale(1.01)}
+.meta{padding:14px 18px}
+.meta h2{margin:0 0 4px;font-size:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tag{font:600 11.5px var(--f-mono);padding:2px 8px;border-radius:999px;background:rgba(47,128,237,.18);color:#93C5FD}
+.meta p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:100;display:none;align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:12px}
+.lb.open{display:flex}
+.lb img{max-width:96vw;max-height:86vh;border-radius:8px;border:1px solid #334155}
+.lb-bar{color:#E2E8F0;font-size:13.5px;display:flex;align-items:center;gap:16px}
+.lb-bar button{background:#1F2732;color:#fff;border:1px solid #475569;border-radius:6px;padding:5px 14px;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <h1>门口平板（视频机 IT9868）· 1:1 高保真 UI 视觉稿（11 张）</h1>
+  <div class="navs">
+    <a href="index.html">← 设计总入口</a>
+    <a href="panel_prototype.html">平板 1:1 可交互原型 →</a>
+    <a href="admin_prototype.html">管理后台原型 →</a>
+    <a href="spec.html">全套接口与 UI 规格 →</a>
+  </div>
+</header>
+<main class="wrap">
+  <div class="intro">
+    <strong>硬件实测对齐说明</strong>：全部 10 张界面图均严格按 <strong>1:1 设备逻辑像素（横屏 1280×800 / 竖屏 800×1280）</strong>、LVGL 8.3.7 <code>LV_COLOR_MAKE16</code> RGB565 量化色板、5 档单字重字阶（56/40/30/26/22 px）、C4 视频区单条 ≤64px 字幕条与 C10 触控区 ≥64×64 px 规则输出。点击任意高保真图可 100% 放大审阅。
+  </div>
+
+  <div class="grid">
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/00_corridor_scene.jpg','00 · 走廊门口壁挂实景效果（10.1 英寸横屏硬件语境）')"><img src="ui_hifi/00_corridor_scene.jpg" alt="走廊实景效果"></div>
+      <div class="meta"><h2><span>00 · 实验室走廊壁挂实景效果图</span><span class="tag">硬件环境语境</span></h2><p>展示 10.1 英寸黑框工业门牌平板在高校材料力学实验室玻璃门侧的走廊观看距离、深色主题对比度与壁挂比例。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/01_landscape_std_idle.png','01 · 横屏标准待机页 landscape_std (1280×800)')"><img src="ui_hifi/01_landscape_std_idle.png" alt="横屏标准待机页"></div>
+      <div class="meta"><h2><span>01 · 待机页 · 横屏标准（出厂默认）</span><span class="tag">1280×800</span></h2><p>左上 800×450 3D 演示视频（仅叠 1 条 64px 字幕条），右上 480×450 完整实验室信息不截断，中排 280×250 卡片，底栏 60px 须知。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/02_landscape_video_idle.png','02 · 横屏视频优先待机页 landscape_video (1280×800)')"><img src="ui_hifi/02_landscape_video_idle.png" alt="横屏视频优先待机页"></div>
+      <div class="meta"><h2><span>02 · 待机页 · 横屏视频优先</span><span class="tag">1280×800</span></h2><p>上方 1280×720 整屏宽 16:9 3D 模型渲染展示，底部 80px 紧凑信息栏含状态胶囊、介绍入口、须知与「设备 6 ▴」抽屉按钮。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/03_landscape_video_drawer.png','03 · 横屏视频优先 · 底部设备抽屉展开态 (1280×800)')"><img src="ui_hifi/03_landscape_video_drawer.png" alt="底部设备抽屉展开态"></div>
+      <div class="meta"><h2><span>03 · 横屏视频优先 · 底部设备抽屉展开态</span><span class="tag">1280×320 抽屉</span></h2><p>点击「设备 6 ▴」向上平移展开，展开期间暂停底层视频帧刷新（严守 C4），顶栏收起按钮实高 64px，15s 无操作自动收起。</p></div>
+    </article>
+
+    <article class="shot portrait">
+      <div class="img-box" onclick="openLB('ui_hifi/04_portrait_std_idle.png','04 · 竖屏标准待机页 portrait_std (800×1280)')"><img src="ui_hifi/04_portrait_std_idle.png" alt="竖屏标准待机页"></div>
+      <div class="meta"><h2><span>04 · 待机页 · 竖屏标准（旋转 90°）</span><span class="tag">800×1280</span></h2><p>标题 200 + 视频 450 + 双行横向卡片 550（列距 20px 保证静止态同屏 6 张图 ≤ 8）+ 须知 80。</p></div>
+    </article>
+
+    <article class="shot portrait">
+      <div class="img-box" onclick="openLB('ui_hifi/07_portrait_detail_3d.png','07 · 设备详情页 · 竖屏视频态 (800×1280)')"><img src="ui_hifi/07_portrait_detail_3d.png" alt="竖屏设备详情页"></div>
+      <div class="meta"><h2><span>07 · 设备详情页 · 竖屏（视频态压缩状态条）</span><span class="tag">800×1280</span></h2><p>顶栏标题高 104px 完整容纳两行；视频标签下将缩略图条压缩为 48px 状态条，参数滚动区扩至 518px，上方视频坐标严丝合缝不动。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/05_landscape_detail_3d.png','05 · 设备详情页 · 横屏 3D 演示 (1280×800)')"><img src="ui_hifi/05_landscape_detail_3d.png" alt="横屏设备详情页 3D 演示"></div>
+      <div class="meta"><h2><span>05 · 设备详情页 · 横屏（3D 演示默认态）</span><span class="tag">1280×800</span></h2><p>左上 100×96 留给隐藏维护热区，返回按钮从 x=112 起排；右栏 480px 技术参数表（最小行高 56px）+ 底部上下台切换按钮。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/06_landscape_detail_gallery.png','06 · 设备详情页 · 横屏图片画廊 (1280×800)')"><img src="ui_hifi/06_landscape_detail_gallery.png" alt="横屏设备详情页图片画廊"></div>
+      <div class="meta"><h2><span>06 · 设备详情页 · 横屏（图片画廊与缩略图条）</span><span class="tag">1280×800</span></h2><p>图片按 contain 等比留白不拉伸，5s 自动淡入淡出轮播；底部 800×190 缩略图条支持直接点选，同屏图片 ≤ 6 张合规。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/08_landscape_intro.png','08 · 实验室介绍页 · 横屏两栏 (1280×800)')"><img src="ui_hifi/08_landscape_intro.png" alt="实验室介绍页"></div>
+      <div class="meta"><h2><span>08 · 实验室介绍页（简介、须知与设备清单）</span><span class="tag">760 + 520</span></h2><p>左栏 760px 完整展开联系方式、开放时间、实验室简介与编号安全须知；右栏 520px 设备行高 88px、行间距 16px。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/09_landscape_maint.png','09 · 工程维护诊断页 (1280×800)')"><img src="ui_hifi/09_landscape_maint.png" alt="工程维护页"></div>
+      <div class="meta"><h2><span>09 · 工程维护诊断页（只读 · 5 连点呼出）</span><span class="tag">1280×800</span></h2><p>任意页左上 100×100 三秒连点 5 次进入，f_cap 22px 展示 SN/MAC/IP/固件/协议 v0.4/NAND 空间与最近 20 条事件日志。</p></div>
+    </article>
+
+    <article class="shot">
+      <div class="img-box" onclick="openLB('ui_hifi/10_landscape_unbound.png','10 · 出厂未绑定引导页 (1280×800)')"><img src="ui_hifi/10_landscape_unbound.png" alt="未绑定引导页"></div>
+      <div class="meta"><h2><span>10 · 出厂未绑定引导页（Unbound）</span><span class="tag">1280×800</span></h2><p>无清单时居中展示 SN 与 IP 方便安装人员在后台扫描或登记；不响应 60s 自动返回，左上 5 连点维护入口仍可用。</p></div>
+    </article>
+  </div>
+</main>
+
+<div class="lb" id="lb" onclick="if(event.target===this)closeLB()">
+  <img id="lbImg" src="" alt="">
+  <div class="lb-bar"><span id="lbCap"></span><button type="button" onclick="closeLB()">关闭 (ESC)</button></div>
+</div>
+<script>
+function openLB(src, cap){
+  document.getElementById('lbImg').src = src;
+  document.getElementById('lbCap').textContent = cap;
+  document.getElementById('lb').classList.add('open');
+}
+function closeLB(){ document.getElementById('lb').classList.remove('open'); }
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLB(); });
+</script>
+</body>
+</html>

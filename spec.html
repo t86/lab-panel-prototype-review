@@ -59,7 +59,7 @@ tr:last-child td{border-bottom:none}
 <div class="shell">
   <aside>
     <div style="font-size:11.5px;font-weight:600;color:var(--muted);padding:4px 8px 6px">选择规格文档</div>
-    <button class="doc-btn active" data-id="panel-ui-final" onclick="window.__showDoc('panel-ui-final')">平板 · 交互与最终 UI 定稿 (v1.1)</button><button class="doc-btn " data-id="admin-ui-final" onclick="window.__showDoc('admin-ui-final')">后台 · 交互与最终 UI 定稿 (v1.1)</button><button class="doc-btn " data-id="panel-spec" onclick="window.__showDoc('panel-spec')">平板 · UI 与交互规格 (v1.1 / 11条硬约束)</button><button class="doc-btn " data-id="admin-spec" onclick="window.__showDoc('admin-spec')">后台 · 界面与交互规格</button><button class="doc-btn " data-id="protocol" onclick="window.__showDoc('protocol')">双端 · 平板通信协议 v0.4</button>
+    <button class="doc-btn active" data-id="panel-ui-final" onclick="window.__showDoc('panel-ui-final')">平板 · 交互与最终 UI 定稿 (v1.1)</button><button class="doc-btn " data-id="admin-ui-final" onclick="window.__showDoc('admin-ui-final')">后台 · 交互与最终 UI 定稿 (v1.1)</button><button class="doc-btn " data-id="backend-api" onclick="window.__showDoc('backend-api')">后台 · 接口与 SQLite 数据详细设计</button><button class="doc-btn " data-id="frontend-eng" onclick="window.__showDoc('frontend-eng')">后台 · 前端页面与组件工程设计</button><button class="doc-btn " data-id="panel-spec" onclick="window.__showDoc('panel-spec')">平板 · UI 与交互规格 (v1.1 / 11条硬约束)</button><button class="doc-btn " data-id="admin-spec" onclick="window.__showDoc('admin-spec')">后台 · 界面与交互规格</button><button class="doc-btn " data-id="protocol" onclick="window.__showDoc('protocol')">双端 · 平板通信协议 v0.4</button>
   </aside>
   <main>
     <article class="doc-pane active" id="doc-panel-ui-final"><h1>实验室门牌平板：交互设计与最终 UI 定稿</h1>
@@ -239,7 +239,403 @@ tr:last-child td{border-bottom:none}
 <hr>
 <h2>4. 删除与高危操作二次确认文案标准表</h2>
 <p>所有破坏性操作统一采用 <code>ElMessageBox.confirm</code>（危险操作主按钮设为 <code>type=&quot;danger&quot;</code>）：</p>
-<div class="tbl-scroll"><table><thead><tr><th>触发位置</th><th>确认弹窗精确文案模板</th></tr></thead><tbody><tr><td>删除实验室</td><td><code>删除实验室「{lab.name}（{lab.code}）」后，其下的 {n} 台试验设备将变为“未分配”状态（设备本身不会删除）；若已绑定平板，请先解绑平板。是否确认删除？</code></td></tr><tr><td>删除试验设备</td><td><code>删除设备「{eq.name}（{eq.asset_no}）」后，它会从「{lab.name}」移除，下次发布时门口平板上也会消失。是否确认删除？</code></td></tr><tr><td>解绑平板</td><td><code>解绑平板「{panel.name}（{panel.ip}）」后，后台修改「{lab.name}」将不再推送到该平板（平板当前已下发的画面会保留）。是否确认解绑？</code></td></tr><tr><td>重启平板</td><td><code>将立即重启平板「{panel.name}（{panel.ip}）」，门口屏幕将短暂黑屏约 8 秒后恢复。是否确认重启？</code></td></tr><tr><td>从备份恢复系统</td><td><code>恢复备份「{backup.filename}」将覆盖当前数据库与媒体关联记录，完成后服务将自动重启并要求所有账号重新登录。恢复前系统会自动创建一份当前状态的回滚备份。是否确认继续？</code></td></tr></tbody></table></div></article><article class="doc-pane " id="doc-panel-spec"><h1>实验室门牌平板：UI 与交互规格</h1>
+<div class="tbl-scroll"><table><thead><tr><th>触发位置</th><th>确认弹窗精确文案模板</th></tr></thead><tbody><tr><td>删除实验室</td><td><code>删除实验室「{lab.name}（{lab.code}）」后，其下的 {n} 台试验设备将变为“未分配”状态（设备本身不会删除）；若已绑定平板，请先解绑平板。是否确认删除？</code></td></tr><tr><td>删除试验设备</td><td><code>删除设备「{eq.name}（{eq.asset_no}）」后，它会从「{lab.name}」移除，下次发布时门口平板上也会消失。是否确认删除？</code></td></tr><tr><td>解绑平板</td><td><code>解绑平板「{panel.name}（{panel.ip}）」后，后台修改「{lab.name}」将不再推送到该平板（平板当前已下发的画面会保留）。是否确认解绑？</code></td></tr><tr><td>重启平板</td><td><code>将立即重启平板「{panel.name}（{panel.ip}）」，门口屏幕将短暂黑屏约 8 秒后恢复。是否确认重启？</code></td></tr><tr><td>从备份恢复系统</td><td><code>恢复备份「{backup.filename}」将覆盖当前数据库与媒体关联记录，完成后服务将自动重启并要求所有账号重新登录。恢复前系统会自动创建一份当前状态的回滚备份。是否确认继续？</code></td></tr></tbody></table></div></article><article class="doc-pane " id="doc-backend-api"><h1>管理后台（labComputer）：接口与数据详细设计</h1>
+<ul><li>日期：2026-11-18</li><li>版本：v1.0（对齐总体设计 v1.3、通信协议 v0.4、后台界面规格 <code>03</code> 与定稿 <code>04</code> v1.1）</li><li>技术栈：Go 1.23+ 标准库 <code>net/http</code>（路由参数与方法匹配）、SQLite（<code>modernc.org/sqlite</code>，纯 Go 无 CGO）、内置 <code>ffmpeg</code> / <code>ffprobe</code></li><li>读者：Go 后端工程师、Vue 3 前端工程师、测试工程师</li></ul>
+<p>本文是 <code>labComputer</code> 管理后台的<strong>数据库 DDL、HTTP <code>/api/v1</code> 全量接口契约、SSE 事件格式及并发恢复状态机</strong>的唯一实现依据。</p>
+<hr>
+<h2>1. 全局 HTTP 约定与安全鉴权</h2>
+<h3>1.1 路由前缀与统一信封</h3>
+<ul><li>所有后台接口挂载在 <code>/api/v1</code> 下，字符编码 <code>UTF-8</code>，请求与响应体除文件上传/下载/CSV/SSE 外均为 <code>application/json</code>。</li><li>统一响应信封（与门口平板协议一致）：</li></ul>
+<div class="code-tag">json</div><pre class="code-blk"><code>{&quot;code&quot;: 0, &quot;msg&quot;: &quot;ok&quot;, &quot;data&quot;: { ... }}</code></pre>
+<ul><li>非 0 时 HTTP 状态码与 <code>code</code> 一致，<code>msg</code> 为可直接展示给用户的中文错误原因：</li></ul>
+<div class="tbl-scroll"><table><thead><tr><th>HTTP / <code>code</code></th><th>业务场景</th><th>前端标准处理</th></tr></thead><tbody><tr><td><code>400</code></td><td>参数缺失、字段超长、格式非法、Excel 模板错误</td><td>字段级错误显示在控件下；全局错误弹不自动消失提示框</td></tr><tr><td><code>401</code></td><td>未登录、会话过期或被强制登出</td><td>清空前端会话态并跳转 <code>/#/login</code></td></tr><tr><td><code>403</code></td><td>角色权限不足或 CSRF 头缺失/不匹配</td><td>提示「无权限执行该操作」</td></tr><tr><td><code>404</code></td><td>资源不存在</td><td>提示并引导返回列表</td></tr><tr><td><code>409</code></td><td>唯一键冲突（编号/资产号/SN）、<strong>跨室调拨源版本并发变更</strong>、<strong>发布快照过期 (<code>SNAPSHOT_STALE</code>)</strong>、<strong>目标实验室已绑平板</strong></td><td>携带 <code>data.conflict_type</code> 与最新上下文，引导用户刷新后重新确认</td></tr><tr><td><code>413</code></td><td>上传图片 <code>&gt; 30 MB</code> 或视频 <code>&gt; 2 GB</code></td><td>提示文件体积超限</td></tr><tr><td><code>415</code></td><td>上传不支持的扩展名或封装格式</td><td>提示允许的文件格式</td></tr><tr><td><code>507</code></td><td>目标平板 NAND 剩余空间不足（透传或预检）</td><td>发布页红灯阻断</td></tr><tr><td><code>500</code></td><td>内部未预期异常（写入服务端日志）</td><td>提示「服务内部错误」并附 <code>request_id</code></td></tr></tbody></table></div>
+<h3>1.2 会话、CSRF 与 RBAC 权限中间件</h3>
+<ul><li><strong>登录会话</strong>：<code>POST /api/v1/auth/login</code> 成功后下发 <code>Set-Cookie: lab_sid=&lt;random_256bit&gt;; Path=/; HttpOnly; SameSite=Lax</code>，会话记录存 SQLite <code>user_session</code> 表（默认滑动过期 12 小时）。</li><li><strong>CSRF 防护</strong>：登录或 <code>GET /auth/me</code> 同时返回 <code>csrf_token</code>（并下发可读 Cookie <code>lab_csrf</code>）；所有非安全方法（<code>POST</code> / <code>PUT</code> / <code>PATCH</code> / <code>DELETE</code>，除 <code>/setup/*</code> 与 <code>/auth/login</code>）必须携带请求头 <code>X-CSRF-Token</code>，否则中间件直接返回 <code>403</code>。</li><li><strong>首次初始化门禁</strong>：<code>user</code> 表为空（尚无管理员）时，除 <code>GET /health</code>、<code>GET /setup/status</code>、<code>POST /setup/init</code> 外，所有 <code>/api/v1/*</code> 接口返回 <code>409 {&quot;code&quot;:409,&quot;msg&quot;:&quot;系统尚未初始化&quot;,&quot;data&quot;:{&quot;need_setup&quot;:true}}</code>。</li><li><strong>角色鉴权矩阵</strong>（后端中间件硬校验，与前端按钮隐藏严格一致）：</li><li><code>viewer</code>（只读）：仅允许所有业务资源 <code>GET</code>（不含 <code>/users</code>、<code>/audit</code>、<code>/backups</code>、<code>/settings</code>、<code>/panels/{id}/screenshot</code>）以及 <code>/auth/*</code>。</li><li><code>editor</code>（编辑）：在 <code>viewer</code> 基础上允许实验室/设备/组合/媒体增删改、发布/重试/核验、<code>/text/check</code>；<strong>禁止访问平板写操作、平板截图及系统管理 4 大模块</strong>。</li><li><code>admin</code>（管理员）：全部接口权限。</li></ul>
+<h3>1.3 列表分页、排序与时间格式</h3>
+<ul><li>通用查询参数：<code>page</code>（从 1 起，默认 1）、<code>page_size</code>（默认 20，上限 100）、<code>sort_by</code>（白名单字段）、<code>sort_order</code>（<code>asc</code> | <code>desc</code>）。</li><li>列表响应结构：<code>{&quot;items&quot;: [...], &quot;total&quot;: 48, &quot;page&quot;: 1, &quot;page_size&quot;: 20}</code>。</li><li>所有时间戳字段在 JSON 中返回 ISO-8601 本地时区字符串或统一 <code>YYYY-MM-DD HH:mm:ss</code>，前端按规格统一格式化为 <code>YYYY-MM-DD HH:mm</code>。</li></ul>
+<hr>
+<h2>2. SQLite 数据库 Schema（<code>migrations/001_init.sql</code>）</h2>
+<p>启动时执行 <code>PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; PRAGMA busy_timeout=5000;</code>。</p>
+<div class="code-tag">sql</div><pre class="code-blk"><code>-- 1. 用户与会话
+CREATE TABLE user (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  username      TEXT    NOT NULL UNIQUE,
+  display_name  TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  password_hash TEXT    NOT NULL,                     -- bcrypt
+  role          TEXT    NOT NULL CHECK (role IN (&#x27;admin&#x27;,&#x27;editor&#x27;,&#x27;viewer&#x27;)),
+  enabled       INTEGER NOT NULL DEFAULT 1,
+  last_login_at TEXT,
+  created_at    TEXT    NOT NULL,
+  updated_at    TEXT    NOT NULL
+);
+
+CREATE TABLE user_session (
+  sid           TEXT    PRIMARY KEY,
+  user_id       INTEGER NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+  csrf_token    TEXT    NOT NULL,
+  expires_at    TEXT    NOT NULL,
+  created_at    TEXT    NOT NULL
+);
+
+-- 2. 实验室
+CREATE TABLE lab (
+  id               TEXT    PRIMARY KEY,               -- 不可变稳定 ID，如 &#x27;L01H...&#x27; (ULID/UUID)
+  code             TEXT    NOT NULL UNIQUE,           -- [A-Za-z0-9-], &lt;=16
+  name             TEXT    NOT NULL,                  -- &lt;=30
+  building         TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  floor            TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  room             TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  location         TEXT    NOT NULL DEFAULT &#x27;&#x27;,       -- 拼接后 &lt;=30
+  status           TEXT    NOT NULL DEFAULT &#x27;空闲&#x27;,    -- &lt;=6
+  owner            TEXT    NOT NULL DEFAULT &#x27;&#x27;,       -- &lt;=20
+  phone            TEXT    NOT NULL DEFAULT &#x27;&#x27;,       -- &lt;=20
+  open_hours       TEXT    NOT NULL DEFAULT &#x27;&#x27;,       -- &lt;=40
+  intro            TEXT    NOT NULL DEFAULT &#x27;&#x27;,       -- &lt;=2000
+  safety_json      TEXT    NOT NULL DEFAULT &#x27;[]&#x27;,     -- JSON string[], &lt;=10 条 × 40 字
+  manifest_version INTEGER NOT NULL DEFAULT 1,
+  created_at       TEXT    NOT NULL,
+  updated_at       TEXT    NOT NULL
+);
+
+-- 3. 试验设备
+CREATE TABLE equipment (
+  id          TEXT    PRIMARY KEY,                    -- 不可变稳定 ID
+  asset_no    TEXT    NOT NULL UNIQUE,                -- &lt;=24
+  name        TEXT    NOT NULL,                       -- &lt;=30
+  model       TEXT    NOT NULL DEFAULT &#x27;&#x27;,            -- &lt;=30
+  vendor      TEXT    NOT NULL DEFAULT &#x27;&#x27;,            -- &lt;=30
+  category    TEXT    NOT NULL DEFAULT &#x27;&#x27;,            -- &lt;=30
+  status      TEXT    NOT NULL DEFAULT &#x27;可用&#x27;,         -- &lt;=6
+  specs_json  TEXT    NOT NULL DEFAULT &#x27;[]&#x27;,          -- JSON [k,v][], &lt;=40 行
+  intro       TEXT    NOT NULL DEFAULT &#x27;&#x27;,            -- &lt;=2000
+  created_at  TEXT    NOT NULL,
+  updated_at  TEXT    NOT NULL
+);
+
+-- 4. 实验室-设备组合（单设备唯一归属约束）与变更历史
+CREATE TABLE lab_equipment (
+  lab_id       TEXT    NOT NULL REFERENCES lab(id) ON DELETE CASCADE,
+  equipment_id TEXT    NOT NULL UNIQUE REFERENCES equipment(id) ON DELETE CASCADE,
+  sort_order   INTEGER NOT NULL,
+  note         TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  added_at     TEXT    NOT NULL,
+  PRIMARY KEY (lab_id, equipment_id)
+);
+CREATE INDEX idx_lab_equipment_sort ON lab_equipment(lab_id, sort_order);
+
+CREATE TABLE lab_equipment_history (
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  lab_id       TEXT    NOT NULL,
+  equipment_id TEXT    NOT NULL,
+  action       TEXT    NOT NULL CHECK (action IN (&#x27;add&#x27;,&#x27;remove&#x27;)),
+  operator_id  INTEGER REFERENCES user(id),
+  operator     TEXT    NOT NULL,
+  created_at   TEXT    NOT NULL
+);
+CREATE INDEX idx_lab_eq_hist_time ON lab_equipment_history(created_at DESC);
+
+-- 5. 媒体与多态关联（SHA-256 内容寻址去重）
+CREATE TABLE media (
+  id              TEXT    PRIMARY KEY,
+  sha256          TEXT    NOT NULL UNIQUE,            -- 原文件 SHA-256
+  kind            TEXT    NOT NULL CHECK (kind IN (&#x27;image&#x27;,&#x27;video&#x27;)),
+  orig_name       TEXT    NOT NULL,
+  orig_size       INTEGER NOT NULL,
+  width           INTEGER NOT NULL DEFAULT 0,
+  height          INTEGER NOT NULL DEFAULT 0,
+  duration_ms     INTEGER NOT NULL DEFAULT 0,
+  probe_json      TEXT    NOT NULL DEFAULT &#x27;{}&#x27;,
+  compat_status   TEXT    NOT NULL CHECK (compat_status IN (&#x27;probing&#x27;,&#x27;ok&#x27;,&#x27;transcoding&#x27;,&#x27;transcoded&#x27;,&#x27;rejected&#x27;)),
+  reject_reason   TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  panel_sha256    TEXT    NOT NULL DEFAULT &#x27;&#x27;,        -- 平板产物 SHA-256（兼容时同 sha256）
+  panel_ext       TEXT    NOT NULL DEFAULT &#x27;&#x27;,        -- jpg / png / mp4
+  panel_size      INTEGER NOT NULL DEFAULT 0,
+  thumb_sha256    TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  progress_pct    INTEGER NOT NULL DEFAULT 0,
+  created_at      TEXT    NOT NULL,
+  updated_at      TEXT    NOT NULL
+);
+
+CREATE TABLE owner_media (
+  owner_type  TEXT    NOT NULL CHECK (owner_type IN (&#x27;lab&#x27;,&#x27;equipment&#x27;)),
+  owner_id    TEXT    NOT NULL,
+  media_id    TEXT    NOT NULL REFERENCES media(id) ON DELETE RESTRICT,
+  role        TEXT    NOT NULL CHECK (role IN (&#x27;cover&#x27;,&#x27;gallery&#x27;,&#x27;model3d&#x27;,&#x27;intro&#x27;)),
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (owner_type, owner_id, role, media_id)
+);
+CREATE INDEX idx_owner_media_lookup ON owner_media(owner_type, owner_id, role, sort_order);
+
+-- 6. 门口平板与固件布局缓存
+CREATE TABLE panel (
+  id                     TEXT    PRIMARY KEY,
+  sn                     TEXT    NOT NULL UNIQUE,
+  mac                    TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  name                   TEXT    NOT NULL DEFAULT &#x27;&#x27;, -- 管理员可编辑备注名
+  ip                     TEXT    NOT NULL,
+  port                   INTEGER NOT NULL DEFAULT 80,
+  password_enc           BLOB    NOT NULL,            -- AES-GCM 加密的当前设备密码
+  pending_password_enc   BLOB,                        -- 改密回包丢失恢复用，确认后置 NULL
+  lab_id                 TEXT    UNIQUE REFERENCES lab(id) ON DELETE SET NULL,
+  binding_rev            INTEGER NOT NULL DEFAULT 1,  -- 每次绑定/解绑/换绑递增
+  layout_id              TEXT    NOT NULL DEFAULT &#x27;landscape_std&#x27;,
+  fw_version             TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  protocol_version       TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  storage_total_bytes    INTEGER NOT NULL DEFAULT 0,
+  storage_free_bytes     INTEGER NOT NULL DEFAULT 0,
+  online                 INTEGER NOT NULL DEFAULT 0,
+  last_online_at         TEXT,
+  last_error             TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  committed_lab_id       TEXT    NOT NULL DEFAULT &#x27;&#x27;, -- 平板实际生效的实验室 ID（协议 v0.4）
+  committed_version      INTEGER NOT NULL DEFAULT 0,
+  committed_sha256       TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  committed_manifest_json TEXT   NOT NULL DEFAULT &#x27;&#x27;, -- 供「设置布局」预览平板当前实际画面
+  created_at             TEXT    NOT NULL,
+  updated_at             TEXT    NOT NULL
+);
+
+CREATE TABLE firmware_layout_cache (
+  fw_version   TEXT PRIMARY KEY,
+  layouts_json TEXT NOT NULL,                         -- action=layouts 返回的 data 原文
+  updated_at   TEXT NOT NULL
+);
+
+-- 7. 不可变发布快照与发布任务
+CREATE TABLE publish_snapshot (
+  id               TEXT    PRIMARY KEY,               -- SNAP-...
+  lab_id           TEXT    NOT NULL REFERENCES lab(id) ON DELETE CASCADE,
+  panel_id         TEXT    NOT NULL REFERENCES panel(id) ON DELETE CASCADE,
+  binding_rev      INTEGER NOT NULL,
+  manifest_version INTEGER NOT NULL,
+  manifest_sha256  TEXT    NOT NULL,
+  manifest_json    TEXT    NOT NULL,                  -- 冻结后的完整清单 JSON
+  files_json       TEXT    NOT NULL,                  -- 引用的 [{panel_file, panel_sha256, size}]
+  rebind_from_lab  TEXT    NOT NULL DEFAULT &#x27;&#x27;,       -- 非空表示跨室换绑需 force=1&amp;expected_lab_id
+  created_by       INTEGER REFERENCES user(id),
+  created_at       TEXT    NOT NULL
+);
+
+CREATE TABLE publish_job (
+  id               TEXT    PRIMARY KEY,
+  snapshot_id      TEXT    NOT NULL REFERENCES publish_snapshot(id),
+  lab_id           TEXT    NOT NULL,
+  panel_id         TEXT    NOT NULL,
+  binding_rev      INTEGER NOT NULL,
+  target_version   INTEGER NOT NULL,
+  target_sha256    TEXT    NOT NULL,
+  status           TEXT    NOT NULL CHECK (status IN (&#x27;queued&#x27;,&#x27;waiting_transcode&#x27;,&#x27;uploading&#x27;,&#x27;committing&#x27;,&#x27;unverified&#x27;,&#x27;success&#x27;,&#x27;failed&#x27;)),
+  progress_pct     INTEGER NOT NULL DEFAULT 0,
+  files_total      INTEGER NOT NULL DEFAULT 0,
+  files_done       INTEGER NOT NULL DEFAULT 0,
+  bytes_total      INTEGER NOT NULL DEFAULT 0,
+  bytes_done       INTEGER NOT NULL DEFAULT 0,
+  error_msg        TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  logs_json        TEXT    NOT NULL DEFAULT &#x27;[]&#x27;,
+  operator_id      INTEGER REFERENCES user(id),
+  operator_name    TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  started_at       TEXT,
+  finished_at      TEXT,
+  created_at       TEXT    NOT NULL
+);
+CREATE INDEX idx_pub_job_lab_time ON publish_job(lab_id, created_at DESC);
+
+-- 8. 持久化后台任务队列（服务重启自动续跑）
+CREATE TABLE job (
+  id          TEXT    PRIMARY KEY,
+  kind        TEXT    NOT NULL CHECK (kind IN (&#x27;probe&#x27;,&#x27;transcode&#x27;,&#x27;thumb&#x27;,&#x27;publish&#x27;,&#x27;scan&#x27;,&#x27;backup&#x27;)),
+  payload_json TEXT   NOT NULL,
+  status      TEXT    NOT NULL CHECK (status IN (&#x27;queued&#x27;,&#x27;running&#x27;,&#x27;done&#x27;,&#x27;failed&#x27;,&#x27;cancelled&#x27;)),
+  attempts    INTEGER NOT NULL DEFAULT 0,
+  max_attempts INTEGER NOT NULL DEFAULT 3,
+  last_error  TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  created_at  TEXT    NOT NULL,
+  updated_at  TEXT    NOT NULL
+);
+
+-- 9. 审计日志、备份与系统设置
+CREATE TABLE audit_log (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id     INTEGER,
+  username    TEXT    NOT NULL,
+  action      TEXT    NOT NULL,
+  target_type TEXT    NOT NULL,
+  target_id   TEXT    NOT NULL,
+  target_name TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  client_ip   TEXT    NOT NULL,
+  before_json TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  after_json  TEXT    NOT NULL DEFAULT &#x27;&#x27;,
+  created_at  TEXT    NOT NULL
+);
+CREATE INDEX idx_audit_time ON audit_log(created_at DESC);
+
+CREATE TABLE backup_record (
+  id          TEXT    PRIMARY KEY,
+  filename    TEXT    NOT NULL UNIQUE,
+  size_bytes  INTEGER NOT NULL,
+  trigger_by  TEXT    NOT NULL,                       -- &#x27;manual:admin&#x27; / &#x27;schedule&#x27; / &#x27;pre-restore&#x27;
+  created_at  TEXT    NOT NULL
+);
+
+CREATE TABLE system_setting (
+  key        TEXT PRIMARY KEY,
+  value      TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);</code></pre>
+<hr>
+<h2>3. HTTP <code>/api/v1</code> 全量接口详细契约</h2>
+<h3>3.1 首次初始化、认证与全局接口</h3>
+<div class="tbl-scroll"><table><thead><tr><th>方法与路径</th><th>权限</th><th>请求体 / 查询参数</th><th>响应 <code>data</code> 说明</th></tr></thead><tbody><tr><td><code>GET /health</code></td><td>公开</td><td>无</td><td><code>{&quot;version&quot;:&quot;1.0.0&quot;,&quot;commit&quot;:&quot;861fcbc&quot;}</code></td></tr><tr><td><code>GET /setup/status</code></td><td>公开</td><td>无</td><td><code>{&quot;initialized&quot;:false,&quot;interfaces&quot;:[{&quot;name&quot;:&quot;以太网 2&quot;,&quot;ip&quot;:&quot;192.168.10.10&quot;,&quot;cidr&quot;:&quot;192.168.10.0/24&quot;}]}</code></td></tr><tr><td><code>POST /setup/init</code></td><td>仅未初始化</td><td><code>{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;...&quot;,&quot;listen_ip&quot;:&quot;192.168.10.10&quot;,&quot;port&quot;:8686}</code></td><td>创建首位管理员并写入 <code>config.toml</code>，下发登录 Cookie</td></tr><tr><td><code>POST /auth/login</code></td><td>公开</td><td><code>{&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;...&quot;}</code></td><td><code>{&quot;user&quot;:{&quot;id&quot;:1,&quot;username&quot;:&quot;admin&quot;,&quot;role&quot;:&quot;admin&quot;},&quot;csrf_token&quot;:&quot;...&quot;}</code></td></tr><tr><td><code>POST /auth/logout</code></td><td>已登录</td><td>无</td><td>销毁 <code>user_session</code> 并清除 Cookie</td></tr><tr><td><code>GET /auth/me</code></td><td>已登录</td><td>无</td><td>返回当前 <code>user</code>、<code>csrf_token</code>、<code>preview_fw_version</code></td></tr><tr><td><code>GET /overview</code></td><td>全角色</td><td>无</td><td>返回 4 项统计与 4 类待处理清单（详见下）</td></tr><tr><td><code>GET /search</code></td><td>全角色</td><td><code>?q=关键字&amp;limit=10</code></td><td>返回 <code>{&quot;labs&quot;:[...],&quot;equipment&quot;:[...],&quot;panels&quot;:[...]}</code>（总数 <code>&lt;= 10</code>）</td></tr><tr><td><code>POST /text/check</code></td><td><code>editor</code>+</td><td><code>{&quot;text&quot;:&quot;高温㵘流&quot;}</code></td><td><code>{&quot;missing&quot;:[&quot;㵘&quot;]}</code>（查内嵌 <code>wqyMicroHei.ttf</code> 7705 码点表）</td></tr></tbody></table></div>
+<p><strong><code>GET /overview</code> 响应示例</strong>：</p>
+<div class="code-tag">json</div><pre class="code-blk"><code>{
+  &quot;stats&quot;: {
+    &quot;lab_count&quot;: 5, &quot;equipment_count&quot;: 9,
+    &quot;panel_online&quot;: 3, &quot;panel_total&quot;: 4,
+    &quot;pending_publish_labs&quot;: 2
+  },
+  &quot;todos&quot;: {
+    &quot;offline_panels&quot;: [{&quot;id&quot;:&quot;P3&quot;,&quot;name&quot;:&quot;门牌-4号楼102&quot;,&quot;ip&quot;:&quot;192.168.10.102&quot;,&quot;last_online_at&quot;:&quot;2026-11-18 12:12&quot;,&quot;last_error&quot;:&quot;连接超时&quot;}],
+    &quot;pending_labs&quot;: [{&quot;id&quot;:&quot;L4&quot;,&quot;code&quot;:&quot;L4-308&quot;,&quot;name&quot;:&quot;流体力学与风洞实验室&quot;,&quot;is_rebind&quot;:true,&quot;committed_lab_id&quot;:&quot;L1&quot;,&quot;committed_version&quot;:12,&quot;manifest_version&quot;:1}],
+    &quot;failed_jobs_24h&quot;: [{&quot;id&quot;:&quot;PJ-108&quot;,&quot;lab_id&quot;:&quot;L3&quot;,&quot;lab_name&quot;:&quot;精密金相与电镜分析室&quot;,&quot;status&quot;:&quot;failed&quot;,&quot;error_msg&quot;:&quot;...&quot;}],
+    &quot;rejected_media&quot;: [{&quot;id&quot;:&quot;M06&quot;,&quot;orig_name&quot;:&quot;corrupted_export.avi&quot;,&quot;reject_reason&quot;:&quot;无法解析的视频&quot;}]
+  }
+}</code></pre>
+<h3>3.2 实验室与设备组合</h3>
+<div class="tbl-scroll"><table><thead><tr><th>方法与路径</th><th>权限</th><th>说明与核心字段</th></tr></thead><tbody><tr><td><code>GET /labs</code></td><td>全角色</td><td>筛选 <code>status</code>、<code>pub_status</code>（<code>synced</code>/<code>pending</code>/<code>failed</code>/<code>unbound</code>）、<code>q</code>；每项附 <code>equipment_count</code>、<code>panel</code> 摘要与三元组判定后的 <code>pub_status</code></td></tr><tr><td><code>POST /labs</code></td><td><code>editor</code>+</td><td>校验：<code>code</code> 必填唯一 <code>[A-Za-z0-9-]</code> <code>&lt;=16</code>；<code>name</code> 必填 <code>&lt;=30</code>；<code>location</code> <code>&lt;=30</code>；<code>status</code> <code>&lt;=6</code>；<code>safety</code> <code>&lt;=10</code> 条 × <code>40</code> 字</td></tr><tr><td><code>GET /labs/{id}</code></td><td>全角色</td><td>返回完整实验室详情 + 有序 <code>equipment[]</code> + <code>media[]</code> + 绑定平板状态</td></tr><tr><td><code>PUT /labs/{id}</code></td><td><code>editor</code>+</td><td>更新基本信息，事务内 <code>manifest_version = manifest_version + 1</code> 并写 <code>audit_log</code></td></tr><tr><td><code>DELETE /labs/{id}</code></td><td><code>editor</code>+</td><td>若仍绑定平板返回 <code>409</code> 要求先解绑；成功时解除 <code>lab_equipment</code> 关联（保留设备实体）</td></tr><tr><td><code>PUT /labs/{id}/equipment</code></td><td><code>editor</code>+</td><td><strong>设置有序设备列表（<code>&lt;=60</code> 台）与跨实验室调拨事务</strong>（详见下）</td></tr></tbody></table></div>
+<p><strong><code>PUT /labs/{id}/equipment</code> 并发校验契约</strong>：</p>
+<div class="code-tag">json</div><pre class="code-blk"><code>// Request
+{
+  &quot;equipment_ids&quot;: [&quot;E01&quot;, &quot;E02&quot;, &quot;E04&quot;],
+  &quot;confirm_move&quot;: true,
+  &quot;moves&quot;: [
+    {&quot;equipment_id&quot;: &quot;E04&quot;, &quot;expected_from_lab_id&quot;: &quot;L2&quot;, &quot;expected_from_manifest_version&quot;: 8}
+  ]
+}</code></pre>
+<ul><li>若 <code>equipment_ids</code> 中存在当前归属其他实验室的设备：</li><li>未传 <code>confirm_move: true</code> 或 <code>moves</code> 缺少该设备 → 返回 <code>409</code>（<code>data.conflict_type = &quot;MOVE_CONFIRM_REQUIRED&quot;</code> 并列出实际源实验室和版本）；</li><li>传入的 <code>expected_from_lab_id</code> 或 <code>expected_from_manifest_version</code> 与数据库当前值不符 → 返回 <code>409</code>（<code>data.conflict_type = &quot;SOURCE_LAB_CHANGED&quot;</code>），前端刷新后重新弹窗确认；</li><li>校验全部通过 → 单事务完成移出、加入、写入两条 <code>lab_equipment_history</code>，并同时递增源实验室与目标实验室的 <code>manifest_version</code>。</li></ul>
+<h3>3.3 试验设备与 Excel 批量导入</h3>
+<div class="tbl-scroll"><table><thead><tr><th>方法与路径</th><th>权限</th><th>说明</th></tr></thead><tbody><tr><td><code>GET /equipment</code></td><td>全角色</td><td>筛选 <code>category</code>、<code>status</code>、<code>lab_id</code>（<code>_unassigned</code> 表示未分配）、<code>q</code></td></tr><tr><td><code>POST /equipment</code></td><td><code>editor</code>+</td><td>校验 <code>asset_no</code> 必填唯一 <code>&lt;=24</code>、<code>name</code> <code>&lt;=30</code>、<code>specs</code> <code>&lt;=40</code> 行（名 <code>&lt;=12</code>、值 <code>&lt;=40</code>）、<code>intro</code> <code>&lt;=2000</code></td></tr><tr><td><code>GET/PUT/DELETE /equipment/{id}</code></td><td><code>GET</code> 全角色 / 写 <code>editor</code>+</td><td>修改或删除已分配设备时，同步将其所属实验室 <code>manifest_version + 1</code></td></tr><tr><td><code>GET /equipment/import-template</code></td><td><code>editor</code>+</td><td>下载标准 <code>.xlsx</code> 模板</td></tr><tr><td><code>POST /equipment/import?dry_run=1</code></td><td><code>editor</code>+</td><td><code>multipart/form-data</code> 上传 <code>.xlsx</code>：<code>dry_run=1</code> 返回逐行预检结果 <code>{&quot;rows&quot;:[{&quot;row&quot;:2,&quot;valid&quot;:true,&quot;data&quot;:{...}},{&quot;row&quot;:3,&quot;valid&quot;:false,&quot;error&quot;:&quot;资产编号已存在&quot;}]}</code>；<code>dry_run=0</code> 仅导入全部合法行（或整批事务提交）</td></tr></tbody></table></div>
+<h3>3.4 媒体管理与转码流水线</h3>
+<div class="tbl-scroll"><table><thead><tr><th>方法与路径</th><th>权限</th><th>说明</th></tr></thead><tbody><tr><td><code>GET /media</code></td><td>全角色</td><td>全局媒体库列表，支持筛选 <code>kind</code>、<code>compat_status</code>、<code>unreferenced=1</code></td></tr><tr><td><code>POST /media</code></td><td><code>editor</code>+</td><td><code>multipart/form-data</code> 字段 <code>file</code>（图 <code>&lt;=30 MB</code>、视频 <code>&lt;=2 GB</code>）。流式计算 <code>sha256</code>：若已存在直接返回既有记录并附 <code>deduplicated: true</code>；否则落盘 <code>data/blobs/&lt;sha256&gt;</code> 并投递 <code>probe</code> 任务</td></tr><tr><td><code>GET /media/{id}</code></td><td>全角色</td><td>查询单个媒体及最新 <code>compat_status</code>、<code>progress_pct</code>、<code>reject_reason</code></td></tr><tr><td>`GET /media/{id}/file?variant=panel\</td><td>original\</td><td>thumb`</td><td>全角色</td><td>支持 HTTP <code>Range</code> 分片播放，默认缓存头 <code>ETag: &lt;sha256&gt;</code></td></tr><tr><td><code>PUT /{owner}/{id}/media</code></td><td><code>editor</code>+</td><td><code>owner</code> 为 <code>labs</code> 或 <code>equipment</code>，请求体 <code>{&quot;items&quot;:[{&quot;media_id&quot;:&quot;M01&quot;,&quot;role&quot;:&quot;cover&quot;}]}</code>；校验封面 <code>&lt;=1</code>、设备画廊 <code>&lt;=12</code>，同步递增关联实验室 <code>manifest_version</code></td></tr><tr><td><code>DELETE /media/unreferenced</code></td><td><code>editor</code>+</td><td>清理未被 <code>owner_media</code> 与进行中 <code>publish_snapshot</code> 引用的孤儿媒体文件</td></tr></tbody></table></div>
+<p><strong>服务端 <code>ffprobe</code> 兼容判定铁律（与 <code>00_总体设计.md</code> §5.1 与 <code>01_平板通信协议.md</code> §2.3 一致）</strong>：</p>
+<ul><li>视频必须<strong>同时满足</strong>：封装格式为 <strong><code>MP4</code></strong> + 视频编码 <code>h264</code> + <code>has_b_frames == 0</code> + <code>refs == 1</code> + 关闭加权预测 <code>weightp == 0</code> + <code>pix_fmt == yuv420p</code> + 横向 16:9 且 <code>&lt;= 1280×720</code> + 音频为 <code>aac</code> 或无音轨 + 时长 <code>&lt;= 600 s</code>。</li><li>只要任一条件不满足（例如合法 H.264 但封装为 <code>.mov</code>）：自动进入 <code>transcoding</code>，调用 <code>ffmpeg</code> 转为合规 MP4；文件头损坏或超过 10 分钟则标为 <code>rejected</code>。</li></ul>
+<h3>3.5 平板管理、鉴权恢复与动态布局</h3>
+<div class="tbl-scroll"><table><thead><tr><th>方法与路径</th><th>权限</th><th>请求体 / 说明</th></tr></thead><tbody><tr><td><code>GET /panels</code></td><td>全角色</td><td>支持 `online=0\</td><td>1<code> 筛选；返回在线状态、布局、空间、</code>committed_lab_id<code>/</code>committed_version` 及当前绑定实验室版本号</td></tr><tr><td><code>POST /panels/probe</code></td><td><code>admin</code></td><td><code>{&quot;ip&quot;:&quot;192.168.10.212&quot;,&quot;port&quot;:80}</code>：实时调用平板 <code>info</code>，返回 <code>sn/mac/fw_version/default_password/screen</code> 供向导第 1 步确认</td></tr><tr><td><code>POST /panels/scan</code></td><td><code>admin</code></td><td><code>{&quot;cidr&quot;:&quot;192.168.10.0/24&quot;}</code>：启动并发扫描任务返回 <code>job_id</code>，通过 SSE 推送发现的新平板与进度</td></tr><tr><td><code>POST /panels/scan/{job_id}/cancel</code></td><td><code>admin</code></td><td>立即停止网段扫描</td></tr><tr><td><code>POST /panels</code></td><td><code>admin</code></td><td>登记平板记录；若 <code>default_password=false</code> 须提供 <code>existing_password</code> 并由后端调用平板 <code>layouts</code> 鉴权通过后方可入库</td></tr><tr><td><code>POST /panels/{id}/password</code></td><td><code>admin</code></td><td>`{&quot;mode&quot;:&quot;auto&quot;\</td><td>&quot;manual&quot;,&quot;new_password&quot;:&quot;...&quot;}<code>：落库 </code>pending_password_enc<code> → 调平板 </code>set_password<code> → 成功后转正 </code>password_enc`；若回包超时，重试自动按旧密/新密双探恢复</td></tr><tr><td><code>POST /panels/{id}/bind</code></td><td><code>admin</code></td><td><code>{&quot;lab_id&quot;:&quot;L5&quot;}</code>：校验 <code>lab_id</code> 未被其他平板占用（否则 <code>409</code>），更新 <code>lab_id</code> 并 <code>binding_rev + 1</code></td></tr><tr><td><code>POST /panels/{id}/unbind</code></td><td><code>admin</code></td><td>清空 <code>lab_id</code> 并 <code>binding_rev + 1</code>（保留 <code>committed_*</code> 供下次换绑显式替换判定）</td></tr><tr><td><code>GET /panels/{id}/layouts</code></td><td>全角色</td><td>按平板 <code>fw_version</code> 查 <code>firmware_layout_cache</code>，未命中则实时调平板 <code>action=layouts</code> 并缓存</td></tr><tr><td><code>PUT /panels/{id}/layout</code></td><td><code>admin</code></td><td><code>{&quot;layout_id&quot;:&quot;portrait_std&quot;}</code>：串行调用平板 <code>action=set_layout</code>，不修改清单版本</td></tr><tr><td><code>GET /panels/{id}/committed-preview</code></td><td><code>admin</code></td><td>返回平板当前实际生效的 <code>committed_manifest_json</code> 与素材列表，供「设置布局」弹窗预览真实屏显（未绑定返回 <code>{&quot;bound&quot;:false}</code>）</td></tr><tr><td><code>GET /panels/{id}/screenshot</code></td><td><strong><code>admin</code> 仅限</strong></td><td>实时代理平板 <code>action=screenshot&amp;quality=80</code> 返回 <code>image/jpeg</code> + 响应头 <code>X-Captured-At</code></td></tr><tr><td><code>POST /panels/{id}/reboot</code></td><td><code>admin</code></td><td>调用平板 <code>action=reboot</code></td></tr><tr><td><code>POST /panels/{id}/ota</code></td><td><code>admin</code></td><td>上传 <code>ITEPKG03.PKG</code> → 顺序调用 <code>upload_pkg</code> + <code>pkg_upgrade</code> → 轮询恢复并核对同 <code>SN</code> 与新版本号</td></tr></tbody></table></div>
+<h3>3.6 不可变发布快照、发布、重试与待核验回读</h3>
+<div class="tbl-scroll"><table><thead><tr><th>方法与路径</th><th>权限</th><th>请求与核心行为</th></tr></thead><tbody><tr><td><code>GET /labs/{id}/publish/plan</code></td><td>全角色</td><td>冻结并持久化一条 <code>publish_snapshot</code>（返回 <code>snapshot_id</code>、<code>manifest_version</code>、<code>manifest_sha256</code>、<code>binding_rev</code>、<code>rebind_from_lab</code>、增量文件列表、空间检查、媒体状态、缺字列表、阻断原因数组）</td></tr><tr><td><code>GET /labs/{id}/preview-bundle?snapshot_id=...</code></td><td>全角色</td><td>返回指定 <code>snapshot_id</code> 对应的冻结 <code>manifest_json</code> 与素材下载 URL 列表（全部指向 <code>variant=panel</code>），确保预检与预览同源</td></tr><tr><td><code>POST /labs/{id}/publish</code></td><td><code>editor</code>+</td><td>请求体 <code>{&quot;snapshot_id&quot;:&quot;SNAP-...&quot;,&quot;wait_for_transcode&quot;:false}</code>：<br>1. 校验实验室当前版本/哈希与平板 <code>binding_rev</code> 是否仍与快照一致，不一致直接返回 <code>409 SNAPSHOT_STALE</code>；<br>2. 创建 <code>publish_job</code> 并入队（全局并发执行上限由 <code>settings.max_concurrent_publish</code> 控制，默认 4 台，同平板严格串行）</td></tr><tr><td><code>POST /labs/batch-publish</code></td><td><code>editor</code>+</td><td><code>{&quot;lab_ids&quot;:[&quot;L1&quot;,&quot;L2&quot;,...]}</code>：逐一冻结当前快照并入队，返回每个实验室的 <code>job_id</code> 或阻断原因</td></tr><tr><td><code>GET /publish-jobs</code> / <code>GET /publish-jobs/{id}</code></td><td>全角色</td><td>分页列表与单任务分步日志详情</td></tr><tr><td><code>POST /publish-jobs/{id}/retry</code></td><td><code>editor</code>+</td><td>仅允许 <code>failed</code> 状态任务重试；按原 <code>snapshot_id</code> 重新校验 <code>binding_rev</code> 后跳过平板已存在的 <code>sha256</code> 文件继续上传提交</td></tr><tr><td><code>POST /publish-jobs/{id}/verify</code></td><td><code>editor</code>+</td><td>仅允许 <code>unverified</code>（<code>commit</code> 回包丢失）任务调用：先调 <code>GET info</code> 比对 <code>(lab_id, manifest_version, manifest_sha256)</code>，命中直接收敛为 <code>success</code>，未落盘则按同快照幂等重发 <code>commit</code></td></tr></tbody></table></div>
+<h3>3.7 SSE 实时进度推送（<code>GET /api/v1/jobs/stream</code>）</h3>
+<p>使用标准 <code>text/event-stream</code>，心跳注释 <code>: ping\n\n</code> 每 20 秒一次：</p>
+<div class="code-tag">text</div><pre class="code-blk"><code>event: media.progress
+data: {&quot;media_id&quot;:&quot;M05&quot;,&quot;compat_status&quot;:&quot;transcoding&quot;,&quot;progress_pct&quot;:64}
+
+event: publish.progress
+data: {&quot;job_id&quot;:&quot;PJ-112&quot;,&quot;lab_id&quot;:&quot;L1&quot;,&quot;panel_id&quot;:&quot;P1&quot;,&quot;status&quot;:&quot;uploading&quot;,&quot;files_done&quot;:2,&quot;files_total&quot;:3,&quot;bytes_done&quot;:25270681,&quot;bytes_total&quot;:40265318,&quot;progress_pct&quot;:63}
+
+event: panel.scan
+data: {&quot;job_id&quot;:&quot;JOB-SCAN-9&quot;,&quot;scanned&quot;:128,&quot;total&quot;:254,&quot;found&quot;:[{&quot;ip&quot;:&quot;192.168.10.212&quot;,&quot;sn&quot;:&quot;HL-LP9868-26110212&quot;,&quot;default_password&quot;:true}]}</code></pre>
+<h3>3.8 系统管理接口（全部仅 <code>admin</code>）</h3>
+<ul><li><strong>账号</strong>：<code>GET /users</code>、<code>POST /users</code>、<code>PUT /users/{id}</code>、<code>POST /users/{id}/reset-password</code>（后端事务保护：启用状态 <code>admin</code> 数 <code>&lt;= 1</code> 时拒绝停用或降权，返回 <code>409</code>）。</li><li><strong>审计</strong>：<code>GET /audit</code>（分页 + 按用户/动作/时间筛选）、<code>GET /audit/export</code>（流式输出 UTF-8 BOM CSV）。</li><li><strong>备份</strong>：<code>GET /backups</code>、<code>POST /backups</code>（触发异步打包 <code>lab.db</code> 在线热备 + <code>blobs/</code>）、<code>GET /backups/{id}/download</code>、<code>DELETE /backups/{id}</code>、<code>POST /backups/{id}/restore</code>（恢复前自动先做一份 <code>pre-restore</code> 回滚备份，完成后退出进程由 Windows 服务管理器自动拉起）。</li><li><strong>系统设置</strong>：<code>GET /settings</code>、<code>PUT /settings</code>（<code>listen_addr</code>、<code>default_idle_timeout_s</code>、<code>video_bitrate_kbps</code>、<code>panel_poll_interval_s</code>、<code>max_concurrent_publish</code>、<code>backup_cron</code>、<code>backup_keep_count</code>）。</li></ul>
+<hr>
+<h2>4. 关键容错与恢复状态机</h2>
+<h3>4.1 服务重启断点续跑规则</h3>
+<p><code>labComputer.exe</code> 启动时扫描 <code>job</code> 与 <code>publish_job</code> 表：</p>
+<ol><li><code>job.status = &#x27;running&#x27;</code> 的 <code>probe</code> / <code>transcode</code> / <code>thumb</code> 任务重置为 <code>queued</code> 重新执行（幂等覆盖临时产物）。</li><li><code>publish_job.status = &#x27;uploading&#x27;</code> 重置为 <code>failed</code>（错误文案：「后台服务重启导致上传中断，点击重试可跳过已传文件」）。</li><li><code>publish_job.status = &#x27;committing&#x27;</code> <strong>统一转为 <code>unverified</code>（待核验）</strong>，启动后由在线轮询器自动执行一次 <code>GET info</code> 回读核对，若平板已落盘则自动收敛为 <code>success</code>。</li></ol>
+<h3>4.2 单平板串行互斥锁（Per-Panel Mutex）</h3>
+<p>平板端 OpenRTOS 网页服务为单线程。Go 后端 <code>internal/panel/client.go</code> 按 <code>panel_id</code> 维护独立的 <code>sync.Mutex</code>（带超时 <code>context</code>）：</p>
+<ul><li>在线轮询 <code>info</code>（30 s 周期）使用 <code>TryLock</code>：若该平板正在执行 <code>publish</code>、<code>screenshot</code>、<code>set_layout</code> 或 <code>ota</code>，跳过本轮轮询，绝不与大文件上传争抢平板单线程 HTTP 服务。</li><li>全局发布并发通过带缓冲信号量 <code>chan struct{}</code>（容量 <code>max_concurrent_publish</code>，默认 4）控制。</li></ul></article><article class="doc-pane " id="doc-frontend-eng"><h1>管理后台（labComputer）：前端页面与组件工程设计</h1>
+<ul><li>日期：2026-11-18</li><li>版本：v1.0（对齐 <code>03_后台界面与交互规格.md</code>、<code>04_后台交互设计与UI定稿.md</code> v1.1 与 <code>05_后台接口与数据设计.md</code> v1.0）</li><li>技术栈：Vue 3 (<code>&lt;script setup lang=&quot;ts&quot;&gt;</code>) + TypeScript + Vite + Element Plus + Pinia + Vue Router (<code>createWebHashHistory</code>)</li><li>读者：管理后台前端开发者（构建产物输出至 <code>web/dist/</code>，由 Go <code>go:embed</code> 打包进单个 Windows 可执行文件）</li></ul>
+<hr>
+<h2>1. 工程目录与构建约束</h2>
+<div class="code-tag">text</div><pre class="code-blk"><code>labComputer/web/
+├── index.html
+├── vite.config.ts               # base: &#x27;./&#x27;, build.outDir: &#x27;dist&#x27;, 零外部 CDN
+├── public/
+│   └── lab-preview/             # 由 tools/sync-lab-preview.sh 从固件仓库同步
+│       ├── lab_preview.html     # iframe 承载页
+│       ├── lab_preview.js
+│       ├── lab_preview.wasm
+│       ├── lab_preview.data
+│       └── VERSION              # 记录固件提交号（如 1.0.0+ae79616f）
+└── src/
+    ├── main.ts                  # Element Plus (zhCn) + 自定义 CSS 变量覆盖 (WCAG 4.5:1)
+    ├── locales/zh-CN.ts         # 全部界面文案集中管理
+    ├── styles/tokens.css        # 与 04 文档 1.1 节完全一致的语义色板与 1366 布局变量
+    ├── api/                     # 按资源拆分的强类型 fetch 封装（自动带 credentials + X-CSRF-Token）
+    │   ├── client.ts            # 统一处理 code != 0、401 跳登录、409 冲突结构化抛错
+    │   ├── auth.ts / labs.ts / equipment.ts / media.ts / panels.ts / publish.ts / system.ts
+    ├── stores/
+    │   ├── auth.ts              # 会话、角色、CSRF、needSetup
+    │   ├── overview.ts          # 顶栏「平板在线 x/y」30s 轮询与概览汇总
+    │   └── jobsSse.ts           # 单例 EventSource(&#x27;/api/v1/jobs/stream&#x27;) 自动重连与分发
+    ├── router/index.ts          # Hash 路由表、首次引导守卫、RBAC 守卫、未保存草稿守卫
+    ├── layouts/AdminLayout.vue  # 顶栏 56px + 侧栏 208px + 面包屑 + 主内容区
+    ├── components/              # 5 个核心高复用业务组件（见第 4 节）
+    │   ├── TextGlyphInput.vue
+    │   ├── MediaManager.vue
+    │   ├── LayoutRegionCard.vue
+    │   ├── PanelWasmPreview.vue
+    │   └── PublishPreflightPanel.vue
+    └── views/                   # 12 个页面视图（见第 3 节）</code></pre>
+<hr>
+<h2>2. 路由表、全局守卫与 Pinia 状态边界</h2>
+<h3>2.1 Hash 路由与权限守卫</h3>
+<div class="tbl-scroll"><table><thead><tr><th>路径 (<code>/#/…</code>)</th><th>视图组件</th><th>角色限制</th><th>URL Query 持久化字段</th><th>离开未保存守卫</th></tr></thead><tbody><tr><td><code>/setup</code></td><td><code>SetupWizardView.vue</code></td><td>仅未初始化</td><td>无</td><td>否</td></tr><tr><td><code>/login</code></td><td><code>LoginView.vue</code></td><td>公开</td><td><code>redirect</code></td><td>否</td></tr><tr><td><code>/overview</code></td><td><code>OverviewView.vue</code></td><td>全角色</td><td>无</td><td>否</td></tr><tr><td><code>/labs</code></td><td><code>LabListView.vue</code></td><td>全角色</td><td><code>page,sort_by,sort_order,status,pub_status,q</code></td><td>否</td></tr><tr><td><code>/labs/new</code>、<code>/labs/:id</code></td><td><code>LabEditView.vue</code></td><td>全角色（只读禁写）</td><td>`tab=basic\</td><td>equip\</td><td>media\</td><td>publish`</td><td><strong>是</strong>（独立草稿 <code>isDirty</code>）</td></tr><tr><td><code>/equipment</code></td><td><code>EquipmentListView.vue</code></td><td>全角色</td><td><code>page,sort_by,sort_order,category,status,lab_id,q</code></td><td>否</td></tr><tr><td><code>/equipment/new</code>、<code>/equipment/:id</code></td><td><code>EquipmentEditView.vue</code></td><td>全角色（只读禁写）</td><td>无</td><td><strong>是</strong>（独立草稿 <code>isDirty</code>）</td></tr><tr><td><code>/media</code></td><td><code>MediaLibraryView.vue</code></td><td>全角色</td><td><code>page,kind,compat_status,unreferenced</code></td><td>否</td></tr><tr><td><code>/panels</code></td><td><code>PanelListView.vue</code></td><td>全角色</td><td><code>page,online</code></td><td>否</td></tr><tr><td><code>/publish-jobs</code></td><td><code>PublishJobListView.vue</code></td><td>全角色</td><td><code>page,status,lab_id,from,to</code></td><td>否</td></tr><tr><td><code>/users</code></td><td><code>UserManageView.vue</code></td><td><strong><code>admin</code> 仅限</strong></td><td><code>page</code></td><td>否</td></tr><tr><td><code>/audit</code></td><td><code>AuditLogView.vue</code></td><td><strong><code>admin</code> 仅限</strong></td><td><code>page,username,action,from,to</code></td><td>否</td></tr><tr><td><code>/backups</code></td><td><code>BackupView.vue</code></td><td><strong><code>admin</code> 仅限</strong></td><td>无</td><td>否</td></tr><tr><td><code>/settings</code></td><td><code>SettingsView.vue</code></td><td><strong><code>admin</code> 仅限</strong></td><td>无</td><td><strong>是</strong></td></tr></tbody></table></div>
+<ul><li><strong>全局前置守卫顺序</strong>：</li><li>首次加载调用 <code>authStore.bootstrap()</code>（检查 <code>/setup/status</code> 与 <code>/auth/me</code>）；若 <code>needSetup === true</code> 强制跳转 <code>/setup</code>；</li><li>未登录访问受保护路由跳转 <code>/login?redirect=...</code>；</li><li>越权访问 <code>admin</code> 路由直接重定向 <code>/overview</code> 并提示 403；</li><li>登录后自动启动 <code>overviewStore.startPolling(30_000)</code> 与 <code>jobsSseStore.connect()</code>。</li></ul>
+<hr>
+<h2>3. 12 个页面组件树与接口绑定明细</h2>
+<div class="tbl-scroll"><table><thead><tr><th>页面</th><th>组件结构与核心交互</th><th>绑定 HTTP 接口</th><th>关键空态 / 异常态</th></tr></thead><tbody><tr><td><strong>SetupWizardView</strong></td><td>3 步 <code>el-steps</code> 卡片：设管理员密码 → 选局域网监听网卡与端口 → 展示内网访问地址</td><td><code>GET /setup/status</code><br><code>POST /setup/init</code></td><td>网卡为空时允许回退 <code>0.0.0.0</code> 并给出安全提示</td></tr><tr><td><strong>LoginView</strong></td><td>居中登录卡（宽 <code>400px</code>），回车提交</td><td><code>POST /auth/login</code></td><td>401/账号停用直接在卡片顶部显示红色 <code>el-alert</code></td></tr><tr><td><strong>OverviewView</strong></td><td>4 张 KPI 卡片 + 4 类待办聚合条（离线平板、待发布/待换绑实验室、24h 失败/待核验任务、被拒媒体）</td><td><code>GET /overview</code></td><td>无待办事项时展示绿色「全部系统运行正常」空态</td></tr><tr><td><strong>LabListView</strong></td><td>筛选条 + 批量选择栏 + 百分比自适应表（1366 无裁切）+ 批量发布弹窗</td><td><code>GET /labs</code><br><code>DELETE /labs/{id}</code><br><code>POST /labs/batch-publish</code></td><td>仍绑定平板删除返回 409 时弹窗引导先去平板页解绑</td></tr><tr><td><strong>LabEditView</strong></td><td>顶部面包屑与草稿脏标记 + 4 Tab：<br>• <strong>Tab1 基本信息</strong>：<code>TextGlyphInput</code> + 可排序安全须知列表<br>• <strong>Tab2 设备组合</strong>：左右穿梭框 + 跨室移动二次确认（带 <code>moves</code> 并发修订）<br>• <strong>Tab3 媒体</strong>：<code>MediaManager</code><br>• <strong>Tab4 预览与发布</strong>：<code>PublishPreflightPanel</code> + <code>PanelWasmPreview</code></td><td><code>GET/POST/PUT /labs/*</code><br><code>PUT /labs/{id}/equipment</code><br><code>PUT /labs/{id}/media</code><br><code>POST /text/check</code><br><code>GET /labs/{id}/publish/plan</code><br><code>GET /labs/{id}/preview-bundle</code><br><code>POST /labs/{id}/publish</code></td><td>切换 Tab 或离页有未保存修改触发二次确认；跨室并发 409 自动刷新左侧列表并重新弹窗；快照过期 409 高亮「刷新快照」按钮</td></tr><tr><td><strong>EquipmentListView</strong></td><td>筛选条（含「未分配」快捷项）+ 表格 + <strong>Excel 批量导入弹窗</strong>（<code>dry_run=1</code> 逐行预检表）</td><td><code>GET /equipment</code><br><code>DELETE /equipment/{id}</code><br><code>GET /equipment/import-template</code><br><code>POST /equipment/import</code></td><td>模板列缺失给出明确表头提示；错误行标红不可忽略</td></tr><tr><td><strong>EquipmentEditView</strong></td><td>基础档案草稿 + 技术参数键值表（<code>&lt;=40</code> 行，支持拖拽排序与超长实时计数）+ 只读所属实验室跳转 + <code>MediaManager</code></td><td><code>GET/POST/PUT /equipment/*</code><br><code>PUT /equipment/{id}/media</code></td><td>新建模式为纯空草稿，创建成功后自动跳转列表或开启媒体区</td></tr><tr><td><strong>MediaLibraryView</strong></td><td>全局 <code>sha256</code> 媒体资产表 + 按未引用筛选 + 一键清理孤儿文件</td><td><code>GET /media</code><br><code>DELETE /media/unreferenced</code></td><td>转码中行实时订阅 <code>jobsSseStore</code> 更新百分比</td></tr><tr><td><strong>PanelListView</strong></td><td>表格（<code>截图</code>/<code>布局</code>常驻，低频操作收进 <code>[更多 ▾]</code>）+ <strong>网段扫描弹窗</strong> + <strong>4 步绑定向导</strong> + <strong>设置布局弹窗</strong> + <strong>截图弹窗</strong> + <strong>OTA 弹窗</strong></td><td><code>GET /panels</code><br>`POST /panels/probe\</td><td>scan<code><br></code>POST /panels/{id}/password\</td><td>bind\</td><td>unbind\</td><td>reboot\</td><td>ota<code><br></code>GET /panels/{id}/layouts\</td><td>committed-preview\</td><td>screenshot<code><br></code>PUT /panels/{id}/layout`</td><td>编辑与只读完全隐藏全部写按钮与截图按钮；绑定向导第 2 步区分默认密与已有密、第 3 步禁用已绑定实验室「下一步」；设置布局读 <code>committed-preview</code></td></tr><tr><td><strong>PublishJobListView</strong></td><td>任务筛选表 + 分步日志抽屉 + 失败任务「重试」+ 待核验任务「回读核验」</td><td><code>GET /publish-jobs*</code><br><code>POST /publish-jobs/{id}/retry</code><br><code>POST /publish-jobs/{id}/verify</code></td><td>只读角色隐藏重试与核验按钮；进度条随 SSE 实时推进</td></tr><tr><td><strong>Admin 4 页</strong></td><td><code>UserManageView</code> / <code>AuditLogView</code>（含左右 JSON Diff 弹窗与 CSV 导出）/ <code>BackupView</code>（立即备份、策略、恢复二次确认重启等待页）/ <code>SettingsView</code></td><td><code>/users/*</code>、<code>/audit*</code>、<code>/backups*</code>、<code>/settings</code></td><td>恢复备份后自动进入「服务重启等待轮询 <code>/health</code>」蒙层，恢复连通后跳登录页</td></tr></tbody></table></div>
+<hr>
+<h2>4. 核心业务组件契约（Props / Emits / 协议）</h2>
+<h3>4.1 <code>TextGlyphInput.vue</code>（字数计数 + 缺字非阻断提示）</h3>
+<div class="code-tag">ts</div><pre class="code-blk"><code>interface Props {
+  modelValue: string;
+  maxlength: number;
+  type?: &#x27;text&#x27; | &#x27;textarea&#x27;;
+  rows?: number;
+  readonly?: boolean;
+  checkGlyph?: boolean; // 默认 true，失焦调用 POST /api/v1/text/check
+}
+// 内部状态：missingGlyphs: string[]
+// 规则：绝不阻断表单提交；仅在输入控件正下方渲染琥珀色（WCAG &gt;= 4.5:1）提示条</code></pre>
+<h3>4.2 <code>MediaManager.vue</code>（实验室与设备共用媒体管理）</h3>
+<div class="code-tag">ts</div><pre class="code-blk"><code>interface Props {
+  ownerType: &#x27;lab&#x27; | &#x27;equipment&#x27;;
+  ownerId: string;
+  roles: Array&lt;&#x27;cover&#x27; | &#x27;gallery&#x27; | &#x27;model3d&#x27; | &#x27;intro&#x27;&gt;;
+  maxGallery?: number; // 设备默认 12
+  readonly?: boolean;
+}
+// 关键行为：
+// 1. 拖放/点击上传走 XHR 上传进度条；返回 deduplicated=true 时 toast「已存在相同文件，已直接引用」；
+// 2. 订阅 jobsSseStore 的 media.progress 事件实时更新「检查中 / 兼容 / 转码中 x% / 已转码 / 拒绝」；
+// 3. 点击「播放」弹窗嵌入 &lt;video controls src=&quot;/api/v1/media/{id}/file?variant=panel&quot;&gt;；
+// 4. 点击「删除」仅调 PUT /{owner}/{id}/media 解除关联，不物理删除 blob。</code></pre>
+<h3>4.3 <code>LayoutRegionCard.vue</code>（纯前端动态 <code>regions</code> 比例示意图）</h3>
+<div class="code-tag">ts</div><pre class="code-blk"><code>interface LayoutDef {
+  id: string; name: string; desc: string;
+  orientation: &#x27;landscape&#x27; | &#x27;portrait&#x27;;
+  w: number; h: number;
+  regions: Array&lt;{ id: string; x: number; y: number; w: number; h: number }&gt;;
+}
+interface Props {
+  layout: LayoutDef;
+  selected?: boolean;
+  isCurrent?: boolean;
+  boxWidth?: number;  // 默认 160
+  boxHeight?: number; // 默认 112
+}
+// 严禁写死布局列表：任何固件新增布局（含 gallery/specs 等扩展区块）自动按 scale 等比绘制。</code></pre>
+<h3>4.4 <code>PanelWasmPreview.vue</code>（<code>lab_preview.wasm</code> iframe 桥接协议）</h3>
+<div class="code-tag">ts</div><pre class="code-blk"><code>interface Props {
+  mode: &#x27;publish-snapshot&#x27; | &#x27;panel-committed&#x27;;
+  manifest: Record&lt;string, unknown&gt; | null; // null 渲染未绑定页 (Unbound)
+  files: Array&lt;{ name: string; url: string; sha256: string }&gt;;
+  layouts: LayoutDef[];
+  activeLayoutId: string;
+  targetFwVersion?: string;                 // 与 /lab-preview/VERSION 比对提示差异
+}</code></pre>
+<p><strong>父页面 ↔ <code>iframe (/lab-preview/lab_preview.html)</code> <code>postMessage</code> 协议</strong>：</p>
+<ol><li><code>iframe → parent</code>：<code>{ type: &#x27;lab_preview_ready&#x27;, fw_version: &#x27;1.0.0+ae79616f&#x27;, supported_layouts: [&#x27;landscape_std&#x27;,&#x27;landscape_video&#x27;,&#x27;portrait_std&#x27;] }</code></li><li><code>parent → iframe</code>：<code>{ type: &#x27;load_bundle&#x27;, manifest, files, layout_id }</code>（当 <code>manifest == null</code> 时加载未绑定页；若 <code>layout_id</code> 不在 <code>supported_layouts</code> 中，父组件直接隐藏 iframe 并降级展示 <code>LayoutRegionCard</code> 大图 + 提示升级预览器）</li><li><code>parent → iframe</code>：<code>{ type: &#x27;set_layout&#x27;, layout_id }</code>（仅预览，不发任何后端请求）</li><li><code>parent → iframe</code>：<code>{ type: &#x27;reset_idle&#x27; }</code>（重置预览回到待机页）</li></ol>
+<h3>4.5 <code>PublishPreflightPanel.vue</code>（不可变快照预检 + 按任务隔离进度）</h3>
+<ul><li>组件挂载或点击「刷新快照」时调 <code>GET /labs/{id}/publish/plan</code> 获取 <code>snapshot_id</code>，并将 <code>snapshot_id</code> 同步 <code>emit(&#x27;snapshot-ready&#x27;, plan)</code> 给右侧 <code>PanelWasmPreview</code>，<strong>确保预检与预览永远展示同一份冻结内容</strong>。</li><li>当 <code>jobsSseStore</code> 收到 <code>publish.progress</code> 事件时，仅更新 <code>event.job_id === currentJobId &amp;&amp; event.lab_id === props.labId</code> 的进度条，彻底杜绝跨实验室进度或重试按钮串台。</li></ul></article><article class="doc-pane " id="doc-panel-spec"><h1>实验室门牌平板：UI 与交互规格</h1>
 <ul><li>日期：2026-11-17</li><li>版本：v1.0</li><li>读者：负责实现平板 UI 和交互的开发者，或者 AI 模型</li></ul>
 <p>本文是平板界面的实现规格。相关文档：</p>
 <div class="tbl-scroll"><table><thead><tr><th>文档</th><th>位置</th></tr></thead><tbody><tr><td>固件总体设计</td><td>本目录 <code>README.md</code></td></tr><tr><td>数据来源：清单 JSON</td><td>labComputer 仓库 <code>docs/01_平板通信协议.md</code> 的 2.4 节</td></tr><tr><td>布局接口</td><td>同一协议的 2.5 / 2.6 节</td></tr></tbody></table></div>
